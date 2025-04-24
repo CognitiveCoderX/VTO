@@ -1,0 +1,29 @@
+{
+  "name": "enhanced-virtual-tryon",
+  "version": "1.0.0",
+  "description": "Enhanced virtual try-on application with MediaPipe BlazePose GHUM and Three.js",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "live-server --https --port=8080 --host=localhost --entry-file=index.html",
+    "dev": "live-server --https --port=8080 --host=localhost --entry-file=index.html"
+  },
+  "dependencies": {
+    "@mediapipe/pose": "^0.5.1675469404",
+    "three": "^0.152.2",
+    "stats.js": "^0.17.0"
+  },
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  },
+  "keywords": [
+    "virtual-tryon",
+    "mediapipe",
+    "blazepose",
+    "three.js",
+    "computer-vision",
+    "3d-graphics"
+  ],
+  "author": "CustomXShop",
+  "license": "MIT"
+}

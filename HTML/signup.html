@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up - CustomXShop | Create Your Custom Clothing</title>
+  <meta name="description" content="Sign up at CustomXShop to start designing your own custom clothing and accessories. Join us today and embrace your unique style!">
+  <link rel="stylesheet" href="/CSS/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <nav>
+      <div class="nav-container">
+        <h1>CustomXShop - Design Your Style</h1>
+        <ul>
+          <li><a href="signup.html">Sign Up</a></li>
+          <li><a href="index.html">Login</a></li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h2>Get Started with CustomXShop</h2>
+      <h3>Create an account to start designing your own clothing and accessories</h3>
+      <div class="container">
+        <form class="signup-container" id="signup-form" onsubmit="handleSignup(event)">
+          <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" placeholder="Username" required minlength="3" maxlength="20" pattern="[A-Za-z0-9_]+" title="Username should be alphanumeric with no special characters">
+            <small class="error-message" id="username-error"></small>
+          </div>
+          <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" placeholder="Email" required>
+            <small class="error-message" id="email-error"></small>
+          </div>
+          <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" placeholder="Password" required minlength="8" aria-describedby="password-help" autocomplete="new-password">
+            <small id="password-help">Must be at least 8 characters</small>
+            <small class="error-message" id="password-error"></small>
+          </div>
+          <div class="form-group">
+            <label for="confirm-password">Confirm Password:</label>
+            <input type="password" id="confirm-password" name="confirm-password" placeholder="Confirm Password" required minlength="8" autocomplete="new-password">
+            <small class="error-message" id="confirm-password-error"></small>
+          </div>
+          <button type="submit">Sign Up</button>
+          <p>Already have an account? <a href="index.html">Login</a></p>
+        </form>
+      </div>
+    </section>
+  </main>
+  <footer>
+    <p>&copy; 2024 CustomXShop.</p>
+  </footer>
+
+  <script src="../JAVASCRIPT/signup.js"></script>
+  <script src="/JAVASCRIPT/auth.js"></script>
+  <script src="/JAVASCRIPT/profile-navigation.js"></script>
+</body>
+</html>
+
+

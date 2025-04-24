@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shopping Cart - CustomXShop</title>
+  <meta name="description" content="View and manage your shopping cart at CustomXShop. Complete your purchase of custom clothing and accessories.">
+  <link rel="stylesheet" href="/CSS/Header.css">
+  <link rel="stylesheet" href="/CSS/cart.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="/CSS/icons.css" rel="stylesheet">
+</head>
+<body class="cart-body">
+  <!-- Background Animation -->
+  <div class="animated-background">
+    <div class="gradient-orb orb1"></div>
+    <div class="gradient-orb orb2"></div>
+    <div class="gradient-orb orb3"></div>
+  </div>
+
+  <header>
+    <nav>
+      <div class="nav-container">
+        <h1><a href="Homepage.html" aria-label="Go to homepage" class="logo-text">CustomXShop</a></h1>
+        <ul>
+          <li><a href="Homepage.html" aria-label="Home" class="nav-link"><span class="material-icons nav-icon">home</span>Home</a></li>
+          <li><a href="Product.html" aria-label="View Products" class="nav-link"><span class="material-icons nav-icon">checkroom</span>Products</a></li>
+          <li><a href="Designs.html" aria-label="Your Designs" class="nav-link"><span class="material-icons nav-icon">palette</span>Your Designs</a></li>
+          <li><a href="Cart.html" aria-label="Go to Cart" class="nav-link active"><span class="material-icons nav-icon">shopping_cart</span>Cart<span id="cart-count" class="cart-badge">0</span></a></li>
+          <li><a href="Services.html" aria-label="Explore Services" class="nav-link"><span class="material-icons nav-icon">design_services</span>Services</a></li>
+          <li><a href="Help.html" aria-label="Get Help" class="nav-link"><span class="material-icons nav-icon">help_outline</span>Help</a></li>
+          <li id="login-li" style="display: block;"><a href="/HTML/index.html" aria-label="Login" class="nav-link login-btn"><span class="material-icons nav-icon">login</span>Login</a></li>
+          <li id="profile-li" style="display: none;" class="profile-dropdown">
+            <a href="Profile.html" aria-label="Profile" class="nav-link profile-btn"><span class="material-icons nav-icon">person</span>Profile</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <div class="user-welcome" id="user-welcome" style="display: none;">
+      <span class="material-icons nav-icon">person</span>
+      <span id="welcome-username">Welcome, User</span>
+    </div>
+
+    <section class="cart-container">
+      <h1 class="cart-title">Your Shopping Cart</h1>
+      
+      <div id="cart-items" class="cart-items">
+        <!-- Empty cart message (will be hidden when items are added) -->
+        <div id="empty-cart" class="empty-cart">
+          <span class="material-icons cart-empty-icon">shopping_cart</span>
+          <h2>Your cart is empty</h2>
+          <p>Add items from our products page to get started</p>
+          <a href="Product.html" class="continue-shopping-btn">Browse Products</a>
+        </div>
+        
+        <!-- Cart items will be dynamically added here -->
+        <div id="cart-items-list" class="cart-items-list" style="display: none;">
+          <!-- Sample item structure (will be created dynamically via JavaScript) -->
+          <!-- 
+          <div class="cart-item">
+            <div class="item-image">
+              <img src="/images/sample-product.jpg" alt="Product name">
+            </div>
+            <div class="item-details">
+              <h3 class="item-name">Premium Long Sleeve Shirt</h3>
+              <p class="item-variant">Color: Blue, Size: M</p>
+              <p class="item-design">Custom Design: My Design #1</p>
+            </div>
+            <div class="item-price">$49.99</div>
+            <div class="item-quantity">
+              <button class="quantity-btn minus">-</button>
+              <input type="number" value="1" min="1" max="10">
+              <button class="quantity-btn plus">+</button>
+            </div>
+            <div class="item-total">$49.99</div>
+            <button class="remove-item"><span class="material-icons">delete</span></button>
+          </div>
+          -->
+        </div>
+      </div>
+      
+      <div id="cart-summary" class="cart-summary" style="display: none;">
+        <div class="summary-row subtotal">
+          <span>Subtotal</span>
+          <span id="subtotal-amount">$0.00</span>
+        </div>
+        <div class="summary-row shipping">
+          <span>Shipping</span>
+          <span id="shipping-amount">$0.00</span>
+        </div>
+        <div class="summary-row tax">
+          <span>Tax</span>
+          <span id="tax-amount">$0.00</span>
+        </div>
+        <div class="summary-row total">
+          <span>Total</span>
+          <span id="total-amount">$0.00</span>
+        </div>
+        
+        <div class="checkout-actions">
+          <button id="checkout-btn" class="checkout-btn">
+            <span class="material-icons">payment</span>
+            Proceed to Checkout
+          </button>
+          <a href="Product.html" class="continue-shopping">Continue Shopping</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="animated-footer">
+    <div class="footer-content">
+      <div class="logo-pulse">
+        <span>CustomXShop</span>
+      </div>
+      <div class="footer-links">
+        <a href="Help.html">Help</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Contact Us</a>
+      </div>
+      <div class="copyright">
+        © 2023 CustomXShop. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <script src="/JAVASCRIPT/cart.js"></script>
+  <script src="/JAVASCRIPT/auth.js"></script>
+  <script src="/JAVASCRIPT/profile-navigation.js"></script>
+</body>
+</html> 

@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Services - CustomXShop | Custom Clothing Services</title>
+  <meta name="description" content="Explore our range of clothing customization services including 3D visualization, bulk orders, and custom design services.">
+  <link rel="stylesheet" href="/CSS/Header.css">
+  <link rel="stylesheet" href="/CSS/homepage.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="/CSS/icons.css" rel="stylesheet">
+  
+  <style>
+    /* Additional styles specific to services page */
+    body {
+      background-color: #f8f9fa;
+      color: #343a40;
+    }
+    
+    .services-hero {
+      padding: 150px 20px 60px;
+      background: linear-gradient(135deg, #ffffff, #f5f6fa);
+      margin-bottom: 40px;
+      text-align: center;
+    }
+    
+    .services-title {
+      font-size: 2.5rem;
+      color: #1a1a2e;
+      margin-bottom: 15px;
+    }
+    
+    .services-subtitle {
+      font-size: 1.1rem;
+      color: #666;
+      max-width: 600px;
+      margin: 0 auto 30px;
+    }
+    
+    .services-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .service-card {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+      margin-bottom: 30px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    
+    @media (min-width: 768px) {
+      .service-card {
+        flex-direction: row;
+      }
+    }
+    
+    .service-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    }
+    
+    .service-image {
+      flex: 1;
+      min-height: 300px;
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .service-image .material-icons {
+      font-size: 5rem;
+      color: #e94560;
+    }
+    
+    .service-content {
+      flex: 2;
+      padding: 30px;
+    }
+    
+    .service-title {
+      font-size: 1.5rem;
+      color: #1a1a2e;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .service-title .material-icons {
+      margin-right: 10px;
+      color: #e94560;
+    }
+    
+    .service-description {
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    
+    .service-features {
+      margin-bottom: 20px;
+    }
+    
+    .service-features ul {
+      list-style: none;
+      padding: 0;
+    }
+    
+    .service-features li {
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .service-features li .material-icons {
+      color: #e94560;
+      margin-right: 10px;
+      font-size: 1.2rem;
+    }
+    
+    .service-cta {
+      margin-top: auto;
+    }
+    
+    .service-button {
+      background: #e94560;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 25px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+    }
+    
+    .service-button .material-icons {
+      margin-left: 8px;
+    }
+    
+    .service-button:hover {
+      background: #d13354;
+    }
+    
+    .faq-section {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+      padding: 30px;
+      margin-top: 50px;
+    }
+    
+    .faq-title {
+      font-size: 1.8rem;
+      color: #1a1a2e;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    
+    .faq-item {
+      margin-bottom: 20px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 20px;
+    }
+    
+    .faq-question {
+      font-weight: 600;
+      color: #1a1a2e;
+      margin-bottom: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .faq-answer {
+      color: #666;
+      line-height: 1.6;
+      padding-left: 20px;
+      border-left: 3px solid #e94560;
+    }
+  </style>
+</head>
+<body>
+  <!-- Background Animation -->
+  <div class="animated-background">
+    <div class="gradient-orb orb1"></div>
+    <div class="gradient-orb orb2"></div>
+    <div class="gradient-orb orb3"></div>
+  </div>
+
+  <header>
+    <nav>
+      <div class="nav-container">
+        <h1><a href="Homepage.html" aria-label="Go to homepage" class="logo-text">CustomXShop</a></h1>
+        <ul>
+          <li><a href="Homepage.html" aria-label="Home" class="nav-link"><span class="material-icons nav-icon">home</span>Home</a></li>
+          <li><a href="Product.html" aria-label="View Products" class="nav-link"><span class="material-icons nav-icon">checkroom</span>Products</a></li>
+          <li><a href="Designs.html" aria-label="Your Designs" class="nav-link"><span class="material-icons nav-icon">palette</span>Your Designs</a></li>
+          <li><a href="Cart.html" aria-label="Go to Cart" class="nav-link"><span class="material-icons nav-icon">shopping_cart</span>Cart</a></li>
+          <li><a href="Services.html" aria-label="Explore Services" class="nav-link active"><span class="material-icons nav-icon">design_services</span>Services</a></li>
+          <li><a href="Help.html" aria-label="Get Help" class="nav-link"><span class="material-icons nav-icon">help_outline</span>Help</a></li>
+          <li id="login-li" style="display: block;"><a href="/HTML/index.html" aria-label="Login" class="nav-link login-btn"><span class="material-icons nav-icon">login</span>Login</a></li>
+          <li id="profile-li" style="display: none;" class="profile-dropdown">
+            <a href="Profile.html" aria-label="Profile" class="nav-link profile-btn"><span class="material-icons nav-icon">person</span>Profile</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="services-hero">
+      <h1 class="services-title">Our Services</h1>
+      <p class="services-subtitle">Discover how we can help you create the perfect custom clothing and accessories</p>
+    </section>
+    
+    <div class="services-container">
+      <!-- 3D Visualization Service -->
+      <div class="service-card">
+        <div class="service-image" style="background-color: #f8f8ff;">
+          <span class="material-icons">view_in_ar</span>
+        </div>
+        <div class="service-content">
+          <h2 class="service-title">
+            <span class="material-icons">view_in_ar</span>
+            3D Visualization
+          </h2>
+          <div class="service-description">
+            <p>Our advanced 3D visualization technology allows you to see your custom designs in real-time before making a purchase. Try on different styles, colors, and patterns virtually to ensure you get exactly what you want.</p>
+          </div>
+          <div class="service-features">
+            <ul>
+              <li><span class="material-icons">check_circle</span> Real-time design preview</li>
+              <li><span class="material-icons">check_circle</span> Virtual try-on technology</li>
+              <li><span class="material-icons">check_circle</span> Photo-realistic rendering</li>
+              <li><span class="material-icons">check_circle</span> Mobile compatibility</li>
+            </ul>
+          </div>
+          <div class="service-cta">
+            <a href="/enhanced-virtual-tryon.html" class="service-button">
+              Try Now <span class="material-icons">arrow_forward</span>
+            </a>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Custom Design Service -->
+      <div class="service-card">
+        <div class="service-image" style="background-color: #fff8f8;">
+          <span class="material-icons">palette</span>
+        </div>
+        <div class="service-content">
+          <h2 class="service-title">
+            <span class="material-icons">palette</span>
+            Custom Design Service
+          </h2>
+          <div class="service-description">
+            <p>Don't have your own design? Our team of professional designers can help create unique graphics and patterns based on your ideas. Share your concept with us, and we'll bring it to life on your chosen clothing item.</p>
+          </div>
+          <div class="service-features">
+            <ul>
+              <li><span class="material-icons">check_circle</span> Professional design team</li>
+              <li><span class="material-icons">check_circle</span> Unlimited revisions</li>
+              <li><span class="material-icons">check_circle</span> High-resolution artwork</li>
+              <li><span class="material-icons">check_circle</span> Design ownership rights</li>
+            </ul>
+          </div>
+          <div class="service-cta">
+            <a href="/create" class="service-button">
+              Start Design <span class="material-icons">arrow_forward</span>
+            </a>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Bulk Orders -->
+      <div class="service-card">
+        <div class="service-image" style="background-color: #f8fff8;">
+          <span class="material-icons">inventory_2</span>
+        </div>
+        <div class="service-content">
+          <h2 class="service-title">
+            <span class="material-icons">inventory_2</span>
+            Bulk Orders
+          </h2>
+          <div class="service-description">
+            <p>Need custom clothing for your team, event, or business? Our bulk order service offers significant discounts and streamlined production. Perfect for corporate events, team uniforms, promotional merchandise, and more.</p>
+          </div>
+          <div class="service-features">
+            <ul>
+              <li><span class="material-icons">check_circle</span> Volume discounts</li>
+              <li><span class="material-icons">check_circle</span> Priority production</li>
+              <li><span class="material-icons">check_circle</span> Consistent quality</li>
+              <li><span class="material-icons">check_circle</span> Dedicated account manager</li>
+            </ul>
+          </div>
+          <div class="service-cta">
+            <a href="#" class="service-button">
+              Get Quote <span class="material-icons">arrow_forward</span>
+            </a>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Corporate Branding Solutions -->
+      <div class="service-card">
+        <div class="service-image" style="background-color: #f0fff8;">
+          <span class="material-icons">business</span>
+        </div>
+        <div class="service-content">
+          <h2 class="service-title">
+            <span class="material-icons">business</span>
+            Corporate Branding Solutions
+          </h2>
+          <div class="service-description">
+            <p>Comprehensive branding solutions for businesses of all sizes. From corporate uniforms to event merchandise, promotional giveaways, and branded gifts, we provide end-to-end management of your company's branded apparel needs.</p>
+          </div>
+          <div class="service-features">
+            <ul>
+              <li><span class="material-icons">check_circle</span> Brand consistency management</li>
+              <li><span class="material-icons">check_circle</span> Corporate catalog creation</li>
+              <li><span class="material-icons">check_circle</span> Employee ordering portals</li>
+              <li><span class="material-icons">check_circle</span> Inventory management</li>
+            </ul>
+          </div>
+          <div class="service-cta">
+            <a href="#" class="service-button">
+              Business Solutions <span class="material-icons">arrow_forward</span>
+            </a>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Photo Printing -->
+      <div class="service-card">
+        <div class="service-image" style="background-color: #fff8f0;">
+          <span class="material-icons">photo_camera</span>
+        </div>
+        <div class="service-content">
+          <h2 class="service-title">
+            <span class="material-icons">photo_camera</span>
+            Photo Printing
+          </h2>
+          <div class="service-description">
+            <p>Transfer your favorite photographs into wearable memories. Our high-resolution photo printing service allows you to place cherished images on clothing with exceptional clarity and color accuracy, creating truly personalized gifts or commemorative items.</p>
+          </div>
+          <div class="service-features">
+            <ul>
+              <li><span class="material-icons">check_circle</span> High-resolution photo reproduction</li>
+              <li><span class="material-icons">check_circle</span> Advanced color correction</li>
+              <li><span class="material-icons">check_circle</span> Fade-resistant prints</li>
+              <li><span class="material-icons">check_circle</span> Photo enhancement and retouching</li>
+            </ul>
+          </div>
+          <div class="service-cta">
+            <a href="#" class="service-button">
+              Upload Photos <span class="material-icons">arrow_forward</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <footer>
+    <style>
+      /* Enhanced Footer Styles */
+      footer {
+        background: linear-gradient(135deg, #1a1a2e, #16213e);
+        color: #fff;
+        padding: 60px 0 20px;
+        margin-top: 80px;
+        position: relative;
+        overflow: hidden;
+      }
+      
+      footer::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, #e94560, #ff8080);
+      }
+      
+      .footer-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        padding: 0 20px;
+      }
+      
+      .footer-logo {
+        flex: 1;
+        min-width: 200px;
+        margin-bottom: 30px;
+      }
+      
+      .footer-logo h2 {
+        font-size: 2rem;
+        margin-bottom: 5px;
+        background: linear-gradient(90deg, #e94560, #ff8080);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: inline-block;
+      }
+      
+      .footer-logo p {
+        font-size: 1.1rem;
+        font-style: italic;
+        color: #ddd;
+        margin-top: 0;
+      }
+      
+      .footer-links {
+        flex: 2;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+      }
+      
+      .footer-section {
+        margin-right: 30px;
+        margin-bottom: 30px;
+        min-width: 150px;
+      }
+      
+      .footer-section h3 {
+        color: #e94560;
+        font-size: 1.2rem;
+        margin-bottom: 15px;
+        position: relative;
+        padding-bottom: 10px;
+      }
+      
+      .footer-section h3::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 40px;
+        height: 2px;
+        background: #e94560;
+      }
+      
+      .footer-section ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      
+      .footer-section li {
+        margin-bottom: 10px;
+      }
+      
+      .footer-section a {
+        color: #ccc;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-block;
+        position: relative;
+      }
+      
+      .footer-section a::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 1px;
+        bottom: 0;
+        left: 0;
+        background-color: #e94560;
+        transition: width 0.3s ease;
+      }
+      
+      .footer-section a:hover {
+        color: #fff;
+      }
+      
+      .footer-section a:hover::after {
+        width: 100%;
+      }
+      
+      .footer-section.contact a {
+        display: flex;
+        align-items: center;
+      }
+      
+      .footer-section.contact a::before {
+        font-family: 'Material Icons';
+        margin-right: 8px;
+        color: #e94560;
+        font-size: 16px;
+      }
+      
+      .footer-section.contact a[href^="mailto"]::before {
+        content: 'email';
+      }
+      
+      .footer-section.contact a[href^="#"]::before {
+        content: 'chat';
+      }
+      
+      .footer-section.contact a[href^="tel"]::before {
+        content: 'call';
+      }
+      
+      .footer-section.contact a:last-child::before {
+        content: 'place';
+      }
+      
+      .footer-bottom {
+        width: 100%;
+        text-align: center;
+        padding-top: 20px;
+        margin-top: 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      
+      .footer-bottom p {
+        color: #999;
+        font-size: 0.9rem;
+      }
+      
+      @media (max-width: 768px) {
+        .footer-content {
+          flex-direction: column;
+        }
+        
+        .footer-links {
+          flex-direction: column;
+        }
+        
+        .footer-section {
+          margin-right: 0;
+        }
+      }
+    </style>
+    <div class="footer-content">
+      <div class="footer-logo">
+        <h2>CustomXShop</h2>
+        <p>Design Your Story</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-section">
+          <h3>Quick Links</h3>
+          <ul>
+            <li><a href="Homepage.html">Home</a></li>
+            <li><a href="Product.html">Products</a></li>
+            <li><a href="Services.html">Services</a></li>
+            <li><a href="Help.html">Help</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h3>Legal</h3>
+          <ul>
+            <li><a href="#">Terms of Service</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Return Policy</a></li>
+            <li><a href="#">Copyright Info</a></li>
+          </ul>
+        </div>
+        <div class="footer-section contact">
+          <h3>Contact</h3>
+          <ul>
+            <li><a href="mailto:support@customxshop.com">Email Us</a></li>
+            <li><a href="#">Live Chat</a></li>
+            <li><a href="tel:+18005550199">+1 (800) 555-0199</a></li>
+            <li><a href="#">Locations</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2024 CustomXShop. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Handle FAQ toggle
+    document.querySelectorAll('.faq-question').forEach(question => {
+      question.addEventListener('click', () => {
+        const answer = question.nextElementSibling;
+        const icon = question.querySelector('.material-icons');
+        
+        if (answer.style.display === 'none' || !answer.style.display) {
+          answer.style.display = 'block';
+          icon.textContent = 'expand_less';
+        } else {
+          answer.style.display = 'none';
+          icon.textContent = 'expand_more';
+        }
+      });
+    });
+  </script>
+  <script src="/JAVASCRIPT/auth.js"></script>
+  <script src="/JAVASCRIPT/profile-navigation.js"></script>
+</body>
+</html> 

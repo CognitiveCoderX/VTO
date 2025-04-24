@@ -1,0 +1,453 @@
+/**
+ * Enhanced Virtual Try-On Container Styles
+ * This file contains styles for the advanced virtual try-on interface
+ * including the container, video elements, controls, and customization panels
+ */
+
+/* Main Try-on Container */
+.tryon-container {
+  position: relative;
+  width: 80%;
+  max-width: 1200px;
+  height: 80vh;
+  margin: 20px auto;
+  overflow: hidden;
+  background-color: #000;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  transition: all 0.3s ease;
+}
+
+.tryon-title {
+  position: absolute;
+  top: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 600;
+  z-index: 10;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  background-color: rgba(0,0,0,0.4);
+  padding: 5px 15px;
+  border-radius: 20px;
+}
+
+/* Video and Canvas Elements */
+#video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+#output-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+  background-color: transparent;
+}
+
+.pose-landmarks {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.landmark {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: rgba(233, 69, 96, 0.6);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+}
+
+/* Controls Panel */
+.controls-panel {
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  padding: 10px;
+  z-index: 5;
+  background-color: rgba(0,0,0,0.5);
+  backdrop-filter: blur(10px);
+}
+
+.controls-panel button {
+  background-color: #1a1a2e;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 15px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.controls-panel button:hover {
+  background-color: #e94560;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.controls-panel button i {
+  font-size: 16px;
+}
+
+.camera-flip-button {
+  background-color: #2c3e50 !important;
+}
+
+.customize-button {
+  background-color: #8e44ad !important;
+}
+
+.screenshot-button {
+  background-color: #27ae60 !important;
+}
+
+.record-button {
+  background-color: #c0392b !important;
+}
+
+.record-button.recording {
+  animation: pulse 1.5s infinite;
+  background-color: #e74c3c !important;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.7; }
+  100% { opacity: 1; }
+}
+
+/* Customization Panel */
+.customization-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  max-width: 500px;
+  max-height: 80vh;
+  background-color: #1a1a2e;
+  border-radius: 15px;
+  padding: 20px;
+  z-index: 20;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  overflow-y: auto;
+  color: white;
+  display: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.customization-panel.visible {
+  display: block;
+  opacity: 1;
+}
+
+.customization-panel h3 {
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #e94560;
+  font-size: 1.5rem;
+}
+
+.customization-section {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.customization-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.customization-label {
+  width: 80px;
+  font-weight: 500;
+}
+
+/* Color Options */
+.color-options {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.color-option {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.color-option:hover, .color-option.selected {
+  transform: scale(1.1);
+  border-color: white;
+  box-shadow: 0 0 10px rgba(255,255,255,0.5);
+}
+
+/* Material Options */
+.material-options {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.material-option {
+  padding: 5px 12px;
+  border-radius: 15px;
+  cursor: pointer;
+  border: 1px solid #555;
+  background: #555;
+  color: white;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.material-option:hover, .material-option.selected {
+  background: #e94560;
+  border-color: white;
+}
+
+/* Slider Controls */
+.slider-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+input[type="range"] {
+  flex: 1;
+  height: 5px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: #555;
+  outline: none;
+  border-radius: 5px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #e94560;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  background: #ff6b81;
+  transform: scale(1.2);
+}
+
+.slider-value {
+  width: 40px;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* Customization Buttons */
+.customization-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.action-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.action-button:not(.secondary) {
+  background-color: #e94560;
+  color: white;
+}
+
+.action-button.secondary {
+  background-color: #555;
+  color: white;
+}
+
+.action-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Debug Info */
+.debug-info {
+  position: absolute;
+  top: 60px;
+  left: 10px;
+  color: white;
+  background-color: rgba(0,0,0,0.5);
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 12px;
+  z-index: 100;
+}
+
+/* Guidance Tooltip */
+.guidance-tooltip {
+  position: absolute;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 40px);
+  max-width: 400px;
+  z-index: 110;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(-10px); }
+}
+
+.tooltip-content {
+  background: rgba(0, 0, 0, 0.75);
+  color: white;
+  padding: 15px;
+  border-radius: 10px;
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.close-tooltip {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 5px;
+  margin-left: 10px;
+}
+
+/* Model Preview Container */
+.model-preview-container {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  right: 20px;
+  top: 80px;
+  background-color: #222;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  z-index: 100;
+  transition: all 0.3s ease;
+  border: 2px solid #333;
+}
+
+.model-preview-container:hover {
+  border-color: #e94560;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .tryon-container {
+    width: 100%;
+    height: 100vh;
+    margin: 0;
+    border-radius: 0;
+  }
+  
+  .controls-panel {
+    flex-direction: column;
+    gap: 10px;
+    padding: 15px;
+    align-items: stretch;
+  }
+  
+  .customization-panel {
+    width: 90% !important;
+    left: 5% !important;
+    transform: none !important;
+    top: 10%;
+    max-height: 80vh;
+  }
+  
+  .color-options, .material-options {
+    flex-wrap: wrap;
+  }
+  
+  .tryon-title {
+    font-size: 1.2rem;
+    padding: 5px 10px;
+  }
+  
+  .model-preview-container {
+    width: 120px;
+    height: 120px;
+    right: 10px;
+    top: 60px;
+  }
+}
+
+/* Additional Mobile Adjustments */
+@media (max-width: 480px) {
+  .controls-panel button {
+    padding: 12px 15px;
+    font-size: 14px;
+  }
+  
+  .debug-info {
+    display: none;
+  }
+  
+  .customization-panel {
+    width: 95% !important;
+    padding: 15px;
+  }
+  
+  /* Touch-friendly adjustments */
+  .color-option, .material-option {
+    min-width: 40px;
+    min-height: 40px;
+  }
+  
+  button {
+    min-height: 44px; /* Minimum touch target size */
+  }
+}

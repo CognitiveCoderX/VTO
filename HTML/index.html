@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - CustomXShop | Personalized Fashion</title>
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Login to CustomXShop to access your custom fashion designs. Your style, your way!">
+  <meta name="keywords" content="custom clothing, fashion login, personalized outfits, fashion design">
+  <meta name="author" content="CustomXShop">
+  <meta name="robots" content="index, follow">
+  
+  <!-- Open Graph for Social Media -->
+  <meta property="og:title" content="Login - CustomXShop">
+  <meta property="og:description" content="Access your personalized designs and continue creating your unique fashion.">
+  <meta property="og:image" content="https://yourwebsite.com/images/login-preview.jpg">
+  <meta property="og:type" content="website">
+
+  <link rel="stylesheet" href="/CSS/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <nav>
+      <div class="nav-container">
+        <h1>CustomXShop - Design Your Style</h1>
+        <ul>
+          <li><a href="signup.html" aria-label="Sign Up Page">Sign Up</a></li>
+          <li><a href="index.html" aria-label="Login Page">Login</a></li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h2>Welcome Back to CustomXShop</h2>
+      <h3>Login to access your custom designs</h3>
+      <div class="container">
+        <form class="login-container" id="login-form" onsubmit="handleLogin(event)">
+          <div class="form-group">
+            <label for="username">Email:</label>
+            <input type="email" id="username" name="username" placeholder="Enter your email" required>
+            <small class="error-message" id="username-error"></small>
+          </div>
+          <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" placeholder="Enter your password" required autocomplete="current-password">
+            <small class="error-message" id="password-error"></small>
+          </div>
+          <button type="submit">Login</button>
+          <p>New to CustomXShop? <a href="signup.html">Create an Account</a></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2024 CustomXShop. All Rights Reserved.</p>
+  </footer>
+
+  <script src="/JAVASCRIPT/login.js"></script>
+  <script src="/JAVASCRIPT/auth.js"></script>
+  <script src="/JAVASCRIPT/profile-navigation.js"></script>
+</body>
+</html>
+
+

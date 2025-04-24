@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Virtual Try-On Experience</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.18.0/dist/tf.min.js"></script>
+    <!-- Bundle script that resolves ES6 module import/export errors -->
+    <script type="module" src="/JAVASCRIPT/enhanced-virtual-tryon/bundle.js"></script>
+    <style>
+        body {
+            overflow-x: hidden;
+            font-family: 'Inter', sans-serif;
+        }
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            color: white;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #3b82f6;
+            animation: spin 1s ease-in-out infinite;
+            margin-bottom: 20px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        #camera-container {
+            position: relative;
+            width: 100%;
+            max-width: 640px;
+            margin: 0 auto;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        #output {
+            width: 100%;
+            height: auto;
+            display: block;
+            transform: scaleX(-1);
+        }
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform: scaleX(-1);
+        }
+        #3d-container {
+            width: 100%;
+            height: 500px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 16px;
+            margin-top: 20px;
+            box-shadow: inset 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .clothing-item {
+            transition: all 0.3s ease;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .clothing-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .clothing-item.selected {
+            box-shadow: 0 0 0 3px #3b82f6;
+        }
+        .progress-bar {
+            height: 6px;
+            border-radius: 3px;
+            background: #e5e7eb;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #3b82f6;
+            transition: width 0.3s ease;
+        }
+        .tooltip {
+            position: relative;
+        }
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: #374151;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 12px;
+            font-weight: normal;
+        }
+        .landmark-point {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #3b82f6;
+            transform: translate(-3px, -3px);
+        }
+        #debug-panel {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            max-width: 250px;
+            word-wrap: break-word;
+            z-index: 100;
+        }
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            background: #10b981;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        .skeleton {
+            animation: pulse 2s infinite ease-in-out;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 0.3; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <h1 class="text-2xl font-bold mb-2">Initializing Virtual Try-On</h1>
+        <p class="text-gray-300">Loading AI models and 3D rendering engine...</p>
+        <div class="w-64 mt-4">
+            <div class="progress-bar">
+                <div id="loading-progress" class="progress-fill" style="width: 0%"></div>
+            </div>
+            <div class="text-xs text-gray-400 mt-1 text-center" id="loading-stage">Initializing</div>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-8">
+        <header class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-gray-900 mb-3">Advanced Virtual Clothing Try-On</h1>
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto">Experience realistic 3D clothing visualization with precise body tracking powered by AI</p>
+        </header>
+
+        <div class="flex flex-col lg:flex-row gap-8">
+            <div class="lg:w-2/3">
+                <div class="bg-white rounded-xl shadow-xl p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-semibold text-gray-800">Live Try-On Studio</h2>
+                        <div class="flex items-center space-x-2">
+                            <span id="fps-counter" class="text-xs bg-gray-100 px-2 py-1 rounded">0 FPS</span>
+                            <button id="debug-toggle" class="text-xs bg-gray-100 px-2 py-1 rounded">Debug</button>
+                        </div>
+                    </div>
+                    
+                    <div id="camera-container">
+                        <video id="output" autoplay playsinline></video>
+                        <canvas id="canvas"></canvas>
+                        <div id="debug-panel" class="hidden">
+                            <h3 class="font-bold mb-2">Debug Information</h3>
+                            <div id="pose-data"></div>
+                        </div>
+                    </div>
+
+                    <div id="3d-container"></div>
+
+                    <div class="mt-6 flex flex-wrap justify-center gap-3">
+                        <button id="start-camera" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
+                            </svg>
+                            Start Camera
+                        </button>
+                        <button id="change-clothing" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-2 rounded-lg font-medium transition flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 1H8.828a2 2 0 00-1.414.586L6.293 2.707A1 1 0 015.586 3H4zm5 6a1 1 0 00-2 0v3.586L6.707 11.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 12.586V9z" clip-rule="evenodd" />
+                            </svg>
+                            Change Outfit
+                        </button>
+                        <button id="capture" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium transition flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
+                            </svg>
+                            Capture
+                        </button>
+                        <button id="reset-pose" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-medium transition flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
+                            </svg>
+                            Reset Pose
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-xl p-6 mt-6">
+                    <h2 class="text-2xl font-semibold mb-4 text-gray-800">Precise Body Measurements</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4" id="measurements">
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-sm text-gray-500">Shoulder Width</p>
+                                    <p class="text-lg font-semibold" id="shoulder-width">-- cm</p>
+                                </div>
+                                <div class="tooltip">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+                                    </svg>
+                                    <span class="tooltip-text">Distance between left and right shoulder joints</span>
+                                </div>
+                            </div>
+                            <div class="progress-bar mt-2">
+                                <div class="progress-fill" id="shoulder-progress" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-sm text-gray-500">Chest Size</p>
+                                    <p class="text-lg font-semibold" id="chest-size">-- cm</p>
+                                </div>
+                                <div class="tooltip">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+                                    </svg>
+                                    <span class="tooltip-text">Estimated chest circumference based on torso landmarks</span>
+                                </div>
+                            </div>
+                            <div class="progress-bar mt-2">
+                                <div class="progress-fill" id="chest-progress" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-sm text-gray-500">Waist Size</p>
+                                    <p class="text-lg font-semibold" id="waist-size">-- cm</p>
+                                </div>
+                                <div class="tooltip">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+                                    </svg>
+                                    <span class="tooltip-text">Estimated waist circumference based on hip landmarks</span>
+                                </div>
+                            </div>
+                            <div class="progress-bar mt-2">
+                                <div class="progress-fill" id="waist-progress" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-sm text-gray-500">Hip Size</p>
+                                    <p class="text-lg font-semibold" id="hip-size">-- cm</p>
+                                </div>
+                                <div class="tooltip">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+                                    </svg>
+                                    <span class="tooltip-text">Estimated hip circumference based on hip landmarks</span>
+                                </div>
+                            </div>
+                            <div class="progress-bar mt-2">
+                                <div class="progress-fill" id="hip-progress" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-sm text-gray-500">Torso Length</p>
+                                    <p class="text-lg font-semibold" id="torso-length">-- cm</p>
+                                </div>
+                                <div class="tooltip">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+                                    </svg>
+                                    <span class="tooltip-text">Distance from shoulders to hips</span>
+                                </div>
+                            </div>
+                            <div class="progress-bar mt-2">
+                                <div class="progress-fill" id="torso-progress" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-sm text-gray-500">Arm Length</p>
+                                    <p class="text-lg font-semibold" id="arm-length">-- cm</p>
+                                </div>
+                                <div class="tooltip">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+                                    </svg>
+                                    <span class="tooltip-text">Combined length of upper and lower arm</span>
+                                </div>
+                            </div>
+                            <div class="progress-bar mt-2">
+                                <div class="progress-fill" id="arm-progress" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:w-1/3">
+                <div class="bg-white rounded-xl shadow-xl p-6 sticky top-6">
+                    <h2 class="text-2xl font-semibold mb-4 text-gray-800">AI Recommendations</h2>
+                    <div class="space-y-4" id="recommendations">
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <div class="flex items-center mb-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                </svg>
+                                <h3 class="font-semibold text-blue-800">Getting Started</h3>
+                            </div>
+                            <p class="text-blue-600 text-sm">Start the camera and stand about 2 meters away in good lighting. The system will analyze your body measurements and suggest the best fitting clothing.</p>
+                        </div>
+                    </div>
+
+                    <h2 class="text-2xl font-semibold mt-8 mb-4 text-gray-800">Available Outfits</h2>
+                    <div class="grid grid-cols-2 gap-4" id="clothing-items">
+                        <div class="clothing-item p-0 bg-gray-50 rounded-lg cursor-pointer overflow-hidden border border-gray-200" data-model="https://res.cloudinary.com/customxshop/image/upload/v1744037917/CustomXShop/l4plnsl7o5r6qqxotasx.glb">
+                            <div class="relative">
+                                <img src="https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="T-Shirt" class="w-full h-40 object-cover">
+                                <div class="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
+                                        <path d="M11 17a1 1 0 001.447.894l4-2A1 1 0 0017 15V9.236a1 1 0 00-1.447-.894l-4 2a1 1 0 00-.553.894V17zM15.211 6.276a1 1 0 000-1.788l-4.764-2.382a1 1 0 00-.894 0L4.789 4.488a1 1 0 000 1.788l4.764 2.382a1 1 0 00.894 0l4.764-2.382zM4.447 8.342A1 1 0 003 9.236V15a1 1 0 00.553.894l4 2A1 1 0 009 17v-5.764a1 1 0 00-.553-.894l-4-2z" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="p-3">
+                                <h3 class="font-medium">Premium Cotton T-Shirt</h3>
+                                <div class="flex justify-between items-center mt-1">
+                                    <p class="text-sm text-gray-500">$29.99</p>
+                                    <div class="flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                        <span class="text-xs ml-1">4.8</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="clothing-item p-0 bg-gray-50 rounded-lg cursor-pointer overflow-hidden border border-gray-200" data-model="https://example.com/model2.glb">
+                            <div class="relative">
+                                <img src="https://images.unsplash.com/photo-1551232864-3f0890e580d9?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Hoodie" class="w-full h-40 object-cover">
+                                <div class="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
+                                        <path d="M11 17a1 1 0 001.447.894l4-2A1 1 0 0017 15V9.236a1 1 0 00-1.447-.894l-4 2a1 1 0 00-.553.894V17zM15.211 6.276a1 1 0 000-1.788l-4.764-2.382a1 1 0 00-.894 0L4.789 4.488a1 1 0 000 1.788l4.764 2.382a1 1 0 00.894 0l4.764-2.382zM4.447 8.342A1 1 0 003 9.236V15a1 1 0 00.553.894l4 2A1 1 0 009 17v-5.764a1 1 0 00-.553-.894l-4-2z" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="p-3">
+                                <h3 class="font-medium">Urban Hoodie</h3>
+                                <div class="flex justify-between items-center mt-1">
+                                    <p class="text-sm text-gray-500">$59.99</p>
+                                    <div class="flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                        <span class="text-xs ml-1">4.6</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="clothing-item p-0 bg-gray-50 rounded-lg cursor-pointer overflow-hidden border border-gray-200" data-model="https://example.com/model3.glb">
+                            <div class="relative">
+                                <img src="https://images.unsplash.com/photo-1591047139829-d91aecb6caea?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Jacket" class="w-full h-40 object-cover">
+                                <div class="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
+                                        <path d="M11 17a1 1 0 001.447.894l4-2A1 1 0 0017 15V9.236a1 1 0 00-1.447-.894l-4 2a1 1 0 00-.553.894V17zM15.211 6.276a1 1 0 000-1.788l-4.764-2.382a1 1 0 00-.894 0L4.789 4.488a1 1 0 000 1.788l4.764 2.382a1 1 0 00.894 0l4.764-2.382zM4.447 8.342A1 1 0 003 9.236V15a1 1 0 00.553.894l4 2A1 1 0 009 17v-5.764a1 1 0 00-.553-.894l-4-2z" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="p-3">
+                                <h3 class="font-medium">Denim Jacket</h3>
+                                <div class="flex justify-between items-center mt-1">
+                                    <p class="text-sm text-gray-500">$79.99</p>
+                                    <div class="flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                        <span class="text-xs ml-1">4.9</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="clothing-item p-0 bg-gray-50 rounded-lg cursor-pointer overflow-hidden border border-gray-200" data-model="https://example.com/model4.glb">
+                            <div class="relative">
+                                <img src="https://images.unsplash.com/photo-1585487000160-6a3e12f0144e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Dress" class="w-full h-40 object-cover">
+                                <div class="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
+                                        <path d="M11 17a1 1 0 001.447.894l4-2A1 1 0 0017 15V9.236a1 1 0 00-1.447-.894l-4 2a1 1 0 00-.553.894V17zM15.211 6.276a1 1 0 000-1.788l-4.764-2.382a1 1 0 00-.894 0L4.789 4.488a1 1 0 000 1.788l4.764 2.382a1 1 0 00.894 0l4.764-2.382zM4.447 8.342A1 1 0 003 9.236V15a1 1 0 00.553.894l4 2A1 1 0 009 17v-5.764a1 1 0 00-.553-.894l-4-2z" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="p-3">
+                                <h3 class="font-medium">Summer Dress</h3>
+                                <div class="flex justify-between items-center mt-1">
+                                    <p class="text-sm text-gray-500">$49.99</p>
+                                    <div class="flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                        <span class="text-xs ml-1">4.7</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script>
+        // Global variables
+        let poseDetectionActive = false;
+        let currentClothingModel = null;
+        let scene, camera, renderer, controls;
+        let clothingMesh = null;
+        let landmarks3D = null;
+        let videoElement = null;
+        let canvasElement = null;
+        let canvasCtx = null;
+        let pose = null;
+        let cameraStream = null;
+        let lastTimestamp = 0;
+        let frameCount = 0;
+        let lastFpsUpdate = 0;
+        let currentFps = 0;
+        let bodyMesh = null;
+        let skeletonHelper = null;
+        let debugMode = false;
+        let calibrationComplete = false;
+        let calibrationData = {
+            shoulderWidth: 0,
+            torsoLength: 0,
+            armLength: 0
+        };
+
+        // Initialize the application when DOM is loaded
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Update loading progress
+            updateLoadingProgress(10, "Loading 3D engine...");
+            
+            // Initialize Three.js scene
+            initThreeJS();
+            
+            // Update loading progress
+            updateLoadingProgress(30, "Loading AI models...");
+            
+            // Initialize MediaPipe Pose
+            await initPoseDetection();
+            
+            // Update loading progress
+            updateLoadingProgress(70, "Preparing UI...");
+            
+            // Set up event listeners
+            setupEventListeners();
+            
+            // Update loading progress
+            updateLoadingProgress(100, "Ready!");
+            
+            // Hide loading overlay after everything is initialized
+            setTimeout(() => {
+                document.getElementById('loading-overlay').style.display = 'none';
+            }, 500);
+        });
+
+        // Update loading progress
+        function updateLoadingProgress(percent, stage) {
+            document.getElementById('loading-progress').style.width = `${percent}%`;
+            document.getElementById('loading-stage').textContent = stage;
+        }
+
+        // Initialize Three.js scene with more advanced setup
+        function initThreeJS() {
+            const container = document.getElementById('3d-container');
+            
+            // Create scene with environment map
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xf0f0f0);
+            
+            // Add environment lighting
+            const envLight = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(envLight);
+            
+            // Create camera with better positioning
+            camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.set(0, 1.5, 2.5);
+            camera.lookAt(0, 1, 0);
+            
+            // Create renderer with enhanced settings
+            renderer = new THREE.WebGLRenderer({ 
+                antialias: true,
+                powerPreference: "high-performance"
+            });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.outputEncoding = THREE.sRGBEncoding;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.0;
+            container.appendChild(renderer.domElement);
+            
+            // Add orbit controls with constraints
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.25;
+            controls.minDistance = 1;
+            controls.maxDistance = 5;
+            controls.maxPolarAngle = Math.PI * 0.9;
+            controls.minPolarAngle = Math.PI * 0.1;
+            
+            // Add directional light with shadow
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            dirLight.position.set(5, 10, 7);
+            dirLight.castShadow = true;
+            dirLight.shadow.mapSize.width = 1024;
+            dirLight.shadow.mapSize.height = 1024;
+            dirLight.shadow.camera.near = 0.5;
+            dirLight.shadow.camera.far = 20;
+            dirLight.shadow.camera.left = -10;
+            dirLight.shadow.camera.right = 10;
+            dirLight.shadow.camera.top = 10;
+            dirLight.shadow.camera.bottom = -10;
+            dirLight.shadow.bias = -0.001;
+            scene.add(dirLight);
+            
+            // Add fill light
+            const fillLight = new THREE.DirectionalLight(0xffffff, 0.3);
+            fillLight.position.set(-5, 5, 5);
+            scene.add(fillLight);
+            
+            // Add rim light
+            const rimLight = new THREE.DirectionalLight(0xffffff, 0.4);
+            rimLight.position.set(0, 5, -5);
+            scene.add(rimLight);
+            
+            // Add a more detailed floor
+            const floorGeometry = new THREE.PlaneGeometry(10, 10);
+            const floorMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xdddddd,
+                roughness: 0.8,
+                metalness: 0.2
+            });
+            const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+            floor.rotation.x = -Math.PI / 2;
+            floor.receiveShadow = true;
+            scene.add(floor);
+            
+            // Add a grid helper
+            const gridHelper = new THREE.GridHelper(10, 10, 0x888888, 0x888888);
+            gridHelper.position.y = 0.01;
+            scene.add(gridHelper);
+            
+            // Create a more accurate body placeholder (will be replaced with pose)
+            createBodyPlaceholder();
+            
+            // Animation loop with FPS counter
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                // Update FPS counter
+                updateFpsCounter();
+                
+                // Update controls
+                controls.update();
+                
+                // Render scene
+                renderer.render(scene, camera);
+                
+                // Update clothing position if landmarks are available
+                if (landmarks3D && clothingMesh) {
+                    updateClothingPosition();
+                }
+            }
+            animate();
+            
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight);
+            });
+        }
+
+        // Create a more accurate body placeholder
+        function createBodyPlaceholder() {
+            // Remove existing body if it exists
+            if (bodyMesh) {
+                scene.remove(bodyMesh);
+                if (skeletonHelper) {
+                    scene.remove(skeletonHelper);
+                }
+            }
+            
+            // Create a simple humanoid mesh
+            const bodyGroup = new THREE.Group();
+            
+            // Torso
+            const torsoGeometry = new THREE.CylinderGeometry(0.3, 0.25, 0.8, 8);
+            const torsoMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xffaa77,
+                roughness: 0.7,
+                metalness: 0.1
+            });
+            const torso = new THREE.Mesh(torsoGeometry, torsoMaterial);
+            torso.position.y = 0.9;
+            torso.rotation.z = Math.PI / 2;
+            torso.castShadow = true;
+            bodyGroup.add(torso);
+            
+            // Head
+            const headGeometry = new THREE.SphereGeometry(0.2, 16, 16);
+            const headMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xffaa77,
+                roughness: 0.6,
+                metalness: 0.1
+            });
+            const head = new THREE.Mesh(headGeometry, headMaterial);
+            head.position.y = 1.3;
+            head.castShadow = true;
+            bodyGroup.add(head);
+            
+            // Arms
+            const armGeometry = new THREE.CylinderGeometry(0.08, 0.07, 0.7, 6);
+            const armMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xffaa77,
+                roughness: 0.7,
+                metalness: 0.1
+            });
+            
+            const leftArm = new THREE.Mesh(armGeometry, armMaterial);
+            leftArm.position.set(-0.4, 0.8, 0);
+            leftArm.rotation.z = Math.PI / 2;
+            leftArm.castShadow = true;
+            bodyGroup.add(leftArm);
+            
+            const rightArm = new THREE.Mesh(armGeometry, armMaterial);
+            rightArm.position.set(0.4, 0.8, 0);
+            rightArm.rotation.z = Math.PI / 2;
+            rightArm.castShadow = true;
+            bodyGroup.add(rightArm);
+            
+            // Legs
+            const legGeometry = new THREE.CylinderGeometry(0.12, 0.1, 0.8, 6);
+            const legMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xffaa77,
+                roughness: 0.7,
+                metalness: 0.1
+            });
+            
+            const leftLeg = new THREE.Mesh(legGeometry, legMaterial);
+            leftLeg.position.set(-0.15, 0.2, 0);
+            leftLeg.castShadow = true;
+            bodyGroup.add(leftLeg);
+            
+            const rightLeg = new THREE.Mesh(legGeometry, legMaterial);
+            rightLeg.position.set(0.15, 0.2, 0);
+            rightLeg.castShadow = true;
+            bodyGroup.add(rightLeg);
+            
+            bodyMesh = bodyGroup;
+            scene.add(bodyMesh);
+            
+            // Create a simple skeleton helper for visualization
+            const bones = [];
+            
+            // Create bones
+            const spineBone = new THREE.Bone();
+            const headBone = new THREE.Bone();
+            spineBone.add(headBone);
+            headBone.position.y = 0.4;
+            
+            const leftShoulderBone = new THREE.Bone();
+            const leftArmBone = new THREE.Bone();
+            spineBone.add(leftShoulderBone);
+            leftShoulderBone.add(leftArmBone);
+            leftShoulderBone.position.set(-0.3, 0.2, 0);
+            leftArmBone.position.set(-0.3, 0, 0);
+            
+            const rightShoulderBone = new THREE.Bone();
+            const rightArmBone = new THREE.Bone();
+            spineBone.add(rightShoulderBone);
+            rightShoulderBone.add(rightArmBone);
+            rightShoulderBone.position.set(0.3, 0.2, 0);
+            rightArmBone.position.set(0.3, 0, 0);
+            
+            const leftHipBone = new THREE.Bone();
+            const leftLegBone = new THREE.Bone();
+            spineBone.add(leftHipBone);
+            leftHipBone.add(leftLegBone);
+            leftHipBone.position.set(-0.15, -0.4, 0);
+            leftLegBone.position.set(0, -0.4, 0);
+            
+            const rightHipBone = new THREE.Bone();
+            const rightLegBone = new THREE.Bone();
+            spineBone.add(rightHipBone);
+            rightHipBone.add(rightLegBone);
+            rightHipBone.position.set(0.15, -0.4, 0);
+            rightLegBone.position.set(0, -0.4, 0);
+            
+            bones.push(spineBone);
+            
+            // Create skeleton helper
+            skeletonHelper = new THREE.SkeletonHelper(bones[0]);
+            skeletonHelper.visible = debugMode;
+            scene.add(skeletonHelper);
+        }
+
+        // Initialize MediaPipe Pose detection with more configuration
+        async function initPoseDetection() {
+            pose = new Pose({
+                locateFile: (file) => {
+                    return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`;
+                }
+            });
+            
+            pose.setOptions({
+                modelComplexity: 2, // Use higher complexity model for better accuracy
+                smoothLandmarks: true,
+                enableSegmentation: false,
+                smoothSegmentation: true,
+                minDetectionConfidence: 0.7, // Higher confidence threshold
+                minTrackingConfidence: 0.7,
+                useCpuInference: false // Force GPU acceleration
+            });
+            
+            pose.onResults(onPoseResults);
+            
+            // Warm up the model
+            try {
+                const warmupCanvas = document.createElement('canvas');
+                warmupCanvas.width = 640;
+                warmupCanvas.height = 480;
+                const ctx = warmupCanvas.getContext('2d');
+                ctx.fillStyle = 'rgb(0, 0, 0)';
+                ctx.fillRect(0, 0, warmupCanvas.width, warmupCanvas.height);
+                await pose.send({ image: warmupCanvas });
+            } catch (e) {
+                console.log('Warmup error:', e);
+            }
+        }
+
+        // Set up event listeners with more functionality
+        function setupEventListeners() {
+            // Start camera button
+            document.getElementById('start-camera').addEventListener('click', startPoseDetection);
+            
+            // Change clothing button
+            document.getElementById('change-clothing').addEventListener('click', function() {
+                document.querySelectorAll('.clothing-item').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                showNotification('Select a new outfit from the available options');
+            });
+            
+            // Capture image button
+            document.getElementById('capture').addEventListener('click', captureImage);
+            
+            // Reset pose button
+            document.getElementById('reset-pose').addEventListener('click', resetPose);
+            
+            // Debug toggle button
+            document.getElementById('debug-toggle').addEventListener('click', toggleDebugMode);
+            
+            // Clothing item selection
+            document.querySelectorAll('.clothing-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    document.querySelectorAll('.clothing-item').forEach(i => {
+                        i.classList.remove('selected');
+                    });
+                    this.classList.add('selected');
+                    const modelUrl = this.getAttribute('data-model');
+                    loadClothingModel(modelUrl);
+                });
+            });
+            
+            // Load default clothing model
+            const defaultClothing = document.querySelector('.clothing-item');
+            if (defaultClothing) {
+                defaultClothing.click();
+            }
+        }
+
+        // Start pose detection with more robust error handling
+        async function startPoseDetection() {
+            if (poseDetectionActive) return;
+            
+            videoElement = document.getElementById('output');
+            canvasElement = document.getElementById('canvas');
+            canvasCtx = canvasElement.getContext('2d');
+            
+            try {
+                // Get camera stream with better constraints
+                cameraStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 },
+                        facingMode: 'user',
+                        frameRate: { ideal: 60 }
+                    }, 
+                    audio: false 
+                });
+                
+                videoElement.srcObject = cameraStream;
+                
+                // Set canvas dimensions to match video
+                videoElement.onloadedmetadata = () => {
+                    canvasElement.width = videoElement.videoWidth;
+                    canvasElement.height = videoElement.videoHeight;
+                };
+                
+                // Initialize camera with better settings
+                const camera = new Camera(videoElement, {
+                    onFrame: async () => {
+                        if (poseDetectionActive) {
+                            await pose.send({ image: videoElement });
+                        }
+                    },
+                    width: videoElement.videoWidth,
+                    height: videoElement.videoHeight
+                });
+                
+                camera.start();
+                
+                poseDetectionActive = true;
+                document.getElementById('start-camera').innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clip-rule="evenodd" />
+                    </svg>
+                    Stop Camera
+                `;
+                document.getElementById('start-camera').classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                document.getElementById('start-camera').classList.add('bg-red-600', 'hover:bg-red-700');
+                
+                // Update button to stop camera
+                document.getElementById('start-camera').removeEventListener('click', startPoseDetection);
+                document.getElementById('start-camera').addEventListener('click', stopPoseDetection);
+                
+                showNotification('Camera started. Stand about 2 meters away for best results.');
+                
+            } catch (err) {
+                console.error('Error accessing camera:', err);
+                showNotification('Could not access the camera. Please check permissions.', 'error');
+            }
+        }
+
+        // Stop pose detection with proper cleanup
+        function stopPoseDetection() {
+            poseDetectionActive = false;
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+                cameraStream = null;
+            }
+            
+            document.getElementById('start-camera').innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
+                </svg>
+                Start Camera
+            `;
+            document.getElementById('start-camera').classList.remove('bg-red-600', 'hover:bg-red-700');
+            document.getElementById('start-camera').classList.add('bg-blue-600', 'hover:bg-blue-700');
+            
+            // Clear canvas
+            if (canvasCtx) {
+                canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            }
+            
+            // Update button to start camera
+            document.getElementById('start-camera').removeEventListener('click', stopPoseDetection);
+            document.getElementById('start-camera').addEventListener('click', startPoseDetection);
+            
+            showNotification('Camera stopped');
+        }
+
+        // Process pose detection results with more detailed analysis
+        function onPoseResults(results) {
+            // Update FPS counter
+            frameCount++;
+            const now = performance.now();
+            if (now - lastFpsUpdate >= 1000) {
+                currentFps = Math.round((frameCount * 1000) / (now - lastFpsUpdate));
+                document.getElementById('fps-counter').textContent = `${currentFps} FPS`;
+                frameCount = 0;
+                lastFpsUpdate = now;
+            }
+            
+            canvasCtx.save();
+            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            
+            // Flip the video horizontally for mirror effect
+            canvasCtx.scale(-1, 1);
+            canvasCtx.drawImage(results.image, -canvasElement.width, 0, canvasElement.width, canvasElement.height);
+            canvasCtx.scale(-1, 1);
+            
+            if (results.poseLandmarks) {
+                // Draw 2D landmarks with more detailed visualization
+                drawLandmarks(canvasCtx, results.poseLandmarks);
+                
+                // Store 3D landmarks for Three.js with coordinate transformation
+                if (results.poseWorldLandmarks) {
+                    landmarks3D = transformLandmarks(results.poseWorldLandmarks);
+                    updateBodyMeasurements(landmarks3D);
+                    
+                    // Update debug information if enabled
+                    if (debugMode) {
+                        updateDebugInfo(landmarks3D);
+                    }
+                }
+            }
+            
+            canvasCtx.restore();
+        }
+
+        // Transform landmarks to match Three.js coordinate system
+        function transformLandmarks(landmarks) {
+            if (!landmarks || landmarks.length === 0) return null;
+            
+            // Create a copy of the landmarks array
+            const transformed = JSON.parse(JSON.stringify(landmarks));
+            
+            // MediaPipe coordinates:
+            // X - Right (positive) to Left (negative)
+            // Y - Up (positive) to Down (negative)
+            // Z - Towards camera (negative) to Away from camera (positive)
+            
+            // Three.js coordinates:
+            // X - Left (negative) to Right (positive)
+            // Y - Down (negative) to Up (positive)
+            // Z - Towards camera (negative) to Away from camera (positive)
+            
+            // Transform coordinates
+            for (let i = 0; i < transformed.length; i++) {
+                // Flip X axis
+                transformed[i].x = -transformed[i].x;
+                
+                // Scale to better fit our scene
+                transformed[i].x *= 2;
+                transformed[i].y *= 2;
+                transformed[i].z *= 2;
+                
+                // Adjust Y offset to match our scene
+                transformed[i].y += 1;
+            }
+            
+            return transformed;
+        }
+
+        // Draw 2D landmarks with more detailed visualization
+        function drawLandmarks(ctx, landmarks) {
+            if (!landmarks) return;
+            
+            // Draw connections with different colors for different body parts
+            const connections = Pose.POSE_CONNECTIONS;
+            
+            // Define connection styles
+            const connectionStyles = {
+                torso: { color: '#FF0000', width: 3 },
+                arms: { color: '#00FF00', width: 3 },
+                legs: { color: '#0000FF', width: 3 },
+                head: { color: '#FFFF00', width: 3 }
+            };
+            
+            for (const connection of connections) {
+                const [start, end] = connection;
+                if (landmarks[start] && landmarks[end]) {
+                    // Determine connection type for styling
+                    let style = connectionStyles.torso;
+                    
+                    // Arms (11-15, 12-16)
+                    if ((start >= 11 && start <= 15) || (end >= 11 && end <= 15) ||
+                        (start >= 12 && start <= 16) || (end >= 12 && end <= 16)) {
+                        style = connectionStyles.arms;
+                    }
+                    // Legs (23-27, 24-28)
+                    else if ((start >= 23 && start <= 27) || (end >= 23 && end <= 27) ||
+                             (start >= 24 && start <= 28) || (end >= 24 && end <= 28)) {
+                        style = connectionStyles.legs;
+                    }
+                    // Head (0-7)
+                    else if ((start >= 0 && start <= 7) || (end >= 0 && end <= 7)) {
+                        style = connectionStyles.head;
+                    }
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(landmarks[start].x * canvasElement.width, landmarks[start].y * canvasElement.height);
+                    ctx.lineTo(landmarks[end].x * canvasElement.width, landmarks[end].y * canvasElement.height);
+                    ctx.lineWidth = style.width;
+                    ctx.strokeStyle = style.color;
+                    ctx.stroke();
+                }
+            }
+            
+            // Draw landmarks with visibility-based styling
+            for (let i = 0; i < landmarks.length; i++) {
+                const landmark = landmarks[i];
+                if (landmark.visibility > 0.1) {
+                    // Size based on visibility
+                    const size = 3 + (landmark.visibility * 5);
+                    
+                    // Color based on landmark importance
+                    let color = '#00FF00'; // Default
+                    if (i === 11 || i === 12) color = '#FF00FF'; // Shoulders
+                    if (i === 23 || i === 24) color = '#00FFFF'; // Hips
+                    
+                    ctx.beginPath();
+                    ctx.arc(landmark.x * canvasElement.width, landmark.y * canvasElement.height, size, 0, 2 * Math.PI);
+                    ctx.fillStyle = color;
+                    ctx.fill();
+                    
+                    // Draw landmark index in debug mode
+                    if (debugMode) {
+                        ctx.fillStyle = 'white';
+                        ctx.font = '10px Arial';
+                        ctx.fillText(i.toString(), landmark.x * canvasElement.width + 8, landmark.y * canvasElement.height + 3);
+                    }
+                }
+            }
+        }
+
+        // Load clothing model with better error handling and material adjustment
+        function loadClothingModel(modelUrl) {
+            // Remove existing clothing model
+            if (clothingMesh) {
+                scene.remove(clothingMesh);
+                clothingMesh = null;
+            }
+            
+            const loader = new THREE.GLTFLoader();
+            
+            // Show loading indicator
+            showNotification('Loading clothing model...');
+            
+            loader.load(
+                modelUrl,
+                function(gltf) {
+                    clothingMesh = gltf.scene;
+                    
+                    // Adjust model scale and position
+                    clothingMesh.scale.set(0.5, 0.5, 0.5);
+                    clothingMesh.position.y = 1;
+                    
+                    // Enable shadows and improve materials
+                    clothingMesh.traverse(function(node) {
+                        if (node.isMesh) {
+                            node.castShadow = true;
+                            node.receiveShadow = true;
+                            
+                            // Improve material quality
+                            if (node.material) {
+                                node.material.roughness = 0.7;
+                                node.material.metalness = 0.1;
+                                node.material.envMapIntensity = 0.5;
+                                
+                                // Convert to physically based material if possible
+                                if (node.material instanceof THREE.MeshStandardMaterial) {
+                                    node.material.needsUpdate = true;
+                                }
+                            }
+                        }
+                    });
+                    
+                    scene.add(clothingMesh);
+                    
+                    showNotification('Clothing model loaded successfully');
+                    
+                    // Update clothing position if landmarks are available
+                    if (landmarks3D) {
+                        updateClothingPosition();
+                    }
+                },
+                undefined,
+                function(error) {
+                    console.error('Error loading model:', error);
+                    showNotification('Failed to load the clothing model', 'error');
+                }
+            );
+        }
+
+        // Update clothing position with more precise alignment
+        function updateClothingPosition() {
+            if (!clothingMesh || !landmarks3D) return;
+            
+            // Get key landmarks
+            const leftShoulder = landmarks3D[11];
+            const rightShoulder = landmarks3D[12];
+            const leftHip = landmarks3D[23];
+            const rightHip = landmarks3D[24];
+            const nose = landmarks3D[0];
+            
+            if (leftShoulder && rightShoulder && leftHip && rightHip && nose) {
+                // Calculate center position between shoulders
+                const centerX = (leftShoulder.x + rightShoulder.x) / 2;
+                const centerY = (leftShoulder.y + rightShoulder.y) / 2;
+                const centerZ = (leftShoulder.z + rightShoulder.z) / 2;
+                
+                // Position the clothing
+                clothingMesh.position.set(centerX, centerY, centerZ);
+                
+                // Calculate rotation based on shoulder and hip positions
+                const shoulderVec = new THREE.Vector3(
+                    rightShoulder.x - leftShoulder.x,
+                    rightShoulder.y - leftShoulder.y,
+                    rightShoulder.z - leftShoulder.z
+                );
+                
+                const hipVec = new THREE.Vector3(
+                    rightHip.x - leftHip.x,
+                    rightHip.y - leftHip.y,
+                    rightHip.z - leftHip.z
+                );
+                
+                // Calculate the angle between shoulders and hips
+                const angle = Math.atan2(hipVec.x, hipVec.z) - Math.atan2(shoulderVec.x, shoulderVec.z);
+                clothingMesh.rotation.y = angle;
+                
+                // Calculate tilt based on nose position relative to shoulders
+                const noseToShoulder = new THREE.Vector3(
+                    nose.x - centerX,
+                    nose.y - centerY,
+                    nose.z - centerZ
+                );
+                
+                // Apply slight tilt based on head position
+                clothingMesh.rotation.z = -noseToShoulder.x * 0.1;
+                
+                // Scale based on shoulder width
+                const shoulderWidth = shoulderVec.length();
+                
+                // Calculate torso length for vertical scaling
+                const torsoVec = new THREE.Vector3(
+                    (leftHip.x + rightHip.x)/2 - centerX,
+                    (leftHip.y + rightHip.y)/2 - centerY,
+                    (leftHip.z + rightHip.z)/2 - centerZ
+                );
+                const torsoLength = torsoVec.length();
+                
+                // Calculate average scale factor
+                const scaleFactor = shoulderWidth * 1.8;
+                
+                //
+</html>

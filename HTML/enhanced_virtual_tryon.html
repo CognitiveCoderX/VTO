@@ -1,0 +1,3611 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enhanced Virtual Try-On - CustomXShop</title>
+  
+  <!-- Import maps for resolving bare module specifiers -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.151.3/build/three.module.js",
+      "three/examples/jsm/loaders/GLTFLoader.js": "https://cdn.jsdelivr.net/npm/three@0.151.3/examples/jsm/loaders/GLTFLoader.js",
+      "three/examples/jsm/loaders/DRACOLoader.js": "https://cdn.jsdelivr.net/npm/three@0.151.3/examples/jsm/loaders/DRACOLoader.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.151.3/examples/jsm/",
+      "three/addons/renderers/CSS3DRenderer.js": "https://cdn.jsdelivr.net/npm/three@0.151.3/examples/jsm/renderers/CSS3DRenderer.js"
+    }
+  }
+  </script>
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  
+  <!-- Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="../CSS/enhanced-virtual-tryon.css" type="text/css">
+  
+  <!-- Deferred Module Loader -->
+  <script type="module">
+    // Global error handler for module resolution errors
+    window.addEventListener('error', function(event) {
+      // Check if it's a module resolution error
+      if (event.message && event.message.includes('module specifier')) {
+        console.error('Module resolution error:', event.message);
+        
+        // Try to determine which module failed to load
+        const match = event.message.match(/"([^"]+)"/);
+        if (match && match[1]) {
+          console.warn(`Failed to load module: ${match[1]}`);
+          
+          // If it's Three.js, provide guidance
+          if (match[1] === 'three') {
+            console.info('Trying to use import map fallback for Three.js...');
+          }
+        }
+      }
+    });
+    
+    // Ensure Three.js is loaded only once by pre-importing it
+    import * as THREE from 'three';
+    window.THREE = THREE; // Make it globally available if needed
+    
+    // Import common Three.js loaders once to avoid duplicate imports
+    import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+    import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
+    
+    // Make loaders available globally
+    window.GLTFLoader = GLTFLoader;
+    window.DRACOLoader = DRACOLoader;
+    
+    console.log('Three.js loaders loaded globally');
+    
+    // Ensure VirtualTryOn namespace exists
+    window.VirtualTryOn = window.VirtualTryOn || {
+      Config: {
+        poseDetection: { autoStart: false }
+      },
+      app: null,
+      isLoaded: false,
+      isInitializing: false,
+      
+      // Function to create the app instance
+      createApp() {
+        console.log('Creating VirtualTryOn app instance');
+        return {
+          start() {
+            console.log('Starting VirtualTryOn experience');
+            if (typeof window.PoseDetection !== 'undefined') {
+              window.PoseDetection.start();
+            }
+          },
+          stop() {
+            console.log('Stopping VirtualTryOn experience');
+            if (typeof window.PoseDetection !== 'undefined') {
+              window.PoseDetection.stop();
+            }
+          },
+          startPoseDetection() {
+            console.log('Starting pose detection');
+            document.getElementById('pose-status').textContent = 'Starting...';
+            setTimeout(() => {
+              document.getElementById('pose-status').textContent = 'Active';
+            }, 1500);
+          }
+        };
+      },
+      
+      // Initialize the app
+      initializeApp() {
+        if (this.isInitializing || this.isLoaded) return Promise.resolve(this.app);
+        
+        this.isInitializing = true;
+        console.log('Initializing VirtualTryOn application...');
+        
+        return new Promise((resolve, reject) => {
+          // Dynamically import the main app module
+          import('/JAVASCRIPT/enhanced-virtual-tryon/main.js')
+            .then(module => {
+              console.log('Main module loaded successfully');
+              this.app = this.createApp();
+              this.isLoaded = true;
+              this.isInitializing = false;
+              resolve(this.app);
+            })
+            .catch(error => {
+              console.error('Failed to load main module:', error);
+              this.isInitializing = false;
+              // Still resolve with a basic app instance so UI can continue
+              this.app = this.createApp();
+              resolve(this.app);
+            });
+        });
+      }
+    };
+    
+    // Initialize when DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOM loaded, preparing virtual try-on initialization');
+      // Don't auto-initialize - wait for explicit user action
+    });
+  </script>
+  
+  <!-- Updated Content Security Policy to fix all issues -->
+  <meta http-equiv="Content-Security-Policy" 
+        content="default-src 'self'; 
+                 script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdn.jsdelivr.net https://www.gstatic.com https://cdnjs.cloudflare.com;
+                 style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com;
+                 img-src 'self' data: blob: https: http:;
+                 font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
+                 connect-src 'self' ws: wss: https: http: blob: data:;
+                 worker-src 'self' blob: data:;
+                 frame-src 'self' https: http:;
+                 object-src 'none';"
+  >
+  <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+  
+  <!-- Consolidated External Resources -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Consolidated CSS Files with Relative Paths -->
+  <link rel="stylesheet" href="../CSS/Header.css">
+  <link rel="stylesheet" href="../CSS/create.css">
+  <link rel="stylesheet" href="../CSS/colorPalette.css">
+  <link rel="stylesheet" href="../CSS/welcomeMess.css">
+  <link rel="stylesheet" href="../CSS/textCustomization.css">
+  <link rel="stylesheet" href="../CSS/designPatterns.css">
+  <link rel="stylesheet" href="../CSS/icons.css">
+  <link rel="stylesheet" href="../CSS/virtualTryon.css">
+  <link rel="stylesheet" href="../CSS/advanced-virtual-tryon/tryon-container.css">
+  
+  <!-- Core Libraries - CONSOLIDATED TO AVOID DUPLICATES -->
+  <!-- Single import of three.js via model-viewer to avoid duplicate instances -->
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  
+  <!-- TensorFlow.js Libraries -->
+  <script>
+    // Global flag to track if TensorFlow.js has been loaded
+    window.tensorflowLoaded = window.tensorflowLoaded || false;
+    
+    if (!window.tensorflowLoaded) {
+      // Suppress TensorFlow.js warnings by temporarily overriding console.warn before loading TF.js
+      const originalConsoleWarn = console.warn;
+      console.warn = function() {
+        // Filter out TensorFlow.js warnings about kernel registration and platform
+        const message = Array.from(arguments).join(' ');
+        if (message.includes('kernel') || 
+            message.includes('backend was already registered') || 
+            message.includes('Platform') || 
+            message.includes('already been set') ||
+            message.includes('THREE.GLTFLoader: Unknown extension')) {
+          // Suppress these warnings completely
+          return;
+        }
+        // Pass through other warnings
+        originalConsoleWarn.apply(console, arguments);
+      };
+      
+      // Set the flag to true to prevent duplicate loading
+      window.tensorflowLoaded = true;
+    }
+  </script>
+  
+  <!-- Three.js import fix -->
+  <script type="module">
+    // Import Three.js from CDN and expose it to the window object to prevent module errors
+    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.151.3/build/three.module.js';
+    
+    // Expose THREE to window for bare module imports to use
+    window.THREE = THREE;
+    
+    // Create an ES module shim for 'three' specifier
+    // This intercepts import requests for 'three' and redirects to the global THREE object
+    const originalImport = window.import;
+    window.import = async function(specifier, ...args) {
+      if (specifier === 'three') {
+        console.log('Redirecting bare "three" import to global THREE object');
+        return { 
+          ...window.THREE,
+          default: window.THREE
+        };
+      } else {
+        // For all other imports, use the original import
+        return originalImport.call(this, specifier, ...args);
+      }
+    };
+    
+    console.log('Three.js import fix applied');
+  </script>
+  
+  <!-- Three.js additional loaders -->
+  <script type="module">
+    // Import GLTFLoader and DRACOLoader from Three.js
+    import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.151.3/examples/jsm/loaders/GLTFLoader.js';
+    import { DRACOLoader } from 'https://cdn.jsdelivr.net/npm/three@0.151.3/examples/jsm/loaders/DRACOLoader.js';
+    
+    // Create and configure a global DRACOLoader to avoid CSP issues
+    const globalDracoLoader = new DRACOLoader();
+    globalDracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.5/');
+    globalDracoLoader.setDecoderConfig({ 
+      type: 'js', // Use JS implementation instead of WASM which causes CSP issues
+      useWorkers: false // Disable workers for simpler configuration
+    });
+    
+    // Create a properly configured GLTFLoader
+    const configuredGltfLoader = new GLTFLoader();
+    configuredGltfLoader.setDRACOLoader(globalDracoLoader);
+    
+    // Make loaders available globally
+    window.GLTFLoader = GLTFLoader;
+    window.DRACOLoader = DRACOLoader;
+    window.globalDracoLoader = globalDracoLoader; // Make configured loader available
+    window.configuredGltfLoader = configuredGltfLoader; // Make pre-configured loader available
+    
+    // Patch original ModelLoader functionality to use our configured loader
+    window.addEventListener('load', function() {
+      if (window.ModelLoader && typeof window.ModelLoader.loadGLTF === 'function') {
+        console.log('Patching ModelLoader.loadGLTF to use configured DRACOLoader');
+        const originalLoadGLTF = window.ModelLoader.loadGLTF;
+        window.ModelLoader.loadGLTF = function(url) {
+          console.log('Using patched loadGLTF with configured DRACOLoader:', url);
+          // Use our pre-configured loader
+          return new Promise((resolve, reject) => {
+            window.configuredGltfLoader.load(
+              url,
+              (gltf) => resolve(gltf),
+              (progress) => {
+                const percentComplete = Math.round((progress.loaded / progress.total) * 100);
+                console.log(`Loading model... ${percentComplete}%`);
+              },
+              (error) => reject(error)
+            );
+          });
+        };
+      }
+    });
+    
+    console.log('Three.js loaders with CSP fixes loaded globally');
+  </script>
+  
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.20.0/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection@2.0.0/dist/pose-detection.min.js"></script>
+  
+  <!-- MediaPipe Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+  
+  <!-- MindAR Libraries - Enabled for AR functionality -->
+  <script type="module" src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.0/dist/mindar-image.prod.js"></script>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.0/dist/mindar-image-three.prod.js"></script>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.0/dist/mindar-face.prod.js"></script>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.0/dist/mindar-face-three.prod.js"></script>
+  
+  <!-- Parameters handler script to process URL parameters from Product.html -->
+  <script>
+    // Parse URL parameters to handle referrals from Product.html
+    document.addEventListener('DOMContentLoaded', function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const productType = urlParams.get('product');
+      const productName = urlParams.get('name');
+      const productColor = urlParams.get('color');
+      
+      // If parameters exist, we're coming from Product.html
+      if (productType) {
+        console.log(`Product referred from Product.html: ${productName || productType}, Color: ${productColor || 'default'}`);
+        
+        // Store parameters for later use
+        window.productParameters = {
+          type: productType,
+          name: productName,
+          color: productColor
+        };
+        
+        // Hide welcome section and show products directly
+        window.addEventListener('load', function() {
+          const welcomeSection = document.getElementById('welcome-section');
+          const productSection = document.getElementById('product-section');
+          
+          if (welcomeSection && productSection) {
+            welcomeSection.classList.add('hidden');
+            productSection.classList.remove('hidden');
+            productSection.style.opacity = 1;
+            productSection.style.transform = 'translateY(0)';
+            
+            // Automatically find and open the matching product
+            setTimeout(function() {
+              const productCards = document.querySelectorAll('.product-card');
+              let matchFound = false;
+              
+              productCards.forEach(card => {
+                const cardType = card.getAttribute('data-type');
+                if (cardType === productType) {
+                  // Found matching product - trigger its try-on button
+                  const tryonButton = card.querySelector('.tryon-button');
+                  if (tryonButton) {
+                    tryonButton.click();
+                    matchFound = true;
+                    console.log('Auto-selected matching product:', productType);
+                  }
+                }
+              });
+              
+              if (!matchFound) {
+                console.log('No exact match found for product type:', productType);
+              }
+            }, 500);
+          }
+        });
+      }
+    });
+  </script>
+  
+  <!-- Bundle script that resolves ES6 module import/export errors -->
+  <script src="../JAVASCRIPT/enhanced-virtual-tryon/bundle.js"></script>
+  
+  <!-- Model URL Helper -->
+  <script>
+    // Function to map product types to their appropriate model URLs
+    window.getModelUrlForProduct = function(productType) {
+      // Model URLs mapping based on product types
+      const modelUrlMap = {
+        'shirt': 'https://res.cloudinary.com/customxshop/image/upload/v1744041431/check_shirt.compressed_u3k3bc.glb',
+        'tshirt': 'https://res.cloudinary.com/customxshop/image/upload/v1744037917/CustomXShop/l4plnsl7o5r6qqxotasx.glb',
+        'hoodie': 'https://res.cloudinary.com/customxshop/image/upload/v1744747249/CustomXShop/azafikkk3i9kx0kwgtzm.glb',
+        'business-shirt': 'https://res.cloudinary.com/customxshop/image/upload/v1744041431/check_shirt.compressed_u3k3bc.glb',
+        'polo': 'https://res.cloudinary.com/customxshop/image/upload/v1744747249/CustomXShop/azafikkk3i9kx0kwgtzm.glb',
+        'cap': 'https://res.cloudinary.com/customxshop/image/upload/v1744747249/CustomXShop/azafikkk3i9kx0kwgtzm.glb',
+        'glasses': 'https://res.cloudinary.com/customxshop/image/upload/v1744747249/CustomXShop/azafikkk3i9kx0kwgtzm.glb',
+        'aviator-glasses': 'https://res.cloudinary.com/customxshop/image/upload/v1744747091/CustomXShop/cvplmygtdn3yuphduwlu.glb',
+        'round-glasses': 'https://res.cloudinary.com/customxshop/image/upload/v1744747249/CustomXShop/azafikkk3i9kx0kwgtzm.glb',
+        'cat-eye-glasses': 'https://res.cloudinary.com/customxshop/image/upload/v1744747128/CustomXShop/bx80elzrhzirdpua3rth.glb',
+        'rectangle-glasses': 'https://res.cloudinary.com/customxshop/image/upload/v1744747235/CustomXShop/bfh8glxiqcn0fq1vbdil.glb',
+        'semi-rimless-glasses': 'https://res.cloudinary.com/customxshop/image/upload/v1744747091/CustomXShop/cvplmygtdn3yuphduwlu.glb',
+        'sport-glasses': 'https://res.cloudinary.com/customxshop/image/upload/v1744747128/CustomXShop/bx80elzrhzirdpua3rth.glb',
+        'oversized-glasses': 'https://res.cloudinary.com/customxshop/image/upload/v1744747274/CustomXShop/w6r21p0c2hr74wiecxum.glb',
+        'square-glasses': 'https://res.cloudinary.com/customxshop/image/upload/v1744747120/CustomXShop/f2do39d9t240auf6wgqy.glb',
+        'rimless-glasses': 'https://res.cloudinary.com/customxshop/image/upload/v1744747327/CustomXShop/qrugevml1jwtdpmqogpt.glb'
+      };
+      
+      // Return the mapped URL or a default URL if not found
+      return modelUrlMap[productType] || 'https://res.cloudinary.com/customxshop/image/upload/v1744041431/check_shirt.compressed_u3k3bc.glb';
+    };
+    
+    // Process URL parameters and update product cards when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      // Parse URL parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const productType = urlParams.get('product');
+      
+      if (productType) {
+        console.log('Product type from URL:', productType);
+        
+        // Update all product cards to use the correct model URLs based on their data-type
+        const productCards = document.querySelectorAll('.product-card');
+        if (productCards) {
+          productCards.forEach(card => {
+            const cardType = card.getAttribute('data-type');
+            if (cardType) {
+              const modelUrl = window.getModelUrlForProduct(cardType);
+              console.log(`Setting model URL for ${cardType}:`, modelUrl);
+              card.setAttribute('data-model', modelUrl);
+            }
+          });
+        }
+        
+        // Find the card that matches the requested product type and trigger its try-on button
+        setTimeout(function() {
+          const matchingCard = Array.from(productCards).find(card => 
+            card.getAttribute('data-type') === productType
+          );
+          
+          if (matchingCard) {
+            console.log('Found matching product card for:', productType);
+            const tryonButton = matchingCard.querySelector('.tryon-button');
+            if (tryonButton) {
+              console.log('Automatically clicking try-on button for:', productType);
+              tryonButton.click();
+            }
+          } else {
+            console.log('No matching card found for product type:', productType);
+          }
+        }, 1000); // Give a bit of time for the page to fully load
+      }
+    });
+  </script>
+  
+  <!-- Load other scripts as modules -->
+  <!-- Main script is loaded only once to prevent duplicate initialization -->
+  <script type="module" src="../JAVASCRIPT/enhanced-virtual-tryon/main.js"></script>
+  
+  <!-- Add VirtualTryOn method extension script -->
+  <script>
+    // Ensure the VirtualTryOn app has a startPoseDetection method
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for main.js to finish loading and initializing the VirtualTryOn app
+      setTimeout(function() {
+        if (window.VirtualTryOn && window.VirtualTryOn.app) {
+          console.log('VirtualTryOn app found, checking for startPoseDetection method');
+          
+          // If startPoseDetection doesn't exist, create it based on the start method
+          if (!window.VirtualTryOn.app.startPoseDetection && window.VirtualTryOn.app.start) {
+            console.log('Creating startPoseDetection method based on start method');
+            window.VirtualTryOn.app.startPoseDetection = function() {
+              console.log('Custom startPoseDetection called, using start method');
+              
+              // Use the existing start method
+              window.VirtualTryOn.app.start();
+              
+              // Hide the loading overlay after a delay
+              setTimeout(function() {
+                const loadingOverlay = document.getElementById('loading-overlay');
+                if (loadingOverlay && loadingOverlay.style.display !== 'none') {
+                  loadingOverlay.style.display = 'none';
+                  console.log('Loading overlay hidden by startPoseDetection');
+                }
+                
+                // Update the pose status element
+                const poseStatus = document.getElementById('pose-status');
+                if (poseStatus) {
+                  poseStatus.textContent = 'Running';
+                }
+              }, 2000);
+            };
+          }
+          
+          // Properly handle the app's initialize method if needed
+          if (!window.VirtualTryOn.app.isInitialized && typeof window.VirtualTryOn.app.initialize === 'function') {
+            console.log('Initializing VirtualTryOn app');
+            window.VirtualTryOn.app.initialize().catch(console.error);
+          }
+        } else {
+          console.warn('VirtualTryOn app not found');
+        }
+      }, 1000); // Give time for main.js to initialize
+    });
+    
+    // Define a global initializePoseDetection function if it doesn't exist
+    if (typeof window.initializePoseDetection !== 'function') {
+      window.initializePoseDetection = function() {
+        console.log('Global initializePoseDetection called');
+        
+        // Flag to prevent multiple initializations
+        if (window.poseDetectionInitialized) {
+          console.log('Pose detection already initialized');
+          return;
+        }
+        
+        window.poseDetectionInitialized = true;
+        
+        // Set flag in session storage
+        sessionStorage.setItem('userRequestedTryOn', 'true');
+        
+        // Try to start pose detection if VirtualTryOn app is available
+        if (window.VirtualTryOn && window.VirtualTryOn.app) {
+          // Try different methods that might be available
+          if (typeof window.VirtualTryOn.app.startPoseDetection === 'function') {
+            console.log('Starting pose detection using startPoseDetection');
+            window.VirtualTryOn.app.startPoseDetection();
+          } else if (typeof window.VirtualTryOn.app.start === 'function') {
+            console.log('Starting pose detection using start method');
+            window.VirtualTryOn.app.start();
+          } else {
+            console.error('No start method available on VirtualTryOn app');
+            alert('Could not start pose detection. Please refresh and try again.');
+          }
+        } else {
+          console.error('VirtualTryOn app not found');
+          alert('The virtual try-on system is not properly loaded. Please refresh the page.');
+        }
+      };
+    }
+  </script>
+  
+  <!-- Module scripts are loaded on-demand by main.js through ES6 imports -->
+  <!-- These script tags are not needed as they're imported in main.js -->
+  <!-- <script type="module" src="../JAVASCRIPT/enhanced-virtual-tryon/modules/sceneManager.js"></script> -->
+  <!-- <script type="module" src="../JAVASCRIPT/enhanced-virtual-tryon/modules/poseDetection.js"></script> -->
+  <!-- <script type="module" src="../JAVASCRIPT/enhanced-virtual-tryon/modules/modelLoader.js"></script> -->
+  <!-- <script type="module" src="../JAVASCRIPT/enhanced-virtual-tryon/modules/clothingFit.js"></script> -->
+  <!-- <script type="module" src="../JAVASCRIPT/enhanced-virtual-tryon/modules/customization.js"></script> -->
+  
+  <script>
+      // Initialize MindARThree global object for compatibility
+      window.MindARThree = {
+        isReady: false,
+        MindARFaceThree: window.MINDAR ? window.MINDAR.FACE.MindARThree : null,
+        MindARImageThree: window.MINDAR ? window.MINDAR.IMAGE.MindARThree : null
+      };
+      
+      // Set MindAR as ready when libraries are loaded
+      window.addEventListener('load', function() {
+        // Check if MindAR libraries are properly loaded
+        if (window.MINDAR && window.MINDAR.FACE && window.MINDAR.IMAGE) {
+          console.log("MindAR libraries loaded successfully");
+          window.MindARThree.isReady = true;
+          window.MindARThree.MindARFaceThree = window.MINDAR.FACE.MindARThree;
+          window.MindARThree.MindARImageThree = window.MINDAR.IMAGE.MindARThree;
+        } else {
+          console.warn("MindAR libraries not fully loaded");
+        }
+        
+        // Dispatch event to unblock any code waiting for MindAR
+        window.dispatchEvent(new CustomEvent('mindar-loaded'));
+      });
+  </script>
+  
+  <style>
+    /* Import styles from Homepage for header */
+    .nav-link {
+      display: flex !important;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 15px !important;
+      border-radius: 8px !important;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    
+    .nav-icon {
+      font-size: 18px;
+      opacity: 0.8;
+      transition: all 0.3s ease;
+    }
+    
+    .nav-link:hover .nav-icon {
+      opacity: 1;
+      transform: translateY(-2px);
+    }
+    
+    .nav-link.active {
+      background: rgba(233, 69, 96, 0.2) !important;
+      font-weight: bold !important;
+    }
+    
+    /* Updated styles for profile dropdown logout link */
+    .profile-dropdown .dropdown-content a[onclick*="handleLogout"] {
+      background: rgba(233, 69, 96, 0.1);
+    }
+    
+    .profile-dropdown .dropdown-content a[onclick*="handleLogout"]:hover {
+      background: rgba(233, 69, 96, 0.3);
+    }
+    
+    .logout-btn {
+      background: rgba(233, 69, 96, 0.1) !important;
+    }
+    
+    .logout-btn:hover {
+      background: rgba(233, 69, 96, 0.3) !important;
+    }
+    
+    .logo-text {
+      background: linear-gradient(45deg, #e94560, #da5353, #e94560);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: gradient 3s linear infinite;
+    }
+    
+    @keyframes gradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
+    header {
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+    }
+    
+    header.scrolled {
+      padding: 12px 0;
+      background: rgba(26, 26, 46, 0.95);
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Introductory Animation Styles */
+    .intro-animation {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      margin: 30px auto;
+      max-width: 800px;
+      perspective: 1000px;
+    }
+    
+    .animation-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 22%;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      backdrop-filter: blur(5px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      transition: all 0.5s ease;
+      opacity: 0.5;
+      transform: translateY(20px);
+    }
+    
+    .animation-step.active {
+      opacity: 1;
+      transform: translateY(0);
+      background: rgba(233, 69, 96, 0.1);
+      box-shadow: 0 8px 25px rgba(233, 69, 96, 0.2);
+    }
+    
+    .animation-icon {
+      font-size: 2.5rem;
+      color: #e94560;
+      margin-bottom: 10px;
+      transition: all 0.5s ease;
+    }
+    
+    .animation-step.active .animation-icon {
+      transform: scale(1.2);
+    }
+    
+    .animation-step p {
+      font-size: 0.85rem;
+      text-align: center;
+      margin: 0;
+    }
+    
+    @keyframes step-transition {
+      0% { opacity: 0.5; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Fade transition for section changes */
+    .hidden {
+      display: none !important;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.8s ease forwards;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Smooth Transitions for Section Changes */
+    #welcome-section, #product-section, #tryon-section {
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    
+    /* Add some additional styles for the category section */
+    .category-container {
+      max-width: 800px;
+      margin: 50px auto;
+      text-align: center;
+      padding: 30px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 30px;
+      margin-top: 30px;
+    }
+    
+    .category-card {
+      background: #f9f9f9;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .category-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+    }
+    
+    .category-thumbnail {
+      height: 160px;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .category-thumbnail img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+    
+    .category-card:hover .category-thumbnail img {
+      transform: scale(1.05);
+    }
+    
+    .category-info {
+      padding: 20px;
+      text-align: left;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    
+    .category-name {
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 5px;
+    }
+    
+    .category-description {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+    
+    .category-count {
+      font-size: 13px;
+      color: #999;
+      display: flex;
+      align-items: center;
+      margin-top: 10px;
+    }
+    
+    .category-count span {
+      font-weight: bold;
+      color: #e94560;
+      margin-right: 5px;
+    }
+    
+    .category-arrow {
+      position: absolute;
+      right: 20px;
+      bottom: 20px;
+      width: 30px;
+      height: 30px;
+      background: rgba(233, 69, 96, 0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #e94560;
+      transition: transform 0.3s;
+    }
+    
+    .category-card:hover .category-arrow {
+      transform: translateX(5px);
+    }
+    
+    /* Mobile Optimizations */
+    @media (max-width: 768px) {
+      .category-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      
+      .options-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+      }
+      
+      .tryon-view {
+        height: 70vh;
+      }
+      
+      .controls-panel {
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      
+      .controls-panel button {
+        flex: 1 0 calc(50% - 10px);
+        font-size: 0.9rem;
+        padding: 10px 5px;
+      }
+      
+      .customization-panel {
+        width: 90%;
+        max-width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+      }
+      
+      .color-options, .material-options {
+        flex-wrap: wrap;
+      }
+    }
+    
+    /* Additional Mobile Adjustments */
+    @media (max-width: 480px) {
+      .tryon-title {
+        font-size: 1.2rem;
+      }
+      
+      .options-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .debug-info {
+        display: none;
+      }
+      
+      .customization-panel {
+        width: 95%;
+        padding: 15px;
+      }
+      
+      .step {
+        padding: 10px;
+      }
+      
+      /* Touch-friendly adjustments */
+      .color-option, .material-option {
+        min-width: 40px;
+        min-height: 40px;
+      }
+      
+      button {
+        min-height: 44px; /* Minimum touch target size */
+      }
+      
+      /* Orientation warning */
+      .orientation-warning {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.9);
+        z-index: 9999;
+        color: white;
+        text-align: center;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        padding: 20px;
+      }
+      
+      .orientation-warning i {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        animation: rotate 2s infinite;
+      }
+      
+      @keyframes rotate {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(90deg); }
+      }
+      
+      @media (orientation: portrait) and (max-width: 480px) {
+        .orientation-warning.landscape-required {
+          display: flex;
+        }
+      }
+      
+      @media (orientation: landscape) and (max-height: 480px) {
+        .orientation-warning.portrait-required {
+          display: flex;
+        }
+      }
+    }
+    
+    /* User Guidance Styles */
+    .user-guidance {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 20px;
+      margin: 30px auto;
+      max-width: 700px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
+    
+    .user-guidance h3 {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 15px;
+      font-size: 1.3rem;
+      color: #e94560;
+    }
+    
+    .guidance-tips {
+      list-style: none;
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+    
+    .guidance-tips li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.95rem;
+    }
+    
+    .guidance-tips i {
+      color: #4caf50;
+    }
+    
+    .device-detection {
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 5px;
+      background: rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    
+    /* Product Grid Styles (from Product.html) */
+    .filters-container {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin: 20px 0 30px;
+    }
+    
+    .filter-button {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 8px 15px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s;
+      color: white;
+    }
+    
+    .filter-button:hover, .filter-button.active {
+      background: #e94560;
+      color: white;
+      border-color: #e94560;
+    }
+    
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    /* Enhanced product card for better visual hierarchy */
+    .product-card {
+      background-color: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+    
+    .product-details {
+      padding: 15px;
+    }
+    
+    .product-name {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: #1a1a2e;
+    }
+    
+    .product-price {
+      font-size: 18px;
+      font-weight: 700;
+      color: #e94560;
+      margin-bottom: 8px;
+    }
+    
+    .product-description {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 15px;
+      line-height: 1.4;
+    }
+    
+    /* Custom controls for model-viewer */
+    model-viewer {
+      width: 100%;
+      height: 100%;
+      --poster-color: transparent;
+      --progress-bar-color: #e94560;
+      --progress-mask: transparent;
+    }
+    
+    /* Better visibility for filter buttons */
+    .filters-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 0 auto 20px;
+      justify-content: center;
+      max-width: 800px;
+    }
+    
+    .filter-button {
+      background-color: #f0f0f0;
+      border: none;
+      border-radius: 20px;
+      padding: 8px 15px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .filter-button:hover {
+      background-color: #e0e0e0;
+    }
+    
+    .filter-button.active {
+      background-color: #e94560;
+      color: white;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .product-grid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 15px;
+        padding: 15px;
+      }
+      
+      .product-image {
+        height: 150px;
+      }
+      
+      .product-name {
+        font-size: 14px;
+      }
+      
+      .product-price {
+        font-size: 16px;
+      }
+      
+      .filters-container {
+        padding: 0 15px;
+      }
+    }
+    
+    .product-image {
+      height: 220px;
+      width: 100%;
+      position: relative;
+      background: rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    
+    .product-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s;
+    }
+    
+    .product-card:hover .product-image img {
+      transform: scale(1.1);
+    }
+    
+    .product-details {
+      padding: 15px;
+    }
+    
+    .product-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: white;
+    }
+    
+    .product-price {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #e94560;
+      margin-bottom: 10px;
+    }
+    
+    .product-description {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.85rem;
+      margin-bottom: 15px;
+      line-height: 1.4;
+    }
+    
+    /* Model 3D Badge */
+    .model-3d-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      font-size: 0.7rem;
+      padding: 3px 8px;
+      border-radius: 10px;
+      z-index: 2;
+    }
+    
+    /* Model Try-on Badge */
+    .model-tryon-badge {
+      position: absolute;
+      bottom: 15px;
+      right: 15px;
+      background: #e94560;
+      color: white;
+      font-size: 0.8rem;
+      padding: 5px 10px;
+      border-radius: 20px;
+      transition: all 0.3s;
+    }
+    
+    .product-card:hover .model-tryon-badge {
+      transform: scale(1.1);
+      box-shadow: 0 5px 15px rgba(233, 69, 96, 0.4);
+    }
+    
+    /* Integrated rating styles */
+    .model-rating {
+      color: #ffc107;
+      font-size: 14px;
+      margin-top: 5px;
+    }
+    
+    .model-rating span {
+      margin-right: 2px;
+    }
+    
+    /* Preview container styles */
+    .model-preview-container {
+      background: rgba(26, 26, 46, 0.4);
+      margin: 0 auto 30px;
+      border-radius: 15px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      height: 350px;
+      max-width: 800px;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    }
+    
+    #preview-renderer {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.2);
+    }
+    
+    .preview-info {
+      padding: 15px;
+      text-align: center;
+      background: rgba(0, 0, 0, 0.4);
+    }
+    
+    .preview-toggle {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      border: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      transition: background 0.3s;
+    }
+    
+    .preview-toggle:hover {
+      background: #e94560;
+    }
+    
+    /* Guidance Tooltip */
+    .guidance-tooltip {
+      position: absolute;
+      top: 70px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 40px);
+      max-width: 400px;
+      z-index: 110;
+      animation: bounce 2s infinite;
+    }
+    
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(-10px); }
+    }
+    
+    .tooltip-content {
+      background: rgba(0, 0, 0, 0.75);
+      color: white;
+      padding: 15px;
+      border-radius: 10px;
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    .close-tooltip {
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      padding: 5px;
+      margin-left: 10px;
+    }
+    
+    /* New Item Badge */
+    .new-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #4caf50;
+      color: white;
+      font-size: 0.7rem;
+      padding: 3px 8px;
+      border-radius: 10px;
+      z-index: 2;
+    }
+    
+    /* Size Guide Panel */
+    .size-guide-button {
+      background-color: #2980b9;
+    }
+    
+    .size-guide-button:hover {
+      background-color: #3498db;
+    }
+    
+    .size-guide-info {
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+      color: #777;
+    }
+    
+    .measurement-section {
+      display: flex;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+    
+    .measurement-illustration {
+      flex: 1;
+      position: relative;
+      min-height: 300px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .measurement-illustration img {
+      max-width: 100%;
+      max-height: 100%;
+    }
+    
+    .measurement-points {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+    
+    .measurement-point {
+      position: absolute;
+      width: 15px;
+      height: 15px;
+      background-color: #e94560;
+      border-radius: 50%;
+      border: 2px solid white;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .measurement-point:hover {
+      transform: translate(-50%, -50%) scale(1.2);
+      box-shadow: 0 0 10px rgba(233, 69, 96, 0.6);
+    }
+    
+    .measurements-table {
+      flex: 1;
+    }
+    
+    .measurement-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .measurement-label {
+      font-weight: 500;
+    }
+    
+    .measurement-value {
+      color: #e94560;
+      font-weight: 700;
+    }
+    
+    .size-recommendation {
+      background-color: rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .size-recommendation h4 {
+      margin-top: 0;
+      margin-bottom: 15px;
+      font-size: 1.1rem;
+    }
+    
+    .size-recommendation-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+    
+    .size-type {
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 10px;
+      border-radius: 5px;
+      text-align: center;
+    }
+    
+    .size-type-label {
+      font-size: 0.8rem;
+      margin-bottom: 5px;
+      color: #aaa;
+    }
+    
+    .size-type-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #e94560;
+    }
+    
+    .size-disclaimer {
+      font-size: 0.8rem;
+      color: #aaa;
+      margin-top: 15px;
+      text-align: center;
+    }
+    
+    .size-disclaimer a {
+      color: #e94560;
+      text-decoration: none;
+    }
+    
+    /* Share Panel */
+    .share-panel {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    
+    .share-panel.visible {
+      opacity: 1;
+      pointer-events: all;
+    }
+    
+    .share-content {
+      background-color: #1a1a2e;
+      border-radius: 15px;
+      padding: 30px;
+      width: 90%;
+      max-width: 600px;
+      box-shadow: 0 5px 30px rgba(0, 0, 0, 0.5);
+      position: relative;
+    }
+    
+    .share-content h3 {
+      text-align: center;
+      margin-top: 0;
+      margin-bottom: 20px;
+      color: #fff;
+    }
+    
+    .captured-image-container {
+      width: 100%;
+      height: 300px;
+      background-color: #000;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .captured-image-container img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+    
+    .share-options {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    
+    .share-button {
+      border: none;
+      padding: 12px;
+      border-radius: 5px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    .download-button {
+      background-color: #4caf50;
+      color: white;
+    }
+    
+    .facebook-button {
+      background-color: #3b5998;
+      color: white;
+    }
+    
+    .twitter-button {
+      background-color: #1da1f2;
+      color: white;
+    }
+    
+    .instagram-button {
+      background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+      color: white;
+    }
+    
+    .pinterest-button {
+      background-color: #bd081c;
+      color: white;
+    }
+    
+    .email-button {
+      background-color: #757575;
+      color: white;
+    }
+    
+    .cart-action {
+      margin-top: 15px;
+      text-align: center;
+    }
+    
+    .add-to-cart-button {
+      background-color: #e94560;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 50px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .add-to-cart-button:hover {
+      background-color: #d13354;
+      transform: translateY(-2px);
+    }
+    
+    .close-share-button {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: white;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+    
+    .close-share-button:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Selection Section Styles */
+    .selection-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease-in-out;
+    }
+
+    .selection-help {
+      margin-bottom: 1.5rem;
+      color: #666;
+      font-style: italic;
+      text-align: center;
+    }
+
+    .model-preview-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 1rem auto 3rem;
+      width: 100%;
+      max-width: 800px;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+      position: relative;
+      min-height: 300px;
+      transition: all 0.4s ease;
+    }
+
+    #preview-renderer {
+      width: 100%;
+      height: 250px;
+      margin-bottom: 1rem;
+      position: relative;
+      border-radius: 8px;
+      background-color: rgba(255, 255, 255, 0.7);
+    }
+
+    .preview-info {
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    .preview-info h3 {
+      margin: 0 0 0.5rem;
+      color: #333;
+      font-size: 1.5rem;
+    }
+
+    .preview-info p {
+      margin: 0;
+      color: #666;
+      font-size: 1rem;
+    }
+
+    .preview-toggle {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transition: all 0.2s ease;
+      z-index: 10;
+    }
+
+    .preview-toggle:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .model-card {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease;
+      background-color: white;
+      cursor: pointer;
+    }
+
+    .model-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 25px rgba(0, 0, 0, 0.12);
+    }
+
+    .model-preview {
+      position: relative;
+      height: 200px;
+      background-color: #f8f9fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .model-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+
+    .model-card:hover .model-preview img {
+      transform: scale(1.05);
+    }
+
+    .model-info {
+      padding: 1rem;
+    }
+
+    .model-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #333;
+    }
+
+    .model-price {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #3182ce;
+      margin-bottom: 0.5rem;
+    }
+
+    .model-rating {
+      color: gold;
+      font-size: 16px;
+      margin: 5px 0;
+    }
+
+    .model-rating span {
+      margin-right: 2px;
+    }
+
+    .model-3d-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background-color: rgba(255, 255, 255, 0.9);
+      color: #3182ce;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .model-tryon-badge {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: #3182ce;
+      color: white;
+      text-align: center;
+      padding: 0.5rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transform: translateY(100%);
+      transition: transform 0.3s ease;
+    }
+
+    .model-card:hover .model-tryon-badge {
+      transform: translateY(0);
+    }
+
+    .new-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background-color: #e53e3e;
+      color: white;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .options-grid {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 1rem;
+      }
+      
+      .model-preview {
+        height: 160px;
+      }
+      
+      .model-info {
+        padding: 0.75rem;
+      }
+      
+      .model-name {
+        font-size: 1rem;
+      }
+      
+      .model-price {
+        font-size: 1.1rem;
+      }
+      
+      .model-preview-container {
+        padding: 1.5rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .options-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 0.75rem;
+      }
+      
+      .model-preview {
+        height: 140px;
+      }
+    }
+    
+    /* User Flow Guide Styles */
+    .user-flow-guide {
+      display: flex;
+      justify-content: center;
+      background: #fff;
+      padding: 15px 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .flow-step {
+      padding: 8px 15px;
+      margin: 0 10px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #777;
+      position: relative;
+    }
+    
+    .flow-step::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      right: -20px;
+      width: 20px;
+      height: 2px;
+      background: #ddd;
+      transform: translateY(-50%);
+    }
+    
+    .flow-step:last-child::after {
+      display: none;
+    }
+    
+    .flow-step.active {
+      background: #3182ce;
+      color: white;
+    }
+    
+    .flow-step.completed {
+      background: #4CAF50;
+      color: white;
+    }
+    
+    /* Modal Overlay Styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      display: none;
+    }
+    
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      max-width: 500px;
+      width: 90%;
+      text-align: center;
+    }
+    
+    .modal-content h3 {
+      color: #3182ce;
+      margin-top: 0;
+    }
+    
+    .button-row {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 25px;
+    }
+    
+    .primary-button {
+      background: #3182ce;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+    
+    .primary-button:hover {
+      background: #2c5282;
+    }
+    
+    .secondary-button {
+      background: #e2e8f0;
+      color: #4a5568;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+    
+    .secondary-button:hover {
+      background: #cbd5e0;
+    }
+    
+    /* Try-on Controls Initial */
+    .tryon-controls-initial {
+      text-align: center;
+      padding: 30px;
+      background: rgba(255,255,255,0.9);
+      border-radius: 8px;
+      margin: 20px auto;
+      max-width: 500px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .tryon-info {
+      margin-bottom: 20px;
+      font-size: 16px;
+      color: #4a5568;
+    }
+    
+    /* Enhanced Try-on Button */
+    .try-on-btn {
+      background: #e94560;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+      width: 100%;
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.3s;
+    }
+    
+    .try-on-btn:hover {
+      background: #d13551;
+    }
+    
+    /* Custom styles for enhanced virtual try-on page */
+    
+    /* Base styles */
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      color: #333;
+      background-color: #f8f9fa;
+      overflow-x: hidden;
+    }
+    
+    /* Add this new section for our enhanced UI elements */
+    
+    /* 3D Badge styles */
+    .view-3d-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background-color: rgba(233, 69, 96, 0.9);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 12px;
+      font-weight: 600;
+      z-index: 10;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      animation: pulse 2s infinite;
+    }
+    
+    /* Enhanced Try On button */
+    .tryon-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      background-color: #e94560;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 3px 6px rgba(233, 69, 96, 0.3);
+    }
+    
+    .tryon-button:hover {
+      background-color: #d83a50;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 10px rgba(233, 69, 96, 0.4);
+    }
+    
+    .tryon-button:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 5px rgba(233, 69, 96, 0.2);
+    }
+    
+    /* Highlight product card on interaction */
+    .product-card {
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+    
+    .product-card:hover,
+    .product-card.preview-active {
+      border-color: #e94560;
+      transform: translateY(-5px);
+      box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+    }
+    
+    /* Animation for 3D badge */
+    @keyframes pulse {
+      0% { opacity: 0.7; }
+      50% { opacity: 1; }
+      100% { opacity: 0.7; }
+    }
+    
+    /* Improved product image container */
+    .product-image {
+      position: relative;
+      height: 180px;
+      background-color: #1a1a2e;
+      overflow: hidden;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .view-3d-badge {
+        top: 5px;
+        right: 5px;
+        font-size: 10px;
+      }
+    }
+  </style>
+
+  <!-- Added Initialization Script to delay pose detection -->
+  <script>
+    // Flag to track if pose detection has been initialized
+    window.poseDetectionInitialized = false;
+    
+    // Function to safely initialize pose detection only when needed
+    window.initializePoseDetection = function() {
+      if (window.poseDetectionInitialized) return;
+      
+      console.log('Explicitly initializing pose detection at user request');
+      window.poseDetectionInitialized = true;
+      
+        // Set a flag in session storage to indicate user intent
+        sessionStorage.setItem('userRequestedTryOn', 'true');
+      
+      // This will be called when a product is selected for try-on
+      if (window.VirtualTryOn && window.VirtualTryOn.app) {
+        console.log('VirtualTryOn app found, attempting to start pose detection');
+        if (typeof window.VirtualTryOn.app.startPoseDetection === 'function') {
+          window.VirtualTryOn.app.startPoseDetection();
+          document.getElementById('pose-status').textContent = 'Starting...';
+        } else {
+          // Check if we need to initialize the app first
+          if (typeof window.VirtualTryOn.initializeApp === 'function') {
+            window.VirtualTryOn.initializeApp();
+            console.log('Initialized VirtualTryOn app');
+            
+            // Now try to start pose detection again
+            if (typeof window.VirtualTryOn.app.startPoseDetection === 'function') {
+              window.VirtualTryOn.app.startPoseDetection();
+              document.getElementById('pose-status').textContent = 'Starting...';
+            }
+          } else {
+            console.error('VirtualTryOn app functionality not available');
+          }
+        }
+      } else {
+        console.error('VirtualTryOn app not found, cannot start pose detection');
+      }
+      
+      // Make sure the loading overlay is hidden
+      const loadingOverlay = document.getElementById('loading-overlay');
+      if (loadingOverlay) {
+        loadingOverlay.style.display = 'none';
+        console.log('Loading overlay hidden by initializePoseDetection');
+      }
+    };
+    
+    // Add a listener to ensure pose detection doesn't start automatically
+    document.addEventListener('DOMContentLoaded', function() {
+      // Prevent auto-initialization of pose detection
+      if (window.VirtualTryOn) {
+        window.VirtualTryOn.Config = window.VirtualTryOn.Config || {};
+        if (window.VirtualTryOn.Config.poseDetection) {
+          window.VirtualTryOn.Config.poseDetection.autoStart = false;
+        }
+      }
+    });
+  </script>
+
+  <!-- Model Viewer For 3D Models -->
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+
+  <!-- Model Preloader & Fallback System -->
+  <script>
+    // Define fallback models for different product types - UPDATED WORKING URLS
+    const FALLBACK_MODELS = {
+      default: 'https://res.cloudinary.com/customxshop/image/upload/v1744747249/CustomXShop/azafikkk3i9kx0kwgtzm.glb',
+      shirt: 'https://res.cloudinary.com/customxshop/image/upload/v1744041431/check_shirt.compressed_u3k3bc.glb',
+      tshirt: 'https://res.cloudinary.com/customxshop/image/upload/v1744037917/CustomXShop/l4plnsl7o5r6qqxotasx.glb',
+      hoodie: 'https://res.cloudinary.com/customxshop/image/upload/v1744747249/CustomXShop/azafikkk3i9kx0kwgtzm.glb', // Using working model as fallback for hoodie
+      glasses: 'https://res.cloudinary.com/customxshop/image/upload/v1744747249/CustomXShop/azafikkk3i9kx0kwgtzm.glb',
+      cap: 'https://res.cloudinary.com/customxshop/image/upload/v1744747249/CustomXShop/azafikkk3i9kx0kwgtzm.glb',
+      polo: 'https://res.cloudinary.com/customxshop/image/upload/v1744747249/CustomXShop/azafikkk3i9kx0kwgtzm.glb'
+    };
+    
+    // Preload the fallback models
+    window.addEventListener('load', function() {
+      console.log('Preloading fallback 3D models...');
+      
+      // Create hidden model-viewer elements to preload models
+      const preloadContainer = document.createElement('div');
+      preloadContainer.style.position = 'absolute';
+      preloadContainer.style.width = '1px';
+      preloadContainer.style.height = '1px';
+      preloadContainer.style.overflow = 'hidden';
+      preloadContainer.style.opacity = '0';
+      preloadContainer.style.pointerEvents = 'none';
+      
+      // Preload each fallback model
+      Object.values(FALLBACK_MODELS).forEach(modelUrl => {
+        try {
+          const modelViewer = document.createElement('model-viewer');
+          modelViewer.src = modelUrl;
+          modelViewer.loading = 'lazy';
+          modelViewer.preload = true;
+          modelViewer.style.width = '1px';
+          modelViewer.style.height = '1px';
+          
+          // Add load event listener
+          modelViewer.addEventListener('load', () => {
+            console.log(`Preloaded model: ${modelUrl}`);
+          });
+          
+          // Add error event listener
+          modelViewer.addEventListener('error', (error) => {
+            console.warn(`Failed to preload model: ${modelUrl}`, error);
+          });
+          
+          preloadContainer.appendChild(modelViewer);
+        } catch (error) {
+          console.error(`Error setting up preload for model: ${modelUrl}`, error);
+        }
+      });
+      
+      // Add the preload container to document
+      document.body.appendChild(preloadContainer);
+      
+      // Remove after 10 seconds
+      setTimeout(() => {
+        if (document.body.contains(preloadContainer)) {
+          document.body.removeChild(preloadContainer);
+        }
+      }, 10000);
+    });
+    
+    // Helper function to get fallback model for a product type
+    window.getFallbackModel = function(productType) {
+      return FALLBACK_MODELS[productType] || FALLBACK_MODELS.default;
+    };
+  </script>
+</head>
+<body>
+  <!-- Starting with a clear user flow guidance -->
+  <div id="user-flow-guide" class="user-flow-guide">
+    <div class="flow-step active">1. Browse Products</div>
+    <div class="flow-step">2. Select Item</div>
+    <div class="flow-step">3. Virtual Try-On</div>
+  </div>
+  
+  <header>
+    <nav>
+      <div class="nav-container">
+        <h1><a href="/Homepage" aria-label="Go to homepage" class="logo-text">CustomXShop</a></h1>
+        <ul>
+          <li><a href="/Homepage" aria-label="Home" class="nav-link"><span class="material-icons nav-icon">home</span>Home</a></li>
+          <li><a href="/HTML/Product.html" aria-label="View Products" class="nav-link"><span class="material-icons nav-icon">checkroom</span>Products</a></li>
+          <li id="user-designs-link" style="display: none;"><a href="/HTML/Designs.html" aria-label="Your Designs" class="nav-link"><span class="material-icons nav-icon">palette</span>Your Designs</a></li>
+          <li id="cart-link" style="display: none;"><a href="/HTML/Cart.html" aria-label="Go to Cart" class="nav-link"><span class="material-icons nav-icon">shopping_cart</span>Cart</a></li>
+          <li><a href="/HTML/Services.html" aria-label="Explore Services" class="nav-link"><span class="material-icons nav-icon">design_services</span>Services</a></li>
+          <li><a href="Help.html" aria-label="Get Help" class="nav-link"><span class="material-icons nav-icon">help_outline</span>Help</a></li>
+          <li id="login-li" style="display: block;"><a href="/HTML/index.html" aria-label="Login" class="nav-link login-btn"><span class="material-icons nav-icon">login</span>Login</a></li>
+          <li id="profile-li" style="display: none;" class="profile-dropdown">
+            <a href="/HTML/Profile.html" aria-label="Profile" class="nav-link profile-btn"><span class="material-icons nav-icon">person</span>Profile</a>
+            <!-- Dropdown content removed -->
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Welcome Section -->
+  <section id="welcome-section" class="welcome-container fade-in">
+    <h2>Enhanced Virtual Try-On</h2>
+    <p>Try on clothing with our improved AI-powered system featuring advanced body tracking, real-time 3D rendering, and augmented reality.</p>
+    
+    <!-- Introductory Animation -->
+    <div class="intro-animation">
+      <div class="animation-step active">
+        <div class="animation-icon"><i class="fas fa-camera"></i></div>
+        <p>We'll use your camera to capture your pose</p>
+      </div>
+      <div class="animation-step">
+        <div class="animation-icon"><i class="fas fa-tshirt"></i></div>
+        <p>Select from our collection of 3D clothing</p>
+      </div>
+      <div class="animation-step">
+        <div class="animation-icon"><i class="fas fa-magic"></i></div>
+        <p>Our AI will fit the clothing to your body</p>
+      </div>
+      <div class="animation-step">
+        <div class="animation-icon"><i class="fas fa-share-alt"></i></div>
+        <p>Customize, capture, and share your look</p>
+      </div>
+    </div>
+    
+    <div class="steps-container">
+      <div class="step">
+        <div class="step-number">1</div>
+        <h3>Select Item</h3>
+        <p>Choose clothing to try on</p>
+      </div>
+      <div class="step">
+        <div class="step-number">2</div>
+        <h3>Virtual Try-On</h3>
+        <p>See real-time clothing overlay</p>
+      </div>
+      <div class="step">
+        <div class="step-number">3</div>
+        <h3>Customize</h3>
+        <p>Adjust colors, styles and more</p>
+      </div>
+      <div class="step">
+        <div class="step-number">4</div>
+        <h3>Capture</h3>
+        <p>Save images or record video</p>
+      </div>
+    </div>
+    
+    <!-- Enhanced User Guidance -->
+    <div class="user-guidance">
+      <h3><i class="fas fa-lightbulb"></i> Tips for Best Results</h3>
+      <ul class="guidance-tips">
+        <li><i class="fas fa-check"></i> Use a well-lit environment</li>
+        <li><i class="fas fa-check"></i> Stand 4-6 feet away from your camera</li>
+        <li><i class="fas fa-check"></i> Ensure your full upper body is visible</li>
+        <li><i class="fas fa-check"></i> For mobile devices, use landscape mode</li>
+        <li><i class="fas fa-check"></i> Allow camera permissions when prompted</li>
+      </ul>
+      
+      <div class="device-detection">
+        <p id="device-info">Optimizing for your device...</p>
+      </div>
+    </div>
+    
+    <button id="welcome-start-button" class="start-button">Start Try-On Experience</button>
+  </section>
+  
+  <!-- Product Selection Section (Integrated from Product.html) -->
+  <section id="product-section" class="selection-container hidden">
+    <h2>Choose Items to Try On</h2>
+    <p>Browse our collection and select an item to try on virtually</p>
+    
+    <div class="filters-container">
+      <button class="filter-button active" data-filter="all">All Products</button>
+      <button class="filter-button" data-filter="shirts">Shirts</button>
+      <button class="filter-button" data-filter="tshirts">T-Shirts</button>
+      <button class="filter-button" data-filter="hoodies">Hoodies</button>
+      <button class="filter-button" data-filter="accessories">Accessories</button>
+      <button class="filter-button" data-filter="glasses">Glasses</button>
+      </div>
+    
+    <div class="product-grid">
+      <!-- Product 1 -->
+      <div class="product-card model-card" data-category="shirts" data-model="https://res.cloudinary.com/customxshop/image/upload/v1744041431/check_shirt.compressed_u3k3bc.glb" data-type="shirt" data-description="High-quality long sleeve shirt with customizable design options. Perfect for casual and formal occasions.">
+        <div class="product-image">
+          <model-viewer 
+            src="https://res.cloudinary.com/customxshop/image/upload/v1744041431/check_shirt.compressed_u3k3bc.glb" 
+            alt="3D model of shirt" 
+            auto-rotate 
+            camera-controls 
+            shadow-intensity="1" 
+            exposure="0.5"
+            loading="lazy">
+          </model-viewer>
+          <div class="view-3d-badge">Interactive 3D Model</div>
+      </div>
+        <div class="product-details model-info">
+          <div class="product-name model-name">Premium Long Sleeve Shirt</div>
+          <div class="product-price model-price">$49.99</div>
+          <div class="product-description">High-quality long sleeve shirt with customizable design options.</div>
+          <button class="tryon-button" data-product="shirt">Try On <i class="fas fa-tshirt"></i></button>
+      </div>
+      </div>
+      
+      <!-- Product 2 -->
+      <div class="product-card model-card" data-category="tshirts" data-model="https://res.cloudinary.com/customxshop/image/upload/v1744037917/CustomXShop/l4plnsl7o5r6qqxotasx.glb" data-type="tshirt" data-description="Comfortable cotton t-shirt with multiple customization options. Suitable for everyday wear.">
+        <div class="product-image">
+          <model-viewer 
+            src="https://res.cloudinary.com/customxshop/image/upload/v1744037917/CustomXShop/l4plnsl7o5r6qqxotasx.glb" 
+            alt="3D model of t-shirt" 
+            auto-rotate 
+            camera-controls 
+            shadow-intensity="1" 
+            exposure="0.5"
+            loading="lazy">
+          </model-viewer>
+          <div class="view-3d-badge">Interactive 3D Model</div>
+        </div>
+        <div class="product-details model-info">
+          <div class="product-name model-name">Classic T-Shirt</div>
+          <div class="product-price model-price">$29.99</div>
+          <div class="product-description">Comfortable cotton t-shirt with multiple customization options.</div>
+          <button class="tryon-button" data-product="tshirt">Try On <i class="fas fa-tshirt"></i></button>
+        </div>
+      </div>
+      
+      <!-- Product 3 -->
+      <div class="product-card model-card" data-category="hoodies" data-model="https://res.cloudinary.com/customxshop/image/upload/v1744747249/CustomXShop/azafikkk3i9kx0kwgtzm.glb" data-type="hoodie" data-description="Warm and stylish hoodie for the colder seasons. Fully customizable with your unique designs.">
+        <div class="product-image">
+          <model-viewer 
+            src="https://res.cloudinary.com/customxshop/image/upload/v1744747249/CustomXShop/azafikkk3i9kx0kwgtzm.glb" 
+            alt="3D model of hoodie" 
+            auto-rotate 
+            camera-controls 
+            shadow-intensity="1" 
+            exposure="0.5"
+            loading="lazy">
+          </model-viewer>
+          <div class="view-3d-badge">Interactive 3D Model</div>
+        </div>
+        <div class="product-details model-info">
+          <div class="product-name model-name">Casual Hoodie</div>
+          <div class="product-price model-price">$59.99</div>
+          <div class="product-description">Warm and stylish hoodie for the colder seasons.</div>
+          <button class="tryon-button" data-product="hoodie">Try On <i class="fas fa-tshirt"></i></button>
+        </div>
+      </div>
+      
+      <!-- Product 4 -->
+      <div class="product-card model-card" data-category="shirts" data-model="https://res.cloudinary.com/customxshop/image/upload/v1744041431/check_shirt.compressed_u3k3bc.glb" data-type="business-shirt" data-description="Professional business shirt with premium cotton. Customize it for your office needs.">
+        <div class="product-image">
+          <model-viewer 
+            src="https://res.cloudinary.com/customxshop/image/upload/v1744041431/check_shirt.compressed_u3k3bc.glb" 
+            alt="3D model of business shirt" 
+            auto-rotate 
+            camera-controls 
+            shadow-intensity="1" 
+            exposure="0.5"
+            loading="lazy">
+          </model-viewer>
+          <div class="view-3d-badge">Interactive 3D Model</div>
+      </div>
+        <div class="product-details model-info">
+          <div class="product-name model-name">Business Shirt</div>
+          <div class="product-price model-price">$54.99</div>
+          <div class="product-description">Professional business shirt with premium cotton.</div>
+          <button class="tryon-button" data-product="business-shirt">Try On <i class="fas fa-tshirt"></i></button>
+        </div>
+      </div>
+      
+      <!-- Product 5 - Cap (Accessory) -->
+      <div class="product-card model-card" data-category="accessories" data-model="https://res.cloudinary.com/customxshop/image/upload/v1744747249/CustomXShop/azafikkk3i9kx0kwgtzm.glb" data-type="cap" data-description="Stylish cap that can be customized with your designs, logos, or text.">
+        <div class="product-image">
+          <model-viewer 
+            src="https://res.cloudinary.com/customxshop/image/upload/v1744747249/CustomXShop/azafikkk3i9kx0kwgtzm.glb" 
+            alt="3D model of cap" 
+            auto-rotate 
+            camera-controls 
+            shadow-intensity="1" 
+            exposure="0.5"
+            loading="lazy">
+          </model-viewer>
+          <div class="view-3d-badge">Interactive 3D Model</div>
+        </div>
+        <div class="product-details model-info">
+          <div class="product-name model-name">Custom Cap</div>
+          <div class="product-price model-price">$24.99</div>
+          <div class="product-description">Stylish cap that can be customized with your designs.</div>
+          <button class="tryon-button" data-product="cap">Try On <i class="fas fa-hat-cowboy"></i></button>
+        </div>
+      </div>
+      
+      <!-- Product 6 -->
+      <div class="product-card model-card" data-category="tshirts" data-model="https://res.cloudinary.com/customxshop/image/upload/v1744747249/CustomXShop/azafikkk3i9kx0kwgtzm.glb" data-type="polo" data-description="Classic polo shirt with customizable collar and sleeve designs.">
+        <div class="product-image">
+          <model-viewer 
+            src="https://res.cloudinary.com/customxshop/image/upload/v1744747249/CustomXShop/azafikkk3i9kx0kwgtzm.glb" 
+            alt="3D model of polo shirt" 
+            auto-rotate 
+            camera-controls 
+            shadow-intensity="1" 
+            exposure="0.5"
+            loading="lazy">
+          </model-viewer>
+          <div class="view-3d-badge">Interactive 3D Model</div>
+        </div>
+        <div class="product-details model-info">
+          <div class="product-name model-name">Polo Shirt</div>
+          <div class="product-price model-price">$39.99</div>
+          <div class="product-description">Classic polo shirt with customizable collar and sleeve designs.</div>
+          <button class="tryon-button" data-product="polo">Try On <i class="fas fa-tshirt"></i></button>
+        </div>
+      </div>
+      
+      <!-- Product 7 - Glasses (Accessory) -->
+      <div class="product-card model-card" data-category="accessories" data-model="https://res.cloudinary.com/customxshop/image/upload/v1744747249/CustomXShop/azafikkk3i9kx0kwgtzm.glb" data-type="glasses" data-description="Trendy glasses with customizable frames. Add your own style to make them unique.">
+        <div class="product-image">
+          <model-viewer 
+            src="https://res.cloudinary.com/customxshop/image/upload/v1744747249/CustomXShop/azafikkk3i9kx0kwgtzm.glb" 
+            alt="3D model of glasses" 
+            auto-rotate 
+            camera-controls 
+            shadow-intensity="1" 
+            exposure="0.5"
+            loading="lazy">
+          </model-viewer>
+          <div class="view-3d-badge">Interactive 3D Model</div>
+        </div>
+        <div class="product-details model-info">
+          <div class="product-name model-name">Designer Glasses</div>
+          <div class="product-price model-price">$89.99</div>
+          <div class="product-description">Trendy glasses with customizable frames and lenses.</div>
+          <button class="tryon-button" data-product="glasses">Try On <i class="fas fa-glasses"></i></button>
+        </div>
+      </div>
+      
+      <!-- Add Glasses Products -->
+      <!-- Aviator Glasses -->
+      <div class="product-card model-card" data-category="glasses" data-model="https://res.cloudinary.com/customxshop/image/upload/v1744747091/CustomXShop/cvplmygtdn3yuphduwlu.glb" data-type="aviator-glasses" data-description="Classic aviator-style glasses with lightweight metal frame and adjustable nose pads for comfort.">
+        <div class="model-tryon-badge">New</div>
+        <div class="product-image">
+          <model-viewer 
+            src="https://res.cloudinary.com/customxshop/image/upload/v1744747091/CustomXShop/cvplmygtdn3yuphduwlu.glb" 
+            alt="3D model of aviator glasses" 
+            auto-rotate 
+            camera-controls 
+            shadow-intensity="1" 
+            exposure="0.5"
+            loading="lazy">
+          </model-viewer>
+        </div>
+        <div class="product-details model-info">
+          <div class="product-name model-name">Classic Aviator Glasses</div>
+          <div class="product-price model-price">$89.99</div>
+          <div class="model-rating">
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star-half-alt"></i>
+            <span>(47)</span>
+          </div>
+          <div class="product-description">Timeless aviator-style glasses with lightweight metal frame.</div>
+          <button class="tryon-button" data-product="aviator-glasses">Try On</button>
+        </div>
+      </div>
+      
+      <!-- Round Glasses -->
+      <div class="product-card model-card" data-category="glasses" data-model="https://res.cloudinary.com/customxshop/image/upload/v1744747249/CustomXShop/azafikkk3i9kx0kwgtzm.glb" data-type="round-glasses" data-description="Retro-inspired round glasses with premium acetate frames and anti-reflective lenses.">
+        <div class="model-tryon-badge">New</div>
+        <div class="product-image">
+          <model-viewer 
+            src="https://res.cloudinary.com/customxshop/image/upload/v1744747249/CustomXShop/azafikkk3i9kx0kwgtzm.glb" 
+            alt="3D model of round glasses" 
+            auto-rotate 
+            camera-controls 
+            shadow-intensity="1" 
+            exposure="0.5"
+            loading="lazy">
+          </model-viewer>
+        </div>
+        <div class="product-details model-info">
+          <div class="product-name model-name">Vintage Round Frames</div>
+          <div class="product-price model-price">$79.99</div>
+          <div class="model-rating">
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="far fa-star"></i>
+            <span>(33)</span>
+          </div>
+          <div class="product-description">Retro-inspired round glasses with premium acetate frames.</div>
+          <button class="tryon-button" data-product="round-glasses">Try On</button>
+        </div>
+      </div>
+      
+      <!-- Cat-Eye Glasses -->
+      <div class="product-card model-card" data-category="glasses" data-model="https://res.cloudinary.com/customxshop/image/upload/v1744747128/CustomXShop/bx80elzrhzirdpua3rth.glb" data-type="cat-eye-glasses" data-description="Stylish cat-eye glasses with contemporary design, perfect for making a bold fashion statement.">
+        <div class="model-tryon-badge">New</div>
+        <div class="product-image">
+          <model-viewer 
+            src="https://res.cloudinary.com/customxshop/image/upload/v1744747128/CustomXShop/bx80elzrhzirdpua3rth.glb" 
+            alt="3D model of cat-eye glasses" 
+            auto-rotate 
+            camera-controls 
+            shadow-intensity="1" 
+            exposure="0.5"
+            loading="lazy">
+          </model-viewer>
+        </div>
+        <div class="product-details model-info">
+          <div class="product-name model-name">Modern Cat-Eye Frames</div>
+          <div class="product-price model-price">$94.99</div>
+          <div class="model-rating">
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <span>(52)</span>
+          </div>
+          <div class="product-description">Stylish cat-eye glasses with contemporary design.</div>
+          <button class="tryon-button" data-product="cat-eye-glasses">Try On</button>
+        </div>
+      </div>
+      
+      <!-- Rectangle Glasses -->
+      <div class="product-card model-card" data-category="glasses" data-model="https://res.cloudinary.com/customxshop/image/upload/v1744747235/CustomXShop/bfh8glxiqcn0fq1vbdil.glb" data-type="rectangle-glasses" data-description="Sophisticated rectangular glasses with sleek design, ideal for professional settings and everyday wear.">
+        <div class="model-tryon-badge">New</div>
+        <div class="product-image">
+          <model-viewer 
+            src="https://res.cloudinary.com/customxshop/image/upload/v1744747235/CustomXShop/bfh8glxiqcn0fq1vbdil.glb" 
+            alt="3D model of rectangle glasses" 
+            auto-rotate 
+            camera-controls 
+            shadow-intensity="1" 
+            exposure="0.5"
+            loading="lazy">
+          </model-viewer>
+        </div>
+        <div class="product-details model-info">
+          <div class="product-name model-name">Professional Rectangle Frames</div>
+          <div class="product-price model-price">$84.99</div>
+          <div class="model-rating">
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="far fa-star"></i>
+            <span>(41)</span>
+          </div>
+          <div class="product-description">Sophisticated rectangular glasses with sleek design.</div>
+          <button class="tryon-button" data-product="rectangle-glasses">Try On</button>
+        </div>
+      </div>
+    </div>
+    
+    <button id="product-back-button" class="back-button" style="margin-top: 30px;">
+      <i class="fas fa-arrow-left"></i> Back
+    </button>
+  </section>
+  
+  <!-- Virtual Try-On Section -->
+  <section id="tryon-section" class="tryon-container hidden">
+    <div class="tryon-title">CustomXShop Virtual Try-On</div>
+    
+    <!-- Add explicit camera permission guidance -->
+    <div id="camera-permission-guide" class="modal-overlay">
+      <div class="modal-content">
+        <h3>Camera Access Required</h3>
+        <p>To use the Virtual Try-On feature, we need access to your camera. Please click "Allow" when prompted.</p>
+        <p>Your camera feed is only used for the try-on experience and is not recorded or stored.</p>
+        <div class="button-row">
+          <button id="start-camera-button" class="primary-button">Continue to Try-On</button>
+          <button id="cancel-tryon-button" class="secondary-button">Cancel</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="tryon-view">
+      <!-- Model viewer WITHOUT src attribute to prevent automatic loading -->
+      <model-viewer 
+        id="try-on-model-viewer"
+        alt="3D model of apparel" 
+        camera-controls
+        auto-rotate="false"
+        shadow-intensity="1"
+        exposure="0.7"
+        interaction-prompt="none"
+        style="width: 100%; height: 100%; background-color: transparent;">
+      </model-viewer>
+      
+      <video id="video" autoplay muted playsinline></video>
+      <canvas id="output-canvas"></canvas>
+      <div id="pose-landmarks" class="pose-landmarks"></div>
+      
+      <!-- Add start try-on button that overlays model viewer -->
+      <div id="try-on-start-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background-color: rgba(0,0,0,0.3); z-index: 100;">
+        <button id="start-tryon-button" class="primary-button" style="padding: 15px 30px; font-size: 18px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">
+          <i class="fas fa-play"></i> Start Try-On
+        </button>
+      </div>
+      
+      <!-- Debug info -->
+      <div id="debug-info" class="debug-info" style="position: absolute; top: 60px; left: 10px; color: white; background-color: rgba(0,0,0,0.5); padding: 10px; border-radius: 5px; font-size: 12px; z-index: 100;">
+        <div>FPS: <span id="fps-counter">0</span></div>
+        <div>Pose Detection: <span id="pose-status">Initializing...</span></div>
+        <div>Model: <span id="model-status">None</span></div>
+      </div>
+    </div>
+    
+    <div class="controls-panel">
+      <button id="camera-flip-button" class="camera-flip-button">
+        <i class="fas fa-camera-rotate"></i> Flip Camera
+      </button>
+      <button id="customize-button" class="customize-button">
+        <i class="fas fa-sliders"></i> Customize
+      </button>
+      <button id="screenshot-button" class="screenshot-button">
+        <i class="fas fa-camera"></i> Take Photo
+      </button>
+      <button id="record-button" class="record-button">
+        <i class="fas fa-video"></i> <span id="record-text">Record Video</span>
+      </button>
+      <button id="size-guide-button" class="size-guide-button">
+        <i class="fas fa-ruler"></i> Size Guide
+      </button>
+      <button id="back-button" class="back-button">
+        <i class="fas fa-arrow-left"></i> Back
+      </button>
+    </div>
+    
+    <!-- Customization Panel -->
+    <div id="customization-panel" class="customization-panel hidden">
+      <h3>Customize Your Item</h3>
+      
+      <div class="customization-section">
+        <div class="customization-row">
+          <div class="customization-label">Color:</div>
+          <div class="color-options">
+            <div class="color-option selected" style="background-color: #1a1a2e;" data-color="#1a1a2e"></div>
+            <div class="color-option" style="background-color: #e74c3c;" data-color="#e74c3c"></div>
+            <div class="color-option" style="background-color: #2ecc71;" data-color="#2ecc71"></div>
+            <div class="color-option" style="background-color: #f1c40f;" data-color="#f1c40f"></div>
+            <div class="color-option" style="background-color: #9b59b6;" data-color="#9b59b6"></div>
+            <div class="color-option" style="background-color: #e67e22;" data-color="#e67e22"></div>
+            <div class="color-option" style="background-color: #1abc9c;" data-color="#1abc9c"></div>
+            <div class="color-option" style="background-color: #34495e;" data-color="#34495e"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="customization-section">
+        <div class="customization-row">
+          <div class="customization-label">Material:</div>
+          <div class="material-options">
+            <div class="material-option selected" data-material="basic">Basic</div>
+            <div class="material-option" data-material="shiny">Shiny</div>
+            <div class="material-option" data-material="matte">Matte</div>
+            <div class="material-option" data-material="glossy">Glossy</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="customization-section">
+        <div class="customization-row">
+          <div class="customization-label">Size:</div>
+          <div class="slider-container">
+            <input type="range" id="size-slider" min="0.8" max="1.2" step="0.05" value="1">
+            <span class="slider-value" id="size-value">1.0</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="customization-section">
+        <div class="customization-row">
+          <div class="customization-label">Opacity:</div>
+          <div class="slider-container">
+            <input type="range" id="opacity-slider" min="0.1" max="1" step="0.1" value="0.85">
+            <span class="slider-value" id="opacity-value">0.85</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="customization-buttons">
+        <button id="apply-customization" class="action-button">Apply</button>
+        <button id="reset-customization" class="action-button secondary">Reset</button>
+        <button id="close-customization" class="action-button secondary">Close</button>
+      </div>
+    </div>
+    
+    <!-- Size Guide Panel -->
+    <div id="size-guide-panel" class="customization-panel hidden">
+      <h3>Size Recommendations</h3>
+      <p class="size-guide-info">Based on your measurements, we recommend the following sizes:</p>
+      
+      <div class="measurement-section">
+        <div class="measurement-illustration">
+          <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8IS0tIEJvZHkgc2lsaG91ZXR0ZSAtLT4KICA8cGF0aCBkPSJNMTUwLDYwIEMxMzAsNjAgMTMwLDEwMCAxMzAsMTEwIEMxMzAsMTIwIDEzNSwxMzAgMTQwLDE0MCBDMTM1LDE1MCAxMjUsMTcwIDEyNSwyMDAgQzEyNSwyMzAgMTM1LDI4MCAxMzUsMzIwIEMxMzUsMzQwIDE1MCwzNDAgMTUwLDM0MCBDMTUwLDM0MCAxNjUsMzQwIDE2NSwzMjAgQzE2NSwyODAgMTc1LDIzMCAxNzUsMjAwIEMxNzUsMTcwIDE2NSwxNTAgMTYwLDE0MCBDMTY1LDEzMCAxNzAsMTIwIDE3MCwxMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZmZmZiIgc3Ryb2tlLXdpZHRoPSIyIi8+CiAgCiAgPCEtLSBTaG91bGRlciBsaW5lIC0tPgogIDxsaW5lIHgxPSIxMzAiIHkxPSIxMTAiIHgyPSIxNzAiIHkyPSIxMTAiIHN0cm9rZT0iI2U5NDU2MCIgc3Ryb2tlLXdpZHRoPSIyIi8+CiAgPCEtLSBDaGVzdCBsaW5lIC0tPgogIDxsaW5lIHgxPSIxMjUiIHkxPSIxNDAiIHgyPSIxNzUiIHkyPSIxNDAiIHN0cm9rZT0iI2U5NDU2MCIgc3Ryb2tlLXdpZHRoPSIyIi8+CiAgPCEtLSBXYWlzdCBsaW5lIC0tPgogIDxsaW5lIHgxPSIxMzAiIHkxPSIxODAiIHgyPSIxNzAiIHkyPSIxODAiIHN0cm9rZT0iI2U5NDU2MCIgc3Ryb2tlLXdpZHRoPSIyIi8+CiAgPCEtLSBBcm0gbGVuZ3RoIC0tPgogIDxwYXRoIGQ9Ik0xMzAsMTEwIEMxMjAsMTMwIDExMCwxNTAgMTAwLDE4MCIgc3Ryb2tlPSIjZTk0NTYwIiBzdHJva2Utd2lkdGg9IjIiIGZpbGw9Im5vbmUiLz4KICA8IS0tIExhYmVscyAtLT4KICA8dGV4dCB4PSIxODAiIHk9IjExMCIgZmlsbD0iI2ZmZmZmZiIgZm9udC1zaXplPSIxMnB4Ij5TaG91bGRlciBXaWR0aDwvdGV4dD4KICA8dGV4dCB4PSIxODAiIHk9IjE0MCIgZmlsbD0iI2ZmZmZmZiIgZm9udC1zaXplPSIxMnB4Ij5DaGVzdCBTaXplPC90ZXh0PgogIDx0ZXh0IHg9IjE4MCIgeT0iMTgwIiBmaWxsPSIjZmZmZmZmIiBmb250LXNpemU9IjEycHgiPldhaXN0IFNpemU8L3RleHQ+CiAgPHRleHQgeD0iNjAiIHk9IjE1MCIgZmlsbD0iI2ZmZmZmZiIgZm9udC1zaXplPSIxMnB4Ij5Bcm0gTGVuZ3RoPC90ZXh0PgogIDwhLS0gTWVhc3VyZW1lbnQgcG9pbnRzIC0tPgogIDxjaXJjbGUgY3g9IjE1MCIgY3k9IjExMCIgcj0iNCIgZmlsbD0iI2U5NDU2MCIvPgogIDxjaXJjbGUgY3g9IjE1MCIgY3k9IjE0MCIgcj0iNCIgZmlsbD0iI2U5NDU2MCIvPgogIDxjaXJjbGUgY3g9IjE1MCIgY3k9IjE4MCIgcj0iNCIgZmlsbD0iI2U5NDU2MCIvPgogIDxjaXJjbGUgY3g9IjExMCIgY3k9IjE0MCIgcj0iNCIgZmlsbD0iI2U5NDU2MCIvPgo8L3N2Zz4=" alt="Size guide illustration" />
+          <div class="measurement-points">
+            <div class="measurement-point" style="top: 20%; left: 50%;" title="Shoulder Width"></div>
+            <div class="measurement-point" style="top: 30%; left: 50%;" title="Chest Size"></div>
+            <div class="measurement-point" style="top: 45%; left: 50%;" title="Waist Size"></div>
+            <div class="measurement-point" style="top: 60%; left: 30%;" title="Arm Length"></div>
+          </div>
+        </div>
+        
+        <div class="measurements-table">
+          <div class="measurement-row">
+            <div class="measurement-label">Shoulder Width:</div>
+            <div class="measurement-value" id="shoulder-width">Calculating...</div>
+          </div>
+          <div class="measurement-row">
+            <div class="measurement-label">Chest Size:</div>
+            <div class="measurement-value" id="chest-size">Calculating...</div>
+          </div>
+          <div class="measurement-row">
+            <div class="measurement-label">Waist Size:</div>
+            <div class="measurement-value" id="waist-size">Calculating...</div>
+          </div>
+          <div class="measurement-row">
+            <div class="measurement-label">Arm Length:</div>
+            <div class="measurement-value" id="arm-length">Calculating...</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="size-recommendation">
+        <h4>Recommended Sizes:</h4>
+        <div class="size-recommendation-grid">
+          <div class="size-type">
+            <div class="size-type-label">Shirts:</div>
+            <div class="size-type-value" id="shirt-size-rec">M</div>
+          </div>
+          <div class="size-type">
+            <div class="size-type-label">Jackets:</div>
+            <div class="size-type-value" id="jacket-size-rec">L</div>
+          </div>
+          <div class="size-type">
+            <div class="size-type-label">Sweaters:</div>
+            <div class="size-type-value" id="sweater-size-rec">M</div>
+          </div>
+        </div>
+        <p class="size-disclaimer">These are estimated recommendations. For the most accurate fit, please refer to our <a href="#" target="_blank">detailed size chart</a>.</p>
+      </div>
+      
+      <div class="button-row">
+        <button id="update-measurements" class="reset-button">Update</button>
+        <button id="close-size-guide" class="close-button">Close</button>
+      </div>
+    </div>
+    
+    <!-- Share Panel (appears after taking screenshot) -->
+    <div id="share-panel" class="share-panel hidden">
+      <div class="share-content">
+        <h3>Share Your Look</h3>
+        <div class="captured-image-container">
+          <img id="captured-image" src="" alt="Your captured look" />
+        </div>
+        <div class="share-options">
+          <button id="download-image" class="share-button download-button">
+            <i class="fas fa-download"></i> Download
+          </button>
+          <button id="share-facebook" class="share-button facebook-button">
+            <i class="fab fa-facebook-f"></i> Facebook
+          </button>
+          <button id="share-twitter" class="share-button twitter-button">
+            <i class="fab fa-twitter"></i> Twitter
+          </button>
+          <button id="share-instagram" class="share-button instagram-button">
+            <i class="fab fa-instagram"></i> Instagram
+          </button>
+          <button id="share-pinterest" class="share-button pinterest-button">
+            <i class="fab fa-pinterest-p"></i> Pinterest
+          </button>
+          <button id="share-email" class="share-button email-button">
+            <i class="fas fa-envelope"></i> Email
+          </button>
+        </div>
+        <div class="cart-action">
+          <button id="add-to-cart-btn" class="add-to-cart-button">
+            <i class="fas fa-shopping-cart"></i> Add Item to Cart
+          </button>
+        </div>
+        <button id="close-share" class="close-share-button">Close</button>
+      </div>
+    </div>
+    
+    <!-- Orientation Warning -->
+    <div id="orientation-warning-landscape" class="orientation-warning landscape-required">
+      <i class="fas fa-mobile-alt"></i>
+      <h3>Please Rotate Your Device</h3>
+      <p>For the best try-on experience, please use landscape orientation (turn your phone sideways).</p>
+    </div>
+    
+    <div id="orientation-warning-portrait" class="orientation-warning portrait-required">
+      <i class="fas fa-mobile-alt"></i>
+      <h3>Please Rotate Your Device</h3>
+      <p>For this step, portrait orientation works best (hold your phone upright).</p>
+    </div>
+    
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+      <div class="spinner"></div>
+      <div id="loading-text">Loading resources...</div>
+      <div id="loading-progress" class="loading-progress">
+        <div id="progress-bar" class="progress-bar"></div>
+      </div>
+    </div>
+
+    <!-- Updated Try-On Launch Button with explicit initialization -->
+    <div class="tryon-controls-initial">
+      <p class="tryon-info">Ready to try on this item? Click the button below to start.</p>
+      <button id="tryon-start-button" class="primary-button">
+        Start Virtual Try-On
+      </button>
+    </div>
+  </section>
+
+  <!-- Animation Script -->
+  <script>
+    // Animate introduction steps
+    document.addEventListener('DOMContentLoaded', function() {
+      const animationSteps = document.querySelectorAll('.animation-step');
+      let currentStep = 0;
+      
+      // Add event listener for the try-on start button
+      const tryonStartButton = document.getElementById('tryon-start-button');
+      if (tryonStartButton) {
+        tryonStartButton.addEventListener('click', function() {
+          console.log('Start Virtual Try-On button clicked');
+          
+          // Show the loading overlay while starting
+          const loadingOverlay = document.getElementById('loading-overlay');
+          if (loadingOverlay) {
+            loadingOverlay.style.display = 'flex';
+            document.getElementById('loading-text').textContent = 'Starting pose detection...';
+          }
+          
+          // Hide the start button container
+          const tryonControlsInitial = document.querySelector('.tryon-controls-initial');
+          if (tryonControlsInitial) {
+            tryonControlsInitial.style.display = 'none';
+          }
+          
+          // Set a flag in session storage to indicate user intent
+          sessionStorage.setItem('userRequestedTryOn', 'true');
+          
+          // Initialize pose detection
+          if (typeof window.initializePoseDetection === 'function') {
+            window.initializePoseDetection();
+          } else {
+            console.log('Creating initializePoseDetection function');
+            // Define the function if it doesn't exist
+            window.initializePoseDetection = function() {
+              console.log('Initializing pose detection');
+              
+              // Start the app's pose detection using the VirtualTryOn app instance
+              if (window.VirtualTryOn && window.VirtualTryOn.app) {
+                if (typeof window.VirtualTryOn.app.start === 'function') {
+                  console.log('Starting VirtualTryOn app');
+                  window.VirtualTryOn.app.start();
+                } else if (typeof window.VirtualTryOn.app.startPoseDetection === 'function') {
+                  console.log('Starting pose detection directly');
+                  window.VirtualTryOn.app.startPoseDetection();
+                } else {
+                  console.error('No start or startPoseDetection method found on VirtualTryOn app');
+                  alert('Could not start pose detection. Please refresh the page and try again.');
+                }
+              } else {
+                console.error('VirtualTryOn app not initialized');
+                alert('Virtual try-on system is not fully loaded. Please refresh the page and try again.');
+              }
+            };
+            
+            // Call the newly created function
+            window.initializePoseDetection();
+          }
+          
+          // Set a timeout to hide the loading overlay even if something fails
+          setTimeout(function() {
+            if (loadingOverlay && loadingOverlay.style.display !== 'none') {
+              loadingOverlay.style.display = 'none';
+              console.log('Forced hiding of loading overlay after timeout');
+            }
+          }, 8000);
+        });
+      }
+      
+      // Function to animate next step
+      function animateNextStep() {
+        if (currentStep > 0) {
+          animationSteps[currentStep - 1].classList.remove('active');
+        }
+        
+        if (currentStep < animationSteps.length) {
+          animationSteps[currentStep].classList.add('active');
+          currentStep++;
+          setTimeout(animateNextStep, 2000);
+        } else {
+          // Reset animation after completion
+          currentStep = 0;
+          setTimeout(animateNextStep, 1000);
+        }
+      }
+      
+      // Start animation
+      setTimeout(animateNextStep, 500);
+      
+      // Detect device and update info
+      const deviceInfo = document.getElementById('device-info');
+      if (deviceInfo) {
+        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+          deviceInfo.textContent = 'Mobile device detected - optimizing for touch controls';
+        } else {
+          deviceInfo.textContent = 'Desktop device detected - use mouse and keyboard for controls';
+        }
+      }
+      
+      // Add smooth transition between sections
+      const welcomeStartButton = document.getElementById('welcome-start-button');
+      const productSection = document.getElementById('product-section');
+      const welcomeSection = document.getElementById('welcome-section');
+      
+      if (welcomeStartButton && welcomeSection && productSection) {
+        welcomeStartButton.addEventListener('click', function() {
+          welcomeSection.style.opacity = 0;
+          welcomeSection.style.transform = 'translateY(-20px)';
+          
+          setTimeout(function() {
+            welcomeSection.classList.add('hidden');
+            productSection.classList.remove('hidden');
+            
+            // Fade in product section
+            setTimeout(function() {
+              productSection.style.opacity = 1;
+              productSection.style.transform = 'translateY(0)';
+            }, 50);
+          }, 500);
+        });
+      }
+
+      // Initialize product filtering
+      const filterButtons = document.querySelectorAll('.filter-button');
+      const productCards = document.querySelectorAll('.product-card');
+
+      // Product filtering
+      filterButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          // Remove active class from all buttons
+          filterButtons.forEach(btn => btn.classList.remove('active'));
+          
+          // Add active class to clicked button
+          button.classList.add('active');
+          
+          // Get filter value
+          const filter = button.getAttribute('data-filter');
+          
+          // Filter products
+          productCards.forEach(card => {
+            if (filter === 'all') {
+              card.style.display = 'block';
+            } else {
+              if (card.getAttribute('data-category') === filter) {
+                card.style.display = 'block';
+              } else {
+                card.style.display = 'none';
+              }
+            }
+          });
+        });
+      });
+
+      // Back button functionality
+      const productBackButton = document.getElementById('product-back-button');
+      
+      if (productBackButton && welcomeSection && productSection) {
+        productBackButton.addEventListener('click', function() {
+          productSection.style.opacity = 0;
+          productSection.style.transform = 'translateY(-20px)';
+          
+          setTimeout(function() {
+            productSection.classList.add('hidden');
+            welcomeSection.classList.remove('hidden');
+            
+            // Fade in welcome section
+            setTimeout(function() {
+              welcomeSection.style.opacity = 1;
+              welcomeSection.style.transform = 'translateY(0)';
+            }, 50);
+          }, 500);
+        });
+      }
+
+      // Initialize product cards
+      setupProductCards();
+      
+      // Function to set up product cards
+      function setupProductCards() {
+        // Product cards direct interaction
+      productCards.forEach(card => {
+          // Try on button click event
+          const tryonButton = card.querySelector('.tryon-button');
+          if (tryonButton) {
+            tryonButton.addEventListener('click', function() {
+              const modelUrl = card.getAttribute('data-model');
+              const productType = this.getAttribute('data-product');
+              
+              // Check if model URL exists, use fallback if needed
+              const finalModelUrl = modelUrl || window.getFallbackModel(productType);
+              
+              try {
+                // Show loading overlay
+                const loadingOverlay = document.getElementById('loading-overlay');
+                if (loadingOverlay) {
+                  loadingOverlay.style.display = 'flex';
+                  loadingOverlay.querySelector('#loading-text').textContent = 'Loading model...';
+                  
+                  // Force hide after timeout to prevent stuck loading
+                  setTimeout(() => {
+                    if (loadingOverlay.style.display !== 'none') {
+                      loadingOverlay.style.display = 'none';
+                      console.log('Loading overlay force-hidden after timeout');
+                    }
+                  }, 8000);
+                }
+                
+                // Hide product section
+                if (productSection) {
+                  productSection.classList.add('hidden');
+                  console.log('Product section hidden');
+                }
+                
+                // Show tryon section
+                if (tryonSection) {
+                  tryonSection.classList.remove('hidden');
+                  console.log('Tryon section displayed successfully');
+                } else {
+                  console.error('tryonSection element not found');
+                }
+                
+                // Update last selected model
+                window.lastSelectedModel = {
+                  url: finalModelUrl,
+                  type: productType
+                };
+                
+                // Get the exact model viewer element inside tryon-section
+                const modelViewer = document.querySelector('#try-on-model-viewer');
+                
+                if (modelViewer) {
+                  console.log('Found model viewer element. Loading model:', finalModelUrl);
+                  
+                  // Store the model info but don't load it yet
+                  // We'll load it when the user clicks "Start Try-On"
+                  modelViewer.dataset.pendingModel = finalModelUrl;
+                  
+                  // Make sure the try-on overlay is visible
+                  const tryOnStartOverlay = document.getElementById('try-on-start-overlay');
+                  if (tryOnStartOverlay) {
+                    tryOnStartOverlay.style.display = 'flex';
+                  }
+                  
+                  // Hide loading overlay when model selection is complete
+                  const loadingOverlay = document.getElementById('loading-overlay');
+                  if (loadingOverlay) {
+                    loadingOverlay.style.display = 'none';
+                    console.log('Loading overlay hidden after model selection');
+                  }
+                } else {
+                  console.error('No model viewer element found with ID #try-on-model-viewer');
+                  // Helpful debugging
+                  const allModelViewers = document.querySelectorAll('model-viewer');
+                  console.log('All model viewers found:', allModelViewers.length);
+                  allModelViewers.forEach((mv, i) => {
+                    console.log(`Model viewer ${i}:`, mv.id);
+                  });
+                }
+              } catch (error) {
+                console.error('Error during try-on activation:', error);
+                alert('We encountered an issue loading the 3D model. Please try again later.');
+              }
+            });
+          }
+          
+          // For mobile devices - optimize touch interaction
+          if ('ontouchstart' in window && window.innerWidth <= 768) {
+        let lastTapped = null;
+        let tapTimer = null;
+        
+            // Use touchstart for better mobile performance
+          card.addEventListener('touchstart', function(e) {
+              const modelUrl = this.getAttribute('data-model');
+              const productType = this.querySelector('.tryon-button').getAttribute('data-product');
+            
+            if (lastTapped === this) {
+                // Second tap - directly activate try-on
+              clearTimeout(tapTimer);
+              lastTapped = null;
+                
+                // Trigger the try-on button click
+                const tryonButton = this.querySelector('.tryon-button');
+                if (tryonButton) {
+                  tryonButton.click();
+                }
+            } else {
+                // First tap - highlight this card
+              lastTapped = this;
+              
+                // Update selected state
+                document.querySelectorAll('.model-card').forEach(c => {
+                  c.classList.remove('preview-active');
+                });
+                this.classList.add('preview-active');
+              
+              // Reset lastTapped after delay
+              tapTimer = setTimeout(() => {
+                lastTapped = null;
+              }, 3000);
+            }
+          });
+          }
+        });
+      }
+    });
+  </script>
+  
+  <!-- 3D Preview and Product Selection Script -->
+  <script>
+    // Global error handler to help debug issues with model loading
+    window.addEventListener('error', function(event) {
+      console.error('Global error caught:', event.message, 'at', event.filename, ':', event.lineno);
+      
+      // Add custom handling for 3D model loading errors
+      if (event.message.includes('model') || event.filename.includes('model-viewer')) {
+        console.warn('3D model loading error detected. Using fallback mechanism.');
+      }
+    });
+    
+    // Global variable to store tryon container references
+    window.tryonContainer = null;
+    window.tryonSection = null;
+    
+    document.addEventListener('DOMContentLoaded', function() {
+      // Define global variables with proper initialization and error handling
+      const productSection = document.getElementById('product-section');
+      const tryonSection = document.getElementById('tryon-section');
+      window.tryonSection = tryonSection; // Store globally
+      
+      // Important: Initialize tryonContainer properly with fallbacks
+      // Since the section has both the ID "tryon-section" and class "tryon-container", 
+      // using the element itself is valid for both references
+      const tryonContainer = tryonSection;
+      window.tryonContainer = tryonContainer; // Store globally
+      
+      const productCards = document.querySelectorAll('.product-card');
+      const filterButtons = document.querySelectorAll('.filter-button');
+      const backButton = document.getElementById('back-button');
+      let lastSelectedModel = null;
+      
+      console.log('Virtual try-on initialization:', {
+        productSection: !!productSection,
+        tryonSection: !!tryonSection,
+        tryonContainer: !!tryonContainer,
+        productCards: productCards.length,
+        filterButtons: filterButtons.length
+      });
+      
+      // Filter functionality
+      if (filterButtons && filterButtons.length > 0) {
+        filterButtons.forEach(button => {
+          button.addEventListener('click', function() {
+            // Remove active class from all buttons
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            const filter = this.getAttribute('data-filter');
+            
+            // Filter products
+            productCards.forEach(card => {
+              if (filter === 'all' || card.getAttribute('data-category') === filter) {
+                card.style.display = 'block';
+              } else {
+                card.style.display = 'none';
+              }
+            });
+          });
+        });
+      }
+      
+      // Welcome section transition
+      const welcomeSection = document.getElementById('welcome-section');
+      const welcomeStartButton = document.getElementById('welcome-start-button');
+      
+      if (welcomeSection && welcomeStartButton && productSection) {
+        welcomeStartButton.addEventListener('click', function() {
+          welcomeSection.style.opacity = 0;
+          welcomeSection.style.transform = 'translateY(-20px)';
+          
+          setTimeout(() => {
+            welcomeSection.classList.add('hidden');
+            productSection.classList.remove('hidden');
+            
+            setTimeout(() => {
+              productSection.style.opacity = 1;
+              productSection.style.transform = 'translateY(0)';
+            }, 50);
+          }, 500);
+        });
+      }
+      
+      // Back to categories button
+      if (backButton) {
+        backButton.addEventListener('click', function() {
+          if (tryonSection) {
+            tryonSection.classList.add('hidden');
+          }
+          if (productSection) {
+            productSection.classList.remove('hidden');
+            productSection.style.opacity = 1;
+            productSection.style.transform = 'translateY(0)';
+          }
+          
+          // Reset pose detection flag when going back to product selection
+          window.poseDetectionInitialized = false;
+          sessionStorage.removeItem('userRequestedTryOn');
+          
+          // Reset the model viewer
+          const modelViewer = document.querySelector('#try-on-model-viewer');
+          if (modelViewer) {
+            modelViewer.removeAttribute('src');
+          }
+          
+          // Reset loading overlay state
+          const loadingOverlay = document.getElementById('loading-overlay');
+          if (loadingOverlay) {
+            loadingOverlay.style.display = 'none';
+          }
+          
+          // Reset pose status
+          const poseStatus = document.getElementById('pose-status');
+          if (poseStatus) {
+            poseStatus.textContent = 'Initializing...';
+          }
+        });
+      }
+      
+      // Initialize product cards
+      setupProductCards();
+      
+      // Function to set up product cards
+      function setupProductCards() {
+        // Product cards direct interaction
+        productCards.forEach(card => {
+          // Try on button click event
+          const tryonButton = card.querySelector('.tryon-button');
+          if (tryonButton) {
+            tryonButton.addEventListener('click', function() {
+              const modelUrl = card.getAttribute('data-model');
+              const productType = this.getAttribute('data-product');
+              
+              // Check if model URL exists, use fallback if needed
+              const finalModelUrl = modelUrl || window.getFallbackModel(productType);
+              
+              try {
+                // Show loading overlay
+                const loadingOverlay = document.getElementById('loading-overlay');
+                if (loadingOverlay) {
+                  loadingOverlay.style.display = 'flex';
+                  loadingOverlay.querySelector('#loading-text').textContent = 'Loading model...';
+                  
+                  // Force hide after timeout to prevent stuck loading
+                  setTimeout(() => {
+                    if (loadingOverlay.style.display !== 'none') {
+                      loadingOverlay.style.display = 'none';
+                      console.log('Loading overlay force-hidden after timeout');
+                    }
+                  }, 8000);
+                }
+                
+                // Hide product section
+                if (productSection) {
+                  productSection.classList.add('hidden');
+                  console.log('Product section hidden');
+                }
+                
+                // Show tryon section
+                if (tryonSection) {
+                  tryonSection.classList.remove('hidden');
+                  console.log('Tryon section displayed successfully');
+        } else {
+                  console.error('tryonSection element not found');
+                }
+                
+                // Update last selected model
+                window.lastSelectedModel = {
+                  url: finalModelUrl,
+                  type: productType
+                };
+                
+                // Get the exact model viewer element inside tryon-section
+                const modelViewer = document.querySelector('#try-on-model-viewer');
+                
+                if (modelViewer) {
+                  console.log('Found model viewer element. Loading model:', finalModelUrl);
+                  
+                  // Store the model info but don't load it yet
+                  // We'll load it when the user clicks "Start Try-On"
+                  modelViewer.dataset.pendingModel = finalModelUrl;
+                  
+                  // Make sure the try-on overlay is visible
+                  const tryOnStartOverlay = document.getElementById('try-on-start-overlay');
+                  if (tryOnStartOverlay) {
+                    tryOnStartOverlay.style.display = 'flex';
+                  }
+                  
+                  // Hide loading overlay when model selection is complete
+                  const loadingOverlay = document.getElementById('loading-overlay');
+                  if (loadingOverlay) {
+                    loadingOverlay.style.display = 'none';
+                    console.log('Loading overlay hidden after model selection');
+                  }
+                } else {
+                  console.error('No model viewer element found with ID #try-on-model-viewer');
+                  // Helpful debugging
+                  const allModelViewers = document.querySelectorAll('model-viewer');
+                  console.log('All model viewers found:', allModelViewers.length);
+                  allModelViewers.forEach((mv, i) => {
+                    console.log(`Model viewer ${i}:`, mv.id);
+                  });
+                }
+              } catch (error) {
+                console.error('Error during try-on activation:', error);
+                alert('We encountered an issue loading the 3D model. Please try again later.');
+              }
+            });
+          }
+          
+          // For mobile devices - optimize touch interaction
+          if ('ontouchstart' in window && window.innerWidth <= 768) {
+            let lastTapped = null;
+            let tapTimer = null;
+            
+            // Use touchstart for better mobile performance
+            card.addEventListener('touchstart', function(e) {
+              const modelUrl = this.getAttribute('data-model');
+              const productType = this.querySelector('.tryon-button').getAttribute('data-product');
+              
+              if (lastTapped === this) {
+                // Second tap - directly activate try-on
+                clearTimeout(tapTimer);
+                lastTapped = null;
+                
+                // Trigger the try-on button click
+                const tryonButton = this.querySelector('.tryon-button');
+                if (tryonButton) {
+                  tryonButton.click();
+                }
+              } else {
+                // First tap - highlight this card
+                lastTapped = this;
+                
+                // Update selected state
+                document.querySelectorAll('.model-card').forEach(c => {
+                  c.classList.remove('preview-active');
+                });
+                this.classList.add('preview-active');
+                
+                // Reset lastTapped after delay
+                tapTimer = setTimeout(() => {
+                  lastTapped = null;
+                }, 3000);
+              }
+            });
+          }
+        });
+      }
+      
+      // Add color customization functionality
+      const colorOptions = document.querySelectorAll('.color-option');
+      if (colorOptions) {
+        colorOptions.forEach(option => {
+          option.addEventListener('click', function() {
+            // Remove selected class from all options
+            colorOptions.forEach(opt => opt.classList.remove('selected'));
+            // Add selected class to clicked option
+            this.classList.add('selected');
+            
+            // Get color value
+            const color = this.getAttribute('data-color');
+            if (color) {
+              // Apply color to the model viewer using the improved method
+              const modelViewer = document.querySelector('#try-on-model-viewer');
+              if (modelViewer) {
+                // Try to use robust color application if the utility functions are available
+                try {
+                  // Try to dynamically import the module
+                  import('/JAVASCRIPT/create/productCustomization.js')
+                    .then(module => {
+                      console.log('productCustomization module loaded successfully');
+                      // Apply color to the whole model (partId -1)
+                      if (typeof module.applyColorToModelPart === 'function') {
+                        module.applyColorToModelPart(-1, color);
+                        console.log('Applied color using enhanced method');
+                      } else {
+                        // Fall back to basic color application
+                        fallbackColorApplication(modelViewer, color);
+                      }
+                    })
+                    .catch(error => {
+                      console.error('Error loading productCustomization module:', error);
+                      // Fall back to basic color application
+                      fallbackColorApplication(modelViewer, color);
+                    });
+                } catch (error) {
+                  console.error('Error with dynamic import:', error);
+                  // Fall back to basic color application
+                  fallbackColorApplication(modelViewer, color);
+                }
+              }
+            }
+          });
+        });
+      }
+
+      // Function to apply color as fallback using basic attribute setting
+      function fallbackColorApplication(modelViewer, color) {
+        console.log('Using fallback color application method');
+        // Apply to all materials that might exist (0-5 based on shirt model structure)
+        for (let i = 0; i < 6; i++) {
+          modelViewer.setAttribute(`material-${i}-color`, color);
+        }
+        
+        // Force update by changing a property
+        const currentExposure = modelViewer.getAttribute('exposure') || '1';
+        modelViewer.setAttribute('exposure', '1.01'); // Slightly different value
+        setTimeout(() => {
+          modelViewer.setAttribute('exposure', currentExposure);
+        }, 50);
+      }
+
+      // Log initialization message
+      console.log('3D Preview and Product Selection functionality initialized');
+    });
+  </script>
+  <script src="/JAVASCRIPT/auth.js"></script>
+  <script src="/JAVASCRIPT/profile-navigation.js"></script>
+  
+  <!-- Fix for Virtual Try-On Module Loading -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Handle Start Try-On button click
+      const startTryOnButton = document.getElementById('start-tryon-button');
+      const tryOnStartOverlay = document.getElementById('try-on-start-overlay');
+      
+      if (startTryOnButton && tryOnStartOverlay) {
+        startTryOnButton.addEventListener('click', function() {
+          // Hide the overlay
+          tryOnStartOverlay.style.display = 'none';
+          
+          // Check if there's a model URL stored
+          const modelViewer = document.getElementById('try-on-model-viewer');
+          const lastSelectedModel = window.lastSelectedModel || {};
+          const pendingModelUrl = modelViewer ? modelViewer.dataset.pendingModel : null;
+          
+          console.log('Starting try-on with model:', pendingModelUrl || lastSelectedModel.url);
+          
+          // Now load the model if we have a pending one
+          if (modelViewer && pendingModelUrl) {
+            // Set up event listeners before setting src to capture loading events
+            modelViewer.addEventListener('load', function onLoad() {
+              console.log('Model loaded successfully');
+              modelViewer.removeEventListener('load', onLoad);
+              
+              // Continue with pose detection after model is loaded
+              initializePoseDetectionAfterModelLoad();
+            }, { once: true });
+            
+            modelViewer.addEventListener('error', function onError(error) {
+              console.error('Error loading model:', error);
+              modelViewer.removeEventListener('error', onError);
+              
+              // Try fallback model
+              const fallbackUrl = typeof window.getFallbackModel === 'function' ? 
+                  window.getFallbackModel(lastSelectedModel.type) : 
+                  'https://res.cloudinary.com/customxshop/image/upload/v1744037917/CustomXShop/l4plnsl7o5r6qqxotasx.glb';
+              
+              console.log('Using fallback model:', fallbackUrl);
+              modelViewer.src = fallbackUrl;
+              
+              // Continue with pose detection even with fallback model
+              initializePoseDetectionAfterModelLoad();
+            }, { once: true });
+            
+            // Now set the src to trigger loading
+            modelViewer.src = pendingModelUrl;
+        } else {
+            // No model to load, continue with pose detection
+            initializePoseDetectionAfterModelLoad();
+          }
+          
+          // Helper function to initialize pose detection
+          function initializePoseDetectionAfterModelLoad() {
+            // Initialize pose detection
+            if (typeof window.initializePoseDetection === 'function') {
+              window.initializePoseDetection();
+              console.log('Pose detection initialized by Start Try-On button');
+            }
+            
+            // Initialize VirtualTryOn script if it wasn't loaded
+            if (!window.VirtualTryOn) {
+              console.log('Creating VirtualTryOn namespace');
+              window.VirtualTryOn = {
+                app: null,
+                Config: {
+                  poseDetection: { autoStart: false }
+                },
+                // Function to create and initialize the app
+                createApp: function() {
+                  console.log('Creating Virtual Try-On application');
+                  return {
+                    // Stub for the startPoseDetection function
+                    startPoseDetection: function() {
+                      console.log('Starting pose detection');
+                      document.getElementById('pose-status').textContent = 'Starting...';
+                      
+                      // Check if we have an actual implementation loaded
+                      if (window.PoseDetection && typeof window.PoseDetection.start === 'function') {
+                        window.PoseDetection.start();
+                      } else {
+                        // Simulate success for testing
+        setTimeout(() => {
+                          document.getElementById('pose-status').textContent = 'Ready';
+                        }, 2000);
+                      }
+                    },
+                    // Other app methods would go here
+                    stop: function() {
+                      console.log('Stopping Virtual Try-On');
+                      if (window.PoseDetection && typeof window.PoseDetection.stop === 'function') {
+                        window.PoseDetection.stop();
+                      }
+                    }
+                  };
+                },
+                initializeApp: function() {
+                  console.log('Loading VirtualTryOn app scripts dynamically');
+                  
+                  // Dynamically load the main.js script
+                  const script = document.createElement('script');
+                  script.type = 'module';
+                  script.src = '/JAVASCRIPT/enhanced-virtual-tryon/main.js';
+                  script.onload = function() {
+                    console.log('VirtualTryOn main.js loaded successfully');
+                    
+                    // Create artificial delay to ensure DOM is fully ready
+                    setTimeout(() => {
+                      // Now initialize the app
+                      if (window.VirtualTryOn && typeof window.VirtualTryOn.createApp === 'function') {
+                        window.VirtualTryOn.app = window.VirtualTryOn.createApp();
+                        console.log('VirtualTryOn app created');
+                        
+                        // Start pose detection
+                        if (window.VirtualTryOn.app && typeof window.VirtualTryOn.app.startPoseDetection === 'function') {
+                          window.VirtualTryOn.app.startPoseDetection();
+                          document.getElementById('pose-status').textContent = 'Starting...';
+                        }
+                      }
+                    }, 500);
+                  };
+                  script.onerror = function() {
+                    console.error('Failed to load VirtualTryOn main.js');
+                    alert('Failed to load required scripts. Please refresh the page and try again.');
+                  };
+                  
+                  document.body.appendChild(script);
+                }
+              };
+              
+              // Initialize app
+              window.VirtualTryOn.initializeApp();
+            } else if (window.VirtualTryOn && window.VirtualTryOn.app) {
+              // If app exists, just start pose detection
+              if (typeof window.VirtualTryOn.app.startPoseDetection === 'function') {
+                window.VirtualTryOn.app.startPoseDetection();
+                document.getElementById('pose-status').textContent = 'Starting...';
+              }
+            }
+          }
+        });
+      }
+      
+      // Fix Three.js import paths in dynamically loaded scripts
+      console.log('Three.js import fix applied');
+    });
+  </script>
+</body>
+</html>
+

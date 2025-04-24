@@ -1,0 +1,3709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Products - CustomXShop | Customize Your Clothing</title>
+  <meta name="description" content="Browse our wide selection of customizable products. T-shirts, hoodies, jackets, and more.">
+  <link rel="stylesheet" href="/CSS/Header.css">
+  <link rel="stylesheet" href="/CSS/styles.css">
+  <link rel="stylesheet" href="/CSS/productViewer.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="/CSS/icons.css" rel="stylesheet">
+  
+  <style>
+    /* Additional styles specific to product page */
+    body {
+      background-color: #f8f9fa;
+      color: #343a40;
+    }
+    
+    .products-hero {
+      padding: 150px 20px 60px;
+      background: linear-gradient(135deg, #ffffff, #f5f6fa);
+      margin-bottom: 40px;
+      text-align: center;
+    }
+    
+    .products-title {
+      font-size: 2.5rem;
+      color: #1a1a2e;
+      margin-bottom: 15px;
+    }
+    
+    .products-subtitle {
+      font-size: 1.1rem;
+      color: #666;
+      max-width: 600px;
+      margin: 0 auto 30px;
+    }
+    
+    .filters-container {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 40px;
+    }
+    
+    .filter-button {
+      background: white;
+      border: 1px solid #ddd;
+      padding: 8px 15px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+    
+    .filter-button:hover, .filter-button.active {
+      background: #e94560;
+      color: white;
+      border-color: #e94560;
+    }
+    
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 30px;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    .product-card {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+      overflow: hidden;
+      transition: transform 0.3s, box-shadow 0.3s;
+      position: relative;
+    }
+    
+    .product-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    }
+    
+    .product-image {
+      height: 300px;
+      width: 100%;
+      position: relative;
+      background: #f9f9f9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .product-image model-viewer {
+      width: 100%;
+      height: 100%;
+    }
+    
+    .product-details {
+      padding: 20px;
+    }
+    
+    .product-name {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: #1a1a2e;
+    }
+    
+    .product-price {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #e94560;
+      margin-bottom: 15px;
+    }
+    
+    .product-description {
+      color: #666;
+      font-size: 0.9rem;
+      margin-bottom: 15px;
+      line-height: 1.4;
+    }
+    
+    .auth-req-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+    
+    .product-card:hover .auth-req-overlay {
+      opacity: 1;
+      pointer-events: all;
+    }
+    
+    .login-button, .view-details-button {
+      background: #e94560;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 25px;
+      font-weight: 600;
+      margin-top: 15px;
+      cursor: pointer;
+      transition: background 0.3s;
+      text-decoration: none;
+      display: inline-block;
+    }
+    
+    .login-button:hover, .view-details-button:hover {
+      background: #d13354;
+    }
+    
+    .product-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    
+    .product-modal.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+    
+    .modal-content {
+      background: white;
+      border-radius: 15px;
+      width: 90%;
+      max-width: 1000px;
+      height: 90%;
+      max-height: 800px;
+      display: flex;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .modal-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 30px;
+      color: #343a40;
+      background: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      z-index: 10;
+    }
+    
+    .modal-left {
+      flex: 1;
+      padding: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .modal-right {
+      flex: 1;
+      padding: 40px;
+      overflow-y: auto;
+    }
+    
+    .modal-title {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      color: #1a1a2e;
+    }
+    
+    .modal-price {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #e94560;
+      margin-bottom: 20px;
+    }
+    
+    .modal-description {
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 25px;
+    }
+    
+    .specs-list {
+      margin-bottom: 30px;
+    }
+    
+    .specs-list li {
+      margin-bottom: 12px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    
+    .specs-list .material-icons {
+      color: #e94560;
+      font-size: 20px;
+    }
+    
+    /* Product options styling */
+    .product-options {
+      margin-top: 20px;
+      margin-bottom: 20px;
+      border-top: 1px solid #eee;
+      padding-top: 20px;
+    }
+    
+    .option-group {
+      margin-bottom: 15px;
+    }
+    
+    .option-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+      color: #333;
+    }
+    
+    .product-size, .product-color {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background-color: white;
+      font-size: 14px;
+    }
+    
+    .quantity-controls {
+      display: flex;
+      align-items: center;
+    }
+    
+    .quantity-btn {
+      width: 30px;
+      height: 30px;
+      background: #f3f4f6;
+      border: 1px solid #ddd;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      transition: all 0.2s;
+    }
+    
+    .quantity-btn:hover {
+      background: #e1e2e3;
+    }
+    
+    .product-quantity {
+      width: 50px;
+      text-align: center;
+      border: 1px solid #ddd;
+      margin: 0 10px;
+      padding: 5px;
+      border-radius: 5px;
+    }
+    
+    /* Add to cart button */
+    .add-to-cart-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: #6200ea;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 25px;
+      font-weight: 600;
+      margin-top: 15px;
+      cursor: pointer;
+      transition: all 0.3s;
+      width: 100%;
+    }
+    
+    .add-to-cart-btn:hover {
+      background: #7c4dff;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(98, 0, 234, 0.3);
+    }
+    
+    .modal-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    @media (max-width: 768px) {
+      .modal-content {
+        flex-direction: column;
+        height: auto;
+        max-height: 90vh;
+      }
+      
+      .modal-left, .modal-right {
+        width: 100%;
+      }
+      
+      .modal-left {
+        height: 300px;
+      }
+    }
+
+    /* Product Grid Styles */
+    .products-hero {
+      text-align: center;
+      padding: 50px 20px;
+      background: linear-gradient(135deg, #1a1a2e, #1a1a2e);
+      color: white;
+    }
+    
+    .products-title {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      background: linear-gradient(45deg, #e94560, #da5353);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: inline-block;
+    }
+    
+    .products-subtitle {
+      font-size: 1.2rem;
+      color: #ccc;
+      margin-bottom: 40px;
+    }
+    
+    .filters-container {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+    
+    .filter-button {
+      padding: 10px 20px;
+      background: linear-gradient(135deg, #272746, #272762);
+      border: none;
+      color: white;
+      border-radius: 30px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .filter-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    .filter-button.active {
+      background: linear-gradient(135deg, #e94560, #da5353);
+      box-shadow: 0 4px 8px rgba(233, 69, 96, 0.3);
+    }
+    
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 30px;
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    /* Product Card Styles */
+    .product-card {
+      background-color: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    
+    .product-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
+    }
+    
+    .product-image {
+      height: 250px;
+      overflow: hidden;
+      background-color: #f8f8f8;
+      position: relative;
+    }
+    
+    .product-image model-viewer {
+      width: 100%;
+      height: 100%;
+    }
+    
+    .product-details {
+      padding: 20px;
+    }
+    
+    .product-name {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: #1a1a2e;
+    }
+    
+    .product-price {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #e94560;
+    }
+    
+    .product-description {
+      color: #666;
+      margin-bottom: 15px;
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+    
+    .view-details-button {
+      background: linear-gradient(135deg, #1a1a2e, #272753);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      width: 100%;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    
+    .view-details-button:hover {
+      background: linear-gradient(135deg, #272753, #1a1a2e);
+      transform: translateY(-3px);
+      box-shadow: 0 4px 10px rgba(39, 39, 83, 0.3);
+    }
+    
+    /* Authorization Required Overlay */
+    .auth-req-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(26, 26, 46, 0.8);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+      padding: 20px;
+      text-align: center;
+      z-index: 10;
+    }
+    
+    .product-card:hover .auth-req-overlay {
+      opacity: 1;
+      pointer-events: all;
+    }
+    
+    .auth-req-overlay h3 {
+      font-size: 1.6rem;
+      margin-bottom: 10px;
+    }
+    
+    .auth-req-overlay p {
+      margin-bottom: 20px;
+      font-size: 1rem;
+    }
+    
+    .auth-req-overlay .login-button {
+      background: linear-gradient(135deg, #e94560, #da5353);
+      color: white;
+      text-decoration: none;
+      padding: 12px 25px;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    
+    .auth-req-overlay .login-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 15px rgba(233, 69, 96, 0.4);
+    }
+    
+    /* Product Modal Styles */
+    .product-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .product-modal.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .modal-content {
+      display: flex;
+      width: 90%;
+      max-width: 1000px;
+      height: 90%;
+      max-height: 600px;
+      background-color: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+      position: relative;
+    }
+    
+    .modal-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 10;
+      background-color: rgba(26, 26, 46, 0.1);
+      border-radius: 50%;
+      transition: all 0.3s ease;
+    }
+    
+    .modal-close:hover {
+      background-color: rgba(233, 69, 96, 0.2);
+      transform: rotate(90deg);
+    }
+    
+    .modal-left {
+      flex: 1;
+      overflow: hidden;
+      background-color: #f8f8f8;
+      position: relative;
+    }
+    
+    .modal-left model-viewer {
+      width: 100%;
+      height: 100%;
+    }
+    
+    .modal-right {
+      flex: 1;
+      padding: 30px;
+      overflow-y: auto;
+    }
+    
+    .modal-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 5px;
+      color: #1a1a2e;
+    }
+    
+    .modal-price {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 15px;
+      color: #e94560;
+    }
+    
+    .modal-description {
+      color: #666;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+    
+    .specs {
+      margin-bottom: 20px;
+    }
+    
+    .specs h3 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #1a1a2e;
+    }
+    
+    .specs-list {
+      list-style: none;
+      padding: 0;
+    }
+    
+    .specs-list li {
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #555;
+    }
+    
+    .specs-list .material-icons {
+      color: #e94560;
+    }
+    
+    .product-options {
+      margin-bottom: 25px;
+    }
+    
+    .option-group {
+      margin-bottom: 15px;
+    }
+    
+    .option-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+      color: #333;
+    }
+    
+    .product-size, .product-color {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+    
+    .quantity-controls {
+      display: flex;
+      align-items: center;
+    }
+    
+    .quantity-btn {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #f0f0f0;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+    
+    .product-quantity {
+      width: 60px;
+      height: 36px;
+      text-align: center;
+      font-size: 1rem;
+      margin: 0 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    
+    .modal-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .login-button {
+      padding: 12px 20px;
+      background-color: #1a1a2e;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      text-align: center;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+    
+    .login-button:hover {
+      background-color: #272753;
+    }
+    
+    .add-to-cart-btn {
+      padding: 12px 20px;
+      background: linear-gradient(135deg, #e94560, #da5353);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.3s ease;
+    }
+    
+    .add-to-cart-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 10px rgba(233, 69, 96, 0.3);
+    }
+    
+    /* Try On Button Styles */
+    .try-on-button {
+      padding: 12px 20px;
+      background: linear-gradient(135deg, #4560e9, #5353da);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+    
+    .try-on-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 10px rgba(69, 96, 233, 0.3);
+    }
+
+    @media (max-width: 768px) {
+      .modal-content {
+        flex-direction: column;
+        height: 90vh;
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+      
+      .modal-left {
+        height: 40vh;
+      }
+      
+      .modal-right {
+        padding: 20px;
+      }
+    }
+
+    /* Color palette for glasses */
+    .color-palette {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    
+    .color-option {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    
+    .color-option.selected {
+      border-color: #1a1a2e;
+      transform: scale(1.1);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    }
+    
+    .color-option:hover {
+      transform: scale(1.05);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .color-name {
+      position: absolute;
+      bottom: -25px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 10px;
+      white-space: nowrap;
+      background-color: rgba(0,0,0,0.7);
+      color: white;
+      padding: 2px 6px;
+      border-radius: 3px;
+      opacity: 0;
+      transition: opacity 0.2s;
+      pointer-events: none;
+    }
+    
+    .color-option:hover .color-name {
+      opacity: 1;
+    }
+    
+    /* Hide default select for colors when using palette */
+    .color-palette-active .product-color {
+      display: none;
+    }
+    
+    /* Custom color pickers for specific types of frames */
+    .gold-color { background: linear-gradient(135deg, #d4af37, #f9d77f); }
+    .silver-color { background: linear-gradient(135deg, #c0c0c0, #e8e8e8); }
+    .black-color { background: linear-gradient(135deg, #1a1a1a, #444); }
+    .blue-color { background: linear-gradient(135deg, #1e3799, #4a69bd); }
+    .rose-gold-color { background: linear-gradient(135deg, #b76e79, #e8c0c6); }
+    .tortoise-color { background: linear-gradient(135deg, #754c24, #a67c52); }
+    .crystal-color { background: linear-gradient(135deg, #e8e8e8, #f5f5f5); }
+    .amber-color { background: linear-gradient(135deg, #ff7e00, #ffb142); }
+    .green-color { background: linear-gradient(135deg, #27ae60, #6ab04c); }
+    .purple-color { background: linear-gradient(135deg, #6c5ce7, #a29bfe); }
+    .red-color { background: linear-gradient(135deg, #d63031, #ff7675); }
+    .brown-color { background: linear-gradient(135deg, #5d4037, #8d6e63); }
+    .navy-color { background: linear-gradient(135deg, #192a56, #273c75); }
+    .gray-color { background: linear-gradient(135deg, #7f8c8d, #bdc3c7); }
+    .burgundy-color { background: linear-gradient(135deg, #900C3F, #C70039); }
+    .gunmetal-color { background: linear-gradient(135deg, #485460, #808e9b); }
+    .bronze-color { background: linear-gradient(135deg, #CD7F32, #E1A95F); }
+    .titanium-color { background: linear-gradient(135deg, #878681, #BFBFBD); }
+    .havana-brown-color { background: linear-gradient(135deg, #8B4513, #A0522D); }
+    .forest-green-color { background: linear-gradient(135deg, #1B4D3E, #2E8B57); }
+    .clear-color { background: linear-gradient(135deg, #F5F5F5, #F8F9FA); border: 1px solid #ddd; }
+    .pink-color { background: linear-gradient(135deg, #FF69B4, #FFC0CB); }
+    .blue-fade-color { background: linear-gradient(135deg, #3498db, #a6dcef); }
+    .black-red-color { background: linear-gradient(135deg, #000000, #ff0000); }
+    .blue-gray-color { background: linear-gradient(135deg, #3498db, #7f8c8d); }
+    .green-black-color { background: linear-gradient(135deg, #2ecc71, #000000); }
+    .orange-black-color { background: linear-gradient(135deg, #e67e22, #000000); }
+    .all-black-color { background: #000000; }
+    .matte-black-color { background: #2C3A47; }
+    .tortoise-gold-color { background: linear-gradient(135deg, #A77E58, #d4af37); }
+    .crystal-silver-color { background: linear-gradient(135deg, #F5F5F5, #c0c0c0); }
+  </style>
+</head>
+<body class="homepage-body">
+  <!-- Background Animation -->
+  <div class="animated-background">
+    <div class="gradient-orb orb1"></div>
+    <div class="gradient-orb orb2"></div>
+    <div class="gradient-orb orb3"></div>
+  </div>
+
+  <header>
+    <nav>
+      <div class="nav-container">
+        <h1><a href="Homepage.html" aria-label="Go to homepage" class="logo-text">CustomXShop</a></h1>
+        <ul>
+          <li><a href="Homepage.html" aria-label="Home" class="nav-link"><span class="material-icons nav-icon">home</span>Home</a></li>
+          <li><a href="Product.html" aria-label="View Products" class="nav-link active"><span class="material-icons nav-icon">checkroom</span>Products</a></li>
+          <li><a href="Designs.html" aria-label="Your Designs" class="nav-link"><span class="material-icons nav-icon">palette</span>Your Designs</a></li>
+          <li><a href="Cart.html" aria-label="Go to Cart" class="nav-link"><span class="material-icons nav-icon">shopping_cart</span>Cart<span id="cart-count" class="cart-badge">0</span></a></li>
+          <li><a href="Services.html" aria-label="Explore Services" class="nav-link"><span class="material-icons nav-icon">design_services</span>Services</a></li>
+          <li><a href="Help.html" aria-label="Get Help" class="nav-link"><span class="material-icons nav-icon">help_outline</span>Help</a></li>
+          <li id="login-li" style="display: block;"><a href="/HTML/index.html" aria-label="Login" class="nav-link login-btn"><span class="material-icons nav-icon">login</span>Login</a></li>
+          <li id="profile-li" style="display: none;" class="profile-dropdown">
+            <a href="Profile.html" aria-label="Profile" class="nav-link profile-btn"><span class="material-icons nav-icon">person</span>Profile</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <div class="user-welcome" id="user-welcome" style="display: none;">
+      <span class="material-icons nav-icon">person</span>
+      <span id="welcome-username">Welcome, User</span>
+    </div>
+
+    <section class="products-hero">
+      <h1 class="products-title">Our Premium Products</h1>
+      <p class="products-subtitle">Explore our collection of high-quality customizable clothing and accessories</p>
+      
+      <div class="filters-container">
+        <button class="filter-button active" data-filter="all">All Products</button>
+        <button class="filter-button" data-filter="shirts">Shirts</button>
+        <button class="filter-button" data-filter="tshirts">T-Shirts</button>
+        <button class="filter-button" data-filter="hoodies">Hoodies</button>
+        <button class="filter-button" data-filter="accessories">Accessories</button>
+      </div>
+    </section>
+
+    <section class="product-grid">
+      <!-- Product 1 -->
+      <div class="product-card" data-category="shirts">
+        <div class="product-image">
+          <model-viewer src="https://res.cloudinary.com/customxshop/image/upload/v1744037917/CustomXShop/l4plnsl7o5r6qqxotasx.glb"
+                       alt="3D model of shirt" 
+                       auto-rotate 
+                       camera-controls 
+                       shadow-intensity="1" 
+                       exposure="0.5"
+                       loading="lazy">
+          </model-viewer>
+        </div>
+        <div class="product-details">
+          <div class="product-name">Premium Long Sleeve Shirt</div>
+          <div class="product-price">$49.99</div>
+          <div class="product-description">High-quality long sleeve shirt with customizable design options. Perfect for casual and formal occasions.</div>
+          <button class="view-details-button" data-product="shirt">View Details</button>
+        </div>
+        <div class="auth-req-overlay">
+          <h3>Sign in Required</h3>
+          <p>Please login or sign up to customize this product</p>
+          <a href="index.html" class="login-button">Login / Sign Up</a>
+        </div>
+      </div>
+      
+      <!-- Product 2 -->
+      <div class="product-card" data-category="tshirts">
+        <div class="product-image">
+          <model-viewer src="https://res.cloudinary.com/customxshop/image/upload/v1744041395/jacket.compressed_xfe0sv.glb"
+                       alt="3D model of t-shirt" 
+                       auto-rotate 
+                       camera-controls 
+                       shadow-intensity="1" 
+                       exposure="0.5"
+                       loading="lazy">
+          </model-viewer>
+        </div>
+        <div class="product-details">
+          <div class="product-name">Classic T-Shirt</div>
+          <div class="product-price">$29.99</div>
+          <div class="product-description">Comfortable cotton t-shirt with multiple customization options. Suitable for everyday wear.</div>
+          <button class="view-details-button" data-product="tshirt">View Details</button>
+        </div>
+        <div class="auth-req-overlay">
+          <h3>Sign in Required</h3>
+          <p>Please login or sign up to customize this product</p>
+          <a href="index.html" class="login-button">Login / Sign Up</a>
+        </div>
+      </div>
+      
+      <!-- Product 3 -->
+      <div class="product-card" data-category="hoodies">
+        <div class="product-image">
+          <model-viewer src="https://res.cloudinary.com/customxshop/image/upload/v1744041395/jacket.compressed_xfe0sv.glb" 
+                       alt="3D model of hoodie" 
+                       auto-rotate 
+                       camera-controls 
+                       shadow-intensity="1" 
+                       exposure="0.5"
+                       loading="lazy">
+          </model-viewer>
+        </div>
+        <div class="product-details">
+          <div class="product-name">Casual Hoodie</div>
+          <div class="product-price">$59.99</div>
+          <div class="product-description">Warm and stylish hoodie for the colder seasons. Fully customizable with your unique designs.</div>
+          <button class="view-details-button" data-product="hoodie">View Details</button>
+        </div>
+        <div class="auth-req-overlay">
+          <h3>Sign in Required</h3>
+          <p>Please login or sign up to customize this product</p>
+          <a href="index.html" class="login-button">Login / Sign Up</a>
+        </div>
+      </div>
+      
+      <!-- Product 4 -->
+      <div class="product-card" data-category="shirts">
+        <div class="product-image">
+          <model-viewer src="https://res.cloudinary.com/customxshop/image/upload/v1744041431/check_shirt.compressed_u3k3bc.glb"
+                       alt="3D model of shirt" 
+                       auto-rotate 
+                       camera-controls 
+                       shadow-intensity="1" 
+                       exposure="0.5"
+                       loading="lazy">
+          </model-viewer>
+        </div>
+        <div class="product-details">
+          <div class="product-name">Check Shirt</div>
+          <div class="product-price">$54.99</div>
+          <div class="product-description">Professional Check shirt with premium cotton. Customize it for your office needs.</div>
+          <button class="view-details-button" data-product="Check-shirt">View Details</button>
+        </div>
+        <div class="auth-req-overlay">
+          <h3>Sign in Required</h3>
+          <p>Please login or sign up to customize this product</p>
+          <a href="index.html" class="login-button">Login / Sign Up</a>
+        </div>
+      </div>
+      
+      <!-- Glasses 1 -->
+      <div class="product-card" data-category="accessories">
+        <div class="product-image">
+          <model-viewer src="https://res.cloudinary.com/customxshop/image/upload/v1744747091/CustomXShop/cvplmygtdn3yuphduwlu.glb" 
+                       alt="3D model of aviator glasses" 
+                       auto-rotate 
+                       camera-controls 
+                       shadow-intensity="1" 
+                       exposure="0.5"
+                       loading="lazy">
+          </model-viewer>
+        </div>
+        <div class="product-details">
+          <div class="product-name">Classic Aviator Glasses</div>
+          <div class="product-price">$89.99</div>
+          <div class="product-description">Timeless aviator-style glasses with lightweight metal frame and adjustable nose pads for comfort.</div>
+          <button class="view-details-button" data-product="aviator-glasses">View Details</button>
+        </div>
+        <div class="auth-req-overlay">
+          <h3>Sign in Required</h3>
+          <p>Please login or sign up to customize this product</p>
+          <a href="index.html" class="login-button">Login / Sign Up</a>
+        </div>
+      </div>
+      
+      <!-- Glasses 2 -->
+      <div class="product-card" data-category="accessories">
+        <div class="product-image">
+          <model-viewer src="https://res.cloudinary.com/customxshop/image/upload/v1744747249/CustomXShop/azafikkk3i9kx0kwgtzm.glb" 
+                       alt="3D model of round glasses" 
+                       auto-rotate 
+                       camera-controls 
+                       shadow-intensity="1" 
+                       exposure="0.5"
+                       loading="lazy">
+          </model-viewer>
+        </div>
+        <div class="product-details">
+          <div class="product-name">Vintage Round Frames</div>
+          <div class="product-price">$79.99</div>
+          <div class="product-description">Retro-inspired round glasses with premium acetate frames and anti-reflective lenses.</div>
+          <button class="view-details-button" data-product="round-glasses">View Details</button>
+        </div>
+        <div class="auth-req-overlay">
+          <h3>Sign in Required</h3>
+          <p>Please login or sign up to customize this product</p>
+          <a href="index.html" class="login-button">Login / Sign Up</a>
+        </div>
+      </div>
+      
+      <!-- Glasses 3 -->
+      <div class="product-card" data-category="accessories">
+        <div class="product-image">
+          <model-viewer src="https://res.cloudinary.com/customxshop/image/upload/v1744747128/CustomXShop/bx80elzrhzirdpua3rth.glb" 
+                       alt="3D model of cat-eye glasses" 
+                       auto-rotate 
+                       camera-controls 
+                       shadow-intensity="1" 
+                       exposure="0.5"
+                       loading="lazy">
+          </model-viewer>
+        </div>
+        <div class="product-details">
+          <div class="product-name">Modern Cat-Eye Frames</div>
+          <div class="product-price">$94.99</div>
+          <div class="product-description">Stylish cat-eye glasses with contemporary design, perfect for making a bold fashion statement.</div>
+          <button class="view-details-button" data-product="cat-eye-glasses">View Details</button>
+        </div>
+        <div class="auth-req-overlay">
+          <h3>Sign in Required</h3>
+          <p>Please login or sign up to customize this product</p>
+          <a href="index.html" class="login-button">Login / Sign Up</a>
+        </div>
+      </div>
+      
+      <!-- Glasses 4 -->
+      <div class="product-card" data-category="accessories">
+        <div class="product-image">
+          <model-viewer src="https://res.cloudinary.com/customxshop/image/upload/v1744747235/CustomXShop/bfh8glxiqcn0fq1vbdil.glb" 
+                       alt="3D model of rectangle glasses" 
+                       auto-rotate 
+                       camera-controls 
+                       shadow-intensity="1" 
+                       exposure="0.5"
+                       loading="lazy">
+          </model-viewer>
+        </div>
+        <div class="product-details">
+          <div class="product-name">Professional Rectangle Frames</div>
+          <div class="product-price">$84.99</div>
+          <div class="product-description">Sophisticated rectangular glasses with sleek design, ideal for professional settings and everyday wear.</div>
+          <button class="view-details-button" data-product="rectangle-glasses">View Details</button>
+        </div>
+        <div class="auth-req-overlay">
+          <h3>Sign in Required</h3>
+          <p>Please login or sign up to customize this product</p>
+          <a href="index.html" class="login-button">Login / Sign Up</a>
+        </div>
+      </div>
+      
+      <!-- Glasses 5 -->
+      <div class="product-card" data-category="accessories">
+        <div class="product-image">
+          <model-viewer src="https://res.cloudinary.com/customxshop/image/upload/v1744747263/CustomXShop/xdngvpaigowgill6r22m.glb" 
+                       alt="3D model of semi-rimless glasses" 
+                       auto-rotate 
+                       camera-controls 
+                       shadow-intensity="1" 
+                       exposure="0.5"
+                       loading="lazy">
+          </model-viewer>
+        </div>
+        <div class="product-details">
+          <div class="product-name">Semi-Rimless Designer Frames</div>
+          <div class="product-price">$99.99</div>
+          <div class="product-description">Elegant semi-rimless glasses combining style with functionality, featuring premium materials and craftsmanship.</div>
+          <button class="view-details-button" data-product="semi-rimless-glasses">View Details</button>
+        </div>
+        <div class="auth-req-overlay">
+          <h3>Sign in Required</h3>
+          <p>Please login or sign up to customize this product</p>
+          <a href="index.html" class="login-button">Login / Sign Up</a>
+        </div>
+      </div>
+      
+      <!-- Glasses 6 -->
+      <div class="product-card" data-category="accessories">
+        <div class="product-image">
+          <model-viewer src="https://res.cloudinary.com/customxshop/image/upload/v1744747343/CustomXShop/dyiv06evxemmtypnv1br.glb" 
+                       alt="3D model of sport glasses" 
+                       auto-rotate 
+                       camera-controls 
+                       shadow-intensity="1" 
+                       exposure="0.5"
+                       loading="lazy">
+          </model-viewer>
+        </div>
+        <div class="product-details">
+          <div class="product-name">Sports Performance Glasses</div>
+          <div class="product-price">$109.99</div>
+          <div class="product-description">High-performance sports glasses with impact-resistant lenses and secure fit, designed for active lifestyles.</div>
+          <button class="view-details-button" data-product="sport-glasses">View Details</button>
+        </div>
+        <div class="auth-req-overlay">
+          <h3>Sign in Required</h3>
+          <p>Please login or sign up to customize this product</p>
+          <a href="index.html" class="login-button">Login / Sign Up</a>
+        </div>
+      </div>
+      
+      <!-- Glasses 7 -->
+      <div class="product-card" data-category="accessories">
+        <div class="product-image">
+          <model-viewer src="https://res.cloudinary.com/customxshop/image/upload/v1744747274/CustomXShop/w6r21p0c2hr74wiecxum.glb" 
+                       alt="3D model of oversized glasses" 
+                       auto-rotate 
+                       camera-controls 
+                       shadow-intensity="1" 
+                       exposure="0.5"
+                       loading="lazy">
+          </model-viewer>
+        </div>
+        <div class="product-details">
+          <div class="product-name">Oversized Fashion Frames</div>
+          <div class="product-price">$89.99</div>
+          <div class="product-description">Statement oversized glasses that combine bold aesthetics with comfort, perfect for fashion-forward individuals.</div>
+          <button class="view-details-button" data-product="oversized-glasses">View Details</button>
+        </div>
+        <div class="auth-req-overlay">
+          <h3>Sign in Required</h3>
+          <p>Please login or sign up to customize this product</p>
+          <a href="index.html" class="login-button">Login / Sign Up</a>
+        </div>
+      </div>
+      
+      <!-- Glasses 8 -->
+      <div class="product-card" data-category="accessories">
+        <div class="product-image">
+          <model-viewer src="https://res.cloudinary.com/customxshop/image/upload/v1744747120/CustomXShop/f2do39d9t240auf6wgqy.glb" 
+                       alt="3D model of square glasses" 
+                       auto-rotate 
+                       camera-controls 
+                       shadow-intensity="1" 
+                       exposure="0.5"
+                       loading="lazy">
+          </model-viewer>
+        </div>
+        <div class="product-details">
+          <div class="product-name">Geometric Square Frames</div>
+          <div class="product-price">$92.99</div>
+          <div class="product-description">Contemporary square-shaped glasses with geometric design elements, offering a distinctive look for any occasion.</div>
+          <button class="view-details-button" data-product="square-glasses">View Details</button>
+        </div>
+        <div class="auth-req-overlay">
+          <h3>Sign in Required</h3>
+          <p>Please login or sign up to customize this product</p>
+          <a href="index.html" class="login-button">Login / Sign Up</a>
+        </div>
+      </div>
+      
+      <!-- Glasses 9 -->
+      <div class="product-card" data-category="accessories">
+        <div class="product-image">
+          <model-viewer src="https://res.cloudinary.com/customxshop/image/upload/v1744747327/CustomXShop/qrugevml1jwtdpmqogpt.glb" 
+                       alt="3D model of rimless glasses" 
+                       auto-rotate 
+                       camera-controls 
+                       shadow-intensity="1" 
+                       exposure="0.5"
+                       loading="lazy">
+          </model-viewer>
+        </div>
+        <div class="product-details">
+          <div class="product-name">Minimalist Rimless Glasses</div>
+          <div class="product-price">$104.99</div>
+          <div class="product-description">Ultra-lightweight rimless glasses with a minimalist design, offering unobstructed vision and sophisticated style.</div>
+          <button class="view-details-button" data-product="rimless-glasses">View Details</button>
+        </div>
+        <div class="auth-req-overlay">
+          <h3>Sign in Required</h3>
+          <p>Please login or sign up to customize this product</p>
+          <a href="index.html" class="login-button">Login / Sign Up</a>
+        </div>
+      </div>
+      
+      <!-- Product 6 -->
+      <div class="product-card" data-category="tshirts">
+        <div class="product-image">
+          <model-viewer src="/glb/shirt.compressed.glb" 
+                       alt="3D model of polo shirt" 
+                       auto-rotate 
+                       camera-controls 
+                       shadow-intensity="1" 
+                       exposure="0.5"
+                       loading="lazy">
+          </model-viewer>
+        </div>
+        <div class="product-details">
+          <div class="product-name">Polo Shirt</div>
+          <div class="product-price">$39.99</div>
+          <div class="product-description">Classic polo shirt with customizable collar and sleeve designs.</div>
+          <button class="view-details-button" data-product="polo">View Details</button>
+        </div>
+        <div class="auth-req-overlay">
+          <h3>Sign in Required</h3>
+          <p>Please login or sign up to customize this product</p>
+          <a href="index.html" class="login-button">Login / Sign Up</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="animated-footer">
+    <div class="footer-content">
+      <div class="logo-pulse">
+        <span>CustomXShop</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Product Detail Modals -->
+  <div class="product-modal" id="shirt-modal">
+    <div class="modal-content">
+      <div class="modal-close"><span class="material-icons">close</span></div>
+      <div class="modal-left">
+        <model-viewer src="/glb/shirt.compressed.glb" 
+                     alt="3D model of shirt" 
+                     auto-rotate 
+                     camera-controls 
+                     shadow-intensity="1" 
+                     exposure="0.5">
+        </model-viewer>
+      </div>
+      <div class="modal-right">
+        <h2 class="modal-title">Premium Long Sleeve Shirt</h2>
+        <div class="modal-price">$49.99</div>
+        <p class="modal-description">
+          Our premium long sleeve shirt is crafted from the finest materials to ensure comfort and durability. Perfect for both casual and formal occasions, this shirt can be fully customized to match your unique style and preferences.
+        </p>
+        <div class="specs">
+          <h3>Specifications</h3>
+          <ul class="specs-list">
+            <li><span class="material-icons">check</span> 100% premium cotton</li>
+            <li><span class="material-icons">check</span> Wrinkle-resistant fabric</li>
+            <li><span class="material-icons">check</span> Available in sizes XS to 3XL</li>
+            <li><span class="material-icons">check</span> Eco-friendly production</li>
+            <li><span class="material-icons">check</span> Machine washable</li>
+          </ul>
+        </div>
+        <div class="product-options">
+          <div class="option-group">
+            <label for="shirt-size">Size:</label>
+            <select id="shirt-size" class="product-size">
+              <option value="S">Small</option>
+              <option value="M" selected>Medium</option>
+              <option value="L">Large</option>
+              <option value="XL">X-Large</option>
+              <option value="XXL">XX-Large</option>
+            </select>
+          </div>
+          <div class="option-group">
+            <label for="shirt-color">Color:</label>
+            <select id="shirt-color" class="product-color">
+              <option value="White">White</option>
+              <option value="Light Blue">Light Blue</option>
+              <option value="Pink">Pink</option>
+              <option value="Gray">Gray</option>
+              <option value="Black">Black</option>
+            </select>
+          </div>
+          <div class="option-group">
+            <label for="shirt-quantity">Quantity:</label>
+            <div class="quantity-controls">
+              <button class="quantity-btn minus" data-target="shirt-quantity">-</button>
+              <input type="number" id="shirt-quantity" value="1" min="1" max="10" class="product-quantity">
+              <button class="quantity-btn plus" data-target="shirt-quantity">+</button>
+            </div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <a href="/create" class="customize-button">Customize Now</a>
+          <a href="/enhanced-virtual-tryon.html" class="try-on-button">
+            <span class="material-icons">visibility</span>
+            Virtual Try-On
+          </a>
+          <button class="add-to-cart-btn" data-product="shirt" data-id="2" data-name="Premium Long Sleeve Shirt" data-price="49.99" data-image="/images/products/shirt-preview.png" style="display: none;">
+            <span class="material-icons">add_shopping_cart</span>
+            Add to Cart
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="product-modal" id="tshirt-modal">
+    <div class="modal-content">
+      <div class="modal-close"><span class="material-icons">close</span></div>
+      <div class="modal-left">
+        <model-viewer src="/glb/shirt.compressed.glb" 
+                     alt="3D model of t-shirt" 
+                     auto-rotate 
+                     camera-controls 
+                     shadow-intensity="1" 
+                     exposure="0.5">
+        </model-viewer>
+      </div>
+      <div class="modal-right">
+        <h2 class="modal-title">Classic T-Shirt</h2>
+        <div class="modal-price">$29.99</div>
+        <p class="modal-description">
+          Our classic t-shirt combines style with comfort for everyday wear. Made from soft, breathable cotton, this shirt is perfect for casual outings, exercise, or just lounging around. Customize it with your own designs for a truly unique piece.
+        </p>
+        <div class="specs">
+          <h3>Specifications</h3>
+          <ul class="specs-list">
+            <li><span class="material-icons">check</span> 100% ringspun cotton</li>
+            <li><span class="material-icons">check</span> Seamless collar</li>
+            <li><span class="material-icons">check</span> Available in sizes XS to 3XL</li>
+            <li><span class="material-icons">check</span> Pre-shrunk fabric</li>
+            <li><span class="material-icons">check</span> Machine washable</li>
+          </ul>
+        </div>
+        <div class="product-options">
+          <div class="option-group">
+            <label for="tshirt-size">Size:</label>
+            <select id="tshirt-size" class="product-size">
+              <option value="S">Small</option>
+              <option value="M" selected>Medium</option>
+              <option value="L">Large</option>
+              <option value="XL">X-Large</option>
+              <option value="XXL">XX-Large</option>
+            </select>
+          </div>
+          <div class="option-group">
+            <label for="tshirt-color">Color:</label>
+            <select id="tshirt-color" class="product-color">
+              <option value="White">White</option>
+              <option value="Black">Black</option>
+              <option value="Navy">Navy</option>
+              <option value="Gray">Gray</option>
+              <option value="Red">Red</option>
+            </select>
+          </div>
+          <div class="option-group">
+            <label for="tshirt-quantity">Quantity:</label>
+            <div class="quantity-controls">
+              <button class="quantity-btn minus" data-target="tshirt-quantity">-</button>
+              <input type="number" id="tshirt-quantity" value="1" min="1" max="10" class="product-quantity">
+              <button class="quantity-btn plus" data-target="tshirt-quantity">+</button>
+            </div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <a href="/create" class="customize-button">Customize Now</a>
+          <a href="/enhanced-virtual-tryon.html" class="try-on-button">
+            <span class="material-icons">visibility</span>
+            Virtual Try-On
+          </a>
+          <button class="add-to-cart-btn" data-product="tshirt" data-id="1" data-name="Classic T-Shirt" data-price="29.99" data-image="/images/products/tshirt-preview.png" style="display: none;">
+            <span class="material-icons">add_shopping_cart</span>
+            Add to Cart
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="product-modal" id="hoodie-modal">
+    <div class="modal-content">
+      <div class="modal-close"><span class="material-icons">close</span></div>
+      <div class="modal-left">
+        <model-viewer src="/glb/shirt.compressed.glb" 
+                     alt="3D model of hoodie" 
+                     auto-rotate 
+                     camera-controls 
+                     shadow-intensity="1" 
+                     exposure="0.5">
+        </model-viewer>
+      </div>
+      <div class="modal-right">
+        <h2 class="modal-title">Casual Hoodie</h2>
+        <div class="modal-price">$59.99</div>
+        <p class="modal-description">
+          Stay warm and stylish with our casual hoodie. Designed for comfort and durability, this hoodie features a soft fleece lining and a modern fit. Customize every aspect to create a piece that's uniquely yours.
+        </p>
+        <div class="specs">
+          <h3>Specifications</h3>
+          <ul class="specs-list">
+            <li><span class="material-icons">check</span> 80% cotton, 20% polyester</li>
+            <li><span class="material-icons">check</span> Fleece-lined hood</li>
+            <li><span class="material-icons">check</span> Available in sizes XS to 3XL</li>
+            <li><span class="material-icons">check</span> Front pocket pouch</li>
+            <li><span class="material-icons">check</span> Ribbed cuffs and hem</li>
+          </ul>
+        </div>
+        <div class="product-options">
+          <div class="option-group">
+            <label for="hoodie-size">Size:</label>
+            <select id="hoodie-size" class="product-size">
+              <option value="S">Small</option>
+              <option value="M" selected>Medium</option>
+              <option value="L">Large</option>
+              <option value="XL">X-Large</option>
+              <option value="XXL">XX-Large</option>
+            </select>
+          </div>
+          <div class="option-group">
+            <label for="hoodie-color">Color:</label>
+            <select id="hoodie-color" class="product-color">
+              <option value="Black">Black</option>
+              <option value="Gray">Gray</option>
+              <option value="Navy">Navy</option>
+              <option value="Maroon">Maroon</option>
+              <option value="Green">Green</option>
+            </select>
+          </div>
+          <div class="option-group">
+            <label for="hoodie-quantity">Quantity:</label>
+            <div class="quantity-controls">
+              <button class="quantity-btn minus" data-target="hoodie-quantity">-</button>
+              <input type="number" id="hoodie-quantity" value="1" min="1" max="10" class="product-quantity">
+              <button class="quantity-btn plus" data-target="hoodie-quantity">+</button>
+            </div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <a href="/create" class="customize-button">Customize Now</a>
+          <a href="/enhanced-virtual-tryon.html" class="try-on-button">
+            <span class="material-icons">visibility</span>
+            Virtual Try-On
+          </a>
+          <button class="add-to-cart-btn" data-product="hoodie" data-id="3" data-name="Casual Hoodie" data-price="59.99" data-image="/images/products/hoodie-preview.png" style="display: none;">
+            <span class="material-icons">add_shopping_cart</span>
+            Add to Cart
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Glasses Modal - Aviator -->
+  <div class="product-modal" id="aviator-glasses-modal">
+    <div class="modal-content">
+      <div class="modal-close"><span class="material-icons">close</span></div>
+      <div class="modal-left">
+        <model-viewer id="aviator-model" src="https://res.cloudinary.com/customxshop/image/upload/v1744747091/CustomXShop/cvplmygtdn3yuphduwlu.glb" 
+                     alt="3D model of aviator glasses" 
+                     auto-rotate 
+                     camera-controls 
+                     shadow-intensity="1"
+                     exposure="0.5">
+        </model-viewer>
+      </div>
+      <div class="modal-right">
+        <h2 class="modal-title">Classic Aviator Glasses</h2>
+        <div class="modal-price">$89.99</div>
+        <p class="modal-description">
+          Our classic aviator glasses feature a timeless design with a lightweight metal frame. Perfect for adding a touch of sophistication to any look, these glasses come with adjustable nose pads for optimal comfort and fit.
+        </p>
+        <div class="specs">
+          <h3>Specifications</h3>
+          <ul class="specs-list">
+            <li><span class="material-icons">check</span> Premium metal frame</li>
+            <li><span class="material-icons">check</span> UV-protective lenses</li>
+            <li><span class="material-icons">check</span> Adjustable nose pads</li>
+            <li><span class="material-icons">check</span> Includes protective case</li>
+            <li><span class="material-icons">check</span> One-year warranty</li>
+          </ul>
+        </div>
+        <div class="product-options">
+          <div class="option-group color-palette-active">
+            <label for="aviator-color">Color:</label>
+            <select id="aviator-color" class="product-color" data-target="aviator-model">
+              <option value="Gold">Gold</option>
+              <option value="Silver">Silver</option>
+              <option value="Black">Black</option>
+              <option value="Rose Gold">Rose Gold</option>
+              <option value="Blue">Blue</option>
+            </select>
+            <div class="color-palette" data-target="aviator-model" aria-label="Color options for aviator glasses">
+              <div class="color-option gold-color" data-color="Gold" data-material-color="#d4af37"><span class="color-name">Gold</span></div>
+              <div class="color-option silver-color" data-color="Silver" data-material-color="#c0c0c0"><span class="color-name">Silver</span></div>
+              <div class="color-option black-color" data-color="Black" data-material-color="#1a1a1a"><span class="color-name">Black</span></div>
+              <div class="color-option rose-gold-color" data-color="Rose Gold" data-material-color="#b76e79"><span class="color-name">Rose Gold</span></div>
+              <div class="color-option blue-color" data-color="Blue" data-material-color="#1e3799"><span class="color-name">Blue</span></div>
+            </div>
+          </div>
+          <div class="option-group">
+            <label for="aviator-quantity">Quantity:</label>
+            <div class="quantity-controls">
+              <button class="quantity-btn minus" data-target="aviator-quantity">-</button>
+              <input type="number" id="aviator-quantity" value="1" min="1" max="10" class="product-quantity">
+              <button class="quantity-btn plus" data-target="aviator-quantity">+</button>
+            </div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <a href="/enhanced-virtual-tryon.html?product=aviator-glasses" class="try-on-button">
+            <span class="material-icons">visibility</span>
+            Virtual Try-On
+          </a>
+          <button class="add-to-cart-btn" data-product="aviator-glasses" data-id="10" data-name="Classic Aviator Glasses" data-price="89.99" data-image="/images/products/aviator-glasses.png" style="display: none;">
+            <span class="material-icons">add_shopping_cart</span>
+            Add to Cart
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Glasses Modal - Round Frames -->
+  <div class="product-modal" id="round-glasses-modal">
+    <div class="modal-content">
+      <div class="modal-close"><span class="material-icons">close</span></div>
+      <div class="modal-left">
+        <model-viewer id="round-model" src="https://res.cloudinary.com/customxshop/image/upload/v1744747249/CustomXShop/azafikkk3i9kx0kwgtzm.glb" 
+                     alt="3D model of round glasses" 
+                     auto-rotate 
+                     camera-controls 
+                     shadow-intensity="1"
+                     exposure="0.5">
+        </model-viewer>
+      </div>
+      <div class="modal-right">
+        <h2 class="modal-title">Vintage Round Frames</h2>
+        <div class="modal-price">$79.99</div>
+        <p class="modal-description">
+          Embrace retro style with our vintage-inspired round glasses. Featuring premium acetate frames and anti-reflective lenses, these glasses offer both classic appeal and modern functionality.
+        </p>
+        <div class="specs">
+          <h3>Specifications</h3>
+          <ul class="specs-list">
+            <li><span class="material-icons">check</span> Premium acetate frame</li>
+            <li><span class="material-icons">check</span> Anti-reflective lenses</li>
+            <li><span class="material-icons">check</span> Comfortable nose pads</li>
+            <li><span class="material-icons">check</span> Spring hinges</li>
+            <li><span class="material-icons">check</span> Includes cleaning cloth and case</li>
+          </ul>
+        </div>
+        <div class="product-options">
+          <div class="option-group color-palette-active">
+            <label for="round-color">Color:</label>
+            <select id="round-color" class="product-color" data-target="round-model">
+              <option value="Tortoise">Tortoise</option>
+              <option value="Black">Black</option>
+              <option value="Crystal">Crystal</option>
+              <option value="Amber">Amber</option>
+              <option value="Green">Green</option>
+            </select>
+            <div class="color-palette" data-target="round-model" aria-label="Color options for round glasses">
+              <div class="color-option tortoise-color" data-color="Tortoise" data-material-color="#754c24"><span class="color-name">Tortoise</span></div>
+              <div class="color-option black-color" data-color="Black" data-material-color="#1a1a1a"><span class="color-name">Black</span></div>
+              <div class="color-option crystal-color" data-color="Crystal" data-material-color="#e8e8e8"><span class="color-name">Crystal</span></div>
+              <div class="color-option amber-color" data-color="Amber" data-material-color="#ff7e00"><span class="color-name">Amber</span></div>
+              <div class="color-option green-color" data-color="Green" data-material-color="#27ae60"><span class="color-name">Green</span></div>
+            </div>
+          </div>
+          <div class="option-group">
+            <label for="round-quantity">Quantity:</label>
+            <div class="quantity-controls">
+              <button class="quantity-btn minus" data-target="round-quantity">-</button>
+              <input type="number" id="round-quantity" value="1" min="1" max="10" class="product-quantity">
+              <button class="quantity-btn plus" data-target="round-quantity">+</button>
+            </div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <a href="/enhanced-virtual-tryon.html?product=round-glasses" class="try-on-button">
+            <span class="material-icons">visibility</span>
+            Virtual Try-On
+          </a>
+          <button class="add-to-cart-btn" data-product="round-glasses" data-id="11" data-name="Vintage Round Frames" data-price="79.99" data-image="/images/products/round-glasses.png" style="display: none;">
+            <span class="material-icons">add_shopping_cart</span>
+            Add to Cart
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create modals for all glasses -->
+  <!-- Glasses Modal - Cat-Eye -->
+  <div class="product-modal" id="cat-eye-glasses-modal">
+    <div class="modal-content">
+      <div class="modal-close"><span class="material-icons">close</span></div>
+      <div class="modal-left">
+        <model-viewer id="cat-eye-model" src="https://res.cloudinary.com/customxshop/image/upload/v1744747128/CustomXShop/bx80elzrhzirdpua3rth.glb" 
+                     alt="3D model of cat-eye glasses" 
+                     auto-rotate 
+                     camera-controls 
+                     shadow-intensity="1"
+                     exposure="0.5">
+        </model-viewer>
+      </div>
+      <div class="modal-right">
+        <h2 class="modal-title">Modern Cat-Eye Frames</h2>
+        <div class="modal-price">$94.99</div>
+        <p class="modal-description">
+          Make a bold fashion statement with our modern cat-eye frames. These stylish glasses combine contemporary design with classic elements for a unique look that stands out.
+        </p>
+        <div class="specs">
+          <h3>Specifications</h3>
+          <ul class="specs-list">
+            <li><span class="material-icons">check</span> High-quality acetate frame</li>
+            <li><span class="material-icons">check</span> Blue light filtering available</li>
+            <li><span class="material-icons">check</span> Reinforced hinges</li>
+            <li><span class="material-icons">check</span> Lightweight construction</li>
+            <li><span class="material-icons">check</span> Designer carrying case included</li>
+          </ul>
+        </div>
+        <div class="product-options">
+          <div class="option-group color-palette-active">
+            <label for="cat-eye-color">Color:</label>
+            <select id="cat-eye-color" class="product-color" data-target="cat-eye-model">
+              <option value="Black">Black</option>
+              <option value="Tortoise">Tortoise</option>
+              <option value="Red">Red</option>
+              <option value="Purple">Purple</option>
+              <option value="Navy">Navy</option>
+            </select>
+            <div class="color-palette" data-target="cat-eye-model" aria-label="Color options for cat-eye glasses">
+              <div class="color-option black-color" data-color="Black" data-material-color="#1a1a1a"><span class="color-name">Black</span></div>
+              <div class="color-option tortoise-color" data-color="Tortoise" data-material-color="#754c24"><span class="color-name">Tortoise</span></div>
+              <div class="color-option red-color" data-color="Red" data-material-color="#d63031"><span class="color-name">Red</span></div>
+              <div class="color-option purple-color" data-color="Purple" data-material-color="#6c5ce7"><span class="color-name">Purple</span></div>
+              <div class="color-option navy-color" data-color="Navy" data-material-color="#192a56"><span class="color-name">Navy</span></div>
+            </div>
+          </div>
+          <div class="option-group">
+            <label for="cat-eye-quantity">Quantity:</label>
+            <div class="quantity-controls">
+              <button class="quantity-btn minus" data-target="cat-eye-quantity">-</button>
+              <input type="number" id="cat-eye-quantity" value="1" min="1" max="10" class="product-quantity">
+              <button class="quantity-btn plus" data-target="cat-eye-quantity">+</button>
+            </div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <a href="/enhanced-virtual-tryon.html?product=cat-eye-glasses" class="try-on-button">
+            <span class="material-icons">visibility</span>
+            Virtual Try-On
+          </a>
+          <button class="add-to-cart-btn" data-product="cat-eye-glasses" data-id="12" data-name="Modern Cat-Eye Frames" data-price="94.99" data-image="/images/products/cat-eye-glasses.png" style="display: none;">
+            <span class="material-icons">add_shopping_cart</span>
+            Add to Cart
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Glasses Modal - Rectangle Frames -->
+  <div class="product-modal" id="rectangle-glasses-modal">
+    <div class="modal-content">
+      <div class="modal-close"><span class="material-icons">close</span></div>
+      <div class="modal-left">
+        <model-viewer id="rectangle-model" src="https://res.cloudinary.com/customxshop/image/upload/v1744747235/CustomXShop/bfh8glxiqcn0fq1vbdil.glb" 
+                     alt="3D model of rectangle glasses" 
+                     auto-rotate 
+                     camera-controls 
+                     shadow-intensity="1"
+                     exposure="0.5">
+        </model-viewer>
+      </div>
+      <div class="modal-right">
+        <h2 class="modal-title">Professional Rectangle Frames</h2>
+        <div class="modal-price">$84.99</div>
+        <p class="modal-description">
+          Our professional rectangle frames offer a sophisticated look perfect for Check environments and everyday wear. The sleek design and comfortable fit make these glasses a versatile addition to any wardrobe.
+        </p>
+        <div class="specs">
+          <h3>Specifications</h3>
+          <ul class="specs-list">
+            <li><span class="material-icons">check</span> Premium composite frame</li>
+            <li><span class="material-icons">check</span> Anti-glare coating</li>
+            <li><span class="material-icons">check</span> Reinforced temples</li>
+            <li><span class="material-icons">check</span> Scratch-resistant lenses</li>
+            <li><span class="material-icons">check</span> Includes hard case and cleaning cloth</li>
+          </ul>
+        </div>
+        <div class="product-options">
+          <div class="option-group color-palette-active">
+            <label for="rectangle-color">Color:</label>
+            <select id="rectangle-color" class="product-color" data-target="rectangle-model">
+              <option value="Black">Black</option>
+              <option value="Brown">Brown</option>
+              <option value="Navy">Navy</option>
+              <option value="Gray">Gray</option>
+              <option value="Burgundy">Burgundy</option>
+            </select>
+            <div class="color-palette" data-target="rectangle-model" aria-label="Color options for rectangle glasses">
+              <div class="color-option black-color" data-color="Black" data-material-color="#1a1a1a"><span class="color-name">Black</span></div>
+              <div class="color-option brown-color" data-color="Brown" data-material-color="#5d4037"><span class="color-name">Brown</span></div>
+              <div class="color-option navy-color" data-color="Navy" data-material-color="#192a56"><span class="color-name">Navy</span></div>
+              <div class="color-option gray-color" data-color="Gray" data-material-color="#7f8c8d"><span class="color-name">Gray</span></div>
+              <div class="color-option burgundy-color" data-color="Burgundy" data-material-color="#900C3F"><span class="color-name">Burgundy</span></div>
+            </div>
+          </div>
+          <div class="option-group">
+            <label for="rectangle-quantity">Quantity:</label>
+            <div class="quantity-controls">
+              <button class="quantity-btn minus" data-target="rectangle-quantity">-</button>
+              <input type="number" id="rectangle-quantity" value="1" min="1" max="10" class="product-quantity">
+              <button class="quantity-btn plus" data-target="rectangle-quantity">+</button>
+            </div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <a href="/enhanced-virtual-tryon.html?product=rectangle-glasses" class="try-on-button">
+            <span class="material-icons">visibility</span>
+            Virtual Try-On
+          </a>
+          <button class="add-to-cart-btn" data-product="rectangle-glasses" data-id="13" data-name="Professional Rectangle Frames" data-price="84.99" data-image="/images/products/rectangle-glasses.png" style="display: none;">
+            <span class="material-icons">add_shopping_cart</span>
+            Add to Cart
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Glasses Modal - Semi-Rimless -->
+  <div class="product-modal" id="semi-rimless-glasses-modal">
+    <div class="modal-content">
+      <div class="modal-close"><span class="material-icons">close</span></div>
+      <div class="modal-left">
+        <model-viewer id="semi-rimless-model" src="https://res.cloudinary.com/customxshop/image/upload/v1744747263/CustomXShop/xdngvpaigowgill6r22m.glb" 
+                     alt="3D model of semi-rimless glasses" 
+                     auto-rotate 
+                     camera-controls 
+                     shadow-intensity="1"
+                     exposure="0.5">
+        </model-viewer>
+      </div>
+      <div class="modal-right">
+        <h2 class="modal-title">Semi-Rimless Designer Frames</h2>
+        <div class="modal-price">$99.99</div>
+        <p class="modal-description">
+          Our semi-rimless designer frames combine elegance with modern style. The sophisticated design features premium materials and expert craftsmanship for an eyewear experience that stands out without overwhelming your face.
+        </p>
+        <div class="specs">
+          <h3>Specifications</h3>
+          <ul class="specs-list">
+            <li><span class="material-icons">check</span> Titanium upper frame</li>
+            <li><span class="material-icons">check</span> High-definition lenses</li>
+            <li><span class="material-icons">check</span> Adjustable silicone nose pads</li>
+            <li><span class="material-icons">check</span> Spring hinges for comfort</li>
+            <li><span class="material-icons">check</span> Premium leather case included</li>
+          </ul>
+        </div>
+        <div class="product-options">
+          <div class="option-group color-palette-active">
+            <label for="semi-rimless-color">Color:</label>
+            <select id="semi-rimless-color" class="product-color" data-target="semi-rimless-model">
+              <option value="Gold">Gold</option>
+              <option value="Silver">Silver</option>
+              <option value="Gunmetal">Gunmetal</option>
+              <option value="Bronze">Bronze</option>
+              <option value="Black">Black</option>
+            </select>
+            <div class="color-palette" data-target="semi-rimless-model" aria-label="Color options for semi-rimless glasses">
+              <div class="color-option gold-color" data-color="Gold" data-material-color="#d4af37"><span class="color-name">Gold</span></div>
+              <div class="color-option silver-color" data-color="Silver" data-material-color="#c0c0c0"><span class="color-name">Silver</span></div>
+              <div class="color-option gunmetal-color" data-color="Gunmetal" data-material-color="#485460"><span class="color-name">Gunmetal</span></div>
+              <div class="color-option bronze-color" data-color="Bronze" data-material-color="#CD7F32"><span class="color-name">Bronze</span></div>
+              <div class="color-option black-color" data-color="Black" data-material-color="#1a1a1a"><span class="color-name">Black</span></div>
+            </div>
+          </div>
+          <div class="option-group">
+            <label for="semi-rimless-quantity">Quantity:</label>
+            <div class="quantity-controls">
+              <button class="quantity-btn minus" data-target="semi-rimless-quantity">-</button>
+              <input type="number" id="semi-rimless-quantity" value="1" min="1" max="10" class="product-quantity">
+              <button class="quantity-btn plus" data-target="semi-rimless-quantity">+</button>
+            </div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <a href="/enhanced-virtual-tryon.html?product=semi-rimless-glasses" class="try-on-button">
+            <span class="material-icons">visibility</span>
+            Virtual Try-On
+          </a>
+          <button class="add-to-cart-btn" data-product="semi-rimless-glasses" data-id="14" data-name="Semi-Rimless Designer Frames" data-price="99.99" data-image="/images/products/semi-rimless-glasses.png" style="display: none;">
+            <span class="material-icons">add_shopping_cart</span>
+            Add to Cart
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Glasses Modal - Sport Glasses -->
+  <div class="product-modal" id="sport-glasses-modal">
+    <div class="modal-content">
+      <div class="modal-close"><span class="material-icons">close</span></div>
+      <div class="modal-left">
+        <model-viewer id="sport-model" src="https://res.cloudinary.com/customxshop/image/upload/v1744747343/CustomXShop/dyiv06evxemmtypnv1br.glb" 
+                     alt="3D model of sport glasses" 
+                     auto-rotate 
+                     camera-controls 
+                     shadow-intensity="1"
+                     exposure="0.5">
+        </model-viewer>
+      </div>
+      <div class="modal-right">
+        <h2 class="modal-title">Sports Performance Glasses</h2>
+        <div class="modal-price">$109.99</div>
+        <p class="modal-description">
+          Designed for active lifestyles, our sports performance glasses combine durability with style. These glasses feature impact-resistant lenses and a secure fit to keep up with your most demanding activities.
+        </p>
+        <div class="specs">
+          <h3>Specifications</h3>
+          <ul class="specs-list">
+            <li><span class="material-icons">check</span> Shatterproof polycarbonate lenses</li>
+            <li><span class="material-icons">check</span> Flexible TR90 frame material</li>
+            <li><span class="material-icons">check</span> Non-slip rubber temple tips</li>
+            <li><span class="material-icons">check</span> UV400 protection</li>
+            <li><span class="material-icons">check</span> Includes sport strap and hard case</li>
+          </ul>
+        </div>
+        <div class="product-options">
+          <div class="option-group color-palette-active">
+            <label for="sport-color">Color:</label>
+            <select id="sport-color" class="product-color" data-target="sport-model">
+              <option value="Black/Red">Black/Red</option>
+              <option value="Blue/Gray">Blue/Gray</option>
+              <option value="Green/Black">Green/Black</option>
+              <option value="Orange/Black">Orange/Black</option>
+              <option value="All Black">All Black</option>
+            </select>
+            <div class="color-palette" data-target="sport-model" aria-label="Color options for sport glasses">
+              <div class="color-option black-red-color" data-color="Black/Red" data-material-color="#7D0A0A"><span class="color-name">Black/Red</span></div>
+              <div class="color-option blue-gray-color" data-color="Blue/Gray" data-material-color="#3498db"><span class="color-name">Blue/Gray</span></div>
+              <div class="color-option green-black-color" data-color="Green/Black" data-material-color="#27ae60"><span class="color-name">Green/Black</span></div>
+              <div class="color-option orange-black-color" data-color="Orange/Black" data-material-color="#e67e22"><span class="color-name">Orange/Black</span></div>
+              <div class="color-option all-black-color" data-color="All Black" data-material-color="#000000"><span class="color-name">All Black</span></div>
+            </div>
+          </div>
+          <div class="option-group">
+            <label for="sport-quantity">Quantity:</label>
+            <div class="quantity-controls">
+              <button class="quantity-btn minus" data-target="sport-quantity">-</button>
+              <input type="number" id="sport-quantity" value="1" min="1" max="10" class="product-quantity">
+              <button class="quantity-btn plus" data-target="sport-quantity">+</button>
+            </div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <a href="/enhanced-virtual-tryon.html?product=sport-glasses" class="try-on-button">
+            <span class="material-icons">visibility</span>
+            Virtual Try-On
+          </a>
+          <button class="add-to-cart-btn" data-product="sport-glasses" data-id="15" data-name="Sports Performance Glasses" data-price="109.99" data-image="/images/products/sport-glasses.png" style="display: none;">
+            <span class="material-icons">add_shopping_cart</span>
+            Add to Cart
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Glasses Modal - Oversized Frames -->
+  <div class="product-modal" id="oversized-glasses-modal">
+    <div class="modal-content">
+      <div class="modal-close"><span class="material-icons">close</span></div>
+      <div class="modal-left">
+        <model-viewer id="oversized-model" src="https://res.cloudinary.com/customxshop/image/upload/v1744747274/CustomXShop/w6r21p0c2hr74wiecxum.glb" 
+                     alt="3D model of oversized glasses" 
+                     auto-rotate 
+                     camera-controls 
+                     shadow-intensity="1"
+                     exposure="0.5">
+        </model-viewer>
+      </div>
+      <div class="modal-right">
+        <h2 class="modal-title">Oversized Fashion Frames</h2>
+        <div class="modal-price">$89.99</div>
+        <p class="modal-description">
+          Make a bold statement with our oversized fashion frames. These trendy glasses combine dramatic size with comfortable wear, perfect for those who want to stand out with their eyewear choice.
+        </p>
+        <div class="specs">
+          <h3>Specifications</h3>
+          <ul class="specs-list">
+            <li><span class="material-icons">check</span> Premium acetate construction</li>
+            <li><span class="material-icons">check</span> Lightweight design despite size</li>
+            <li><span class="material-icons">check</span> Blue light filtering available</li>
+            <li><span class="material-icons">check</span> Reinforced hinges</li>
+            <li><span class="material-icons">check</span> Designer microfiber pouch included</li>
+          </ul>
+        </div>
+        <div class="product-options">
+          <div class="option-group color-palette-active">
+            <label for="oversized-color">Color:</label>
+            <select id="oversized-color" class="product-color" data-target="oversized-model">
+              <option value="Black">Black</option>
+              <option value="Tortoise">Tortoise</option>
+              <option value="Clear">Clear</option>
+              <option value="Pink">Pink</option>
+              <option value="Blue Fade">Blue Fade</option>
+            </select>
+            <div class="color-palette" data-target="oversized-model" aria-label="Color options for oversized glasses">
+              <div class="color-option black-color" data-color="Black" data-material-color="#1a1a1a"><span class="color-name">Black</span></div>
+              <div class="color-option tortoise-color" data-color="Tortoise" data-material-color="#754c24"><span class="color-name">Tortoise</span></div>
+              <div class="color-option clear-color" data-color="Clear" data-material-color="#F5F5F5"><span class="color-name">Clear</span></div>
+              <div class="color-option pink-color" data-color="Pink" data-material-color="#FF69B4"><span class="color-name">Pink</span></div>
+              <div class="color-option blue-fade-color" data-color="Blue Fade" data-material-color="#3498db"><span class="color-name">Blue Fade</span></div>
+            </div>
+          </div>
+          <div class="option-group">
+            <label for="oversized-quantity">Quantity:</label>
+            <div class="quantity-controls">
+              <button class="quantity-btn minus" data-target="oversized-quantity">-</button>
+              <input type="number" id="oversized-quantity" value="1" min="1" max="10" class="product-quantity">
+              <button class="quantity-btn plus" data-target="oversized-quantity">+</button>
+            </div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <a href="/enhanced-virtual-tryon.html?product=oversized-glasses" class="try-on-button">
+            <span class="material-icons">visibility</span>
+            Virtual Try-On
+          </a>
+          <button class="add-to-cart-btn" data-product="oversized-glasses" data-id="16" data-name="Oversized Fashion Frames" data-price="89.99" data-image="/images/products/oversized-glasses.png" style="display: none;">
+            <span class="material-icons">add_shopping_cart</span>
+            Add to Cart
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Glasses Modal - Square Frames -->
+  <div class="product-modal" id="square-glasses-modal">
+    <div class="modal-content">
+      <div class="modal-close"><span class="material-icons">close</span></div>
+      <div class="modal-left">
+        <model-viewer id="square-model" src="https://res.cloudinary.com/customxshop/image/upload/v1744747120/CustomXShop/f2do39d9t240auf6wgqy.glb" 
+                     alt="3D model of square glasses" 
+                     auto-rotate 
+                     camera-controls 
+                     shadow-intensity="1"
+                     exposure="0.5">
+        </model-viewer>
+      </div>
+      <div class="modal-right">
+        <h2 class="modal-title">Geometric Square Frames</h2>
+        <div class="modal-price">$92.99</div>
+        <p class="modal-description">
+          Our geometric square frames offer a distinctive look with modern angular design elements. These contemporary glasses provide a unique aesthetic that works well for both casual and professional settings.
+        </p>
+        <div class="specs">
+          <h3>Specifications</h3>
+          <ul class="specs-list">
+            <li><span class="material-icons">check</span> High-quality acetate and metal construction</li>
+            <li><span class="material-icons">check</span> Precision-cut geometric shape</li>
+            <li><span class="material-icons">check</span> Comfortable nose pads</li>
+            <li><span class="material-icons">check</span> Anti-reflective lens option</li>
+            <li><span class="material-icons">check</span> Includes premium case and cloth</li>
+          </ul>
+        </div>
+        <div class="product-options">
+          <div class="option-group color-palette-active">
+            <label for="square-color">Color:</label>
+            <select id="square-color" class="product-color" data-target="square-model">
+              <option value="Matte Black">Matte Black</option>
+              <option value="Tortoise/Gold">Tortoise/Gold</option>
+              <option value="Crystal/Silver">Crystal/Silver</option>
+              <option value="Havana Brown">Havana Brown</option>
+              <option value="Forest Green">Forest Green</option>
+            </select>
+            <div class="color-palette" data-target="square-model" aria-label="Color options for square glasses">
+              <div class="color-option matte-black-color" data-color="Matte Black" data-material-color="#2C3A47"><span class="color-name">Matte Black</span></div>
+              <div class="color-option tortoise-gold-color" data-color="Tortoise/Gold" data-material-color="#A77E58"><span class="color-name">Tortoise/Gold</span></div>
+              <div class="color-option crystal-silver-color" data-color="Crystal/Silver" data-material-color="#F5F5F5"><span class="color-name">Crystal/Silver</span></div>
+              <div class="color-option havana-brown-color" data-color="Havana Brown" data-material-color="#8B4513"><span class="color-name">Havana Brown</span></div>
+              <div class="color-option forest-green-color" data-color="Forest Green" data-material-color="#1B4D3E"><span class="color-name">Forest Green</span></div>
+            </div>
+          </div>
+          <div class="option-group">
+            <label for="square-quantity">Quantity:</label>
+            <div class="quantity-controls">
+              <button class="quantity-btn minus" data-target="square-quantity">-</button>
+              <input type="number" id="square-quantity" value="1" min="1" max="10" class="product-quantity">
+              <button class="quantity-btn plus" data-target="square-quantity">+</button>
+            </div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <a href="/enhanced-virtual-tryon.html?product=square-glasses" class="try-on-button">
+            <span class="material-icons">visibility</span>
+            Virtual Try-On
+          </a>
+          <button class="add-to-cart-btn" data-product="square-glasses" data-id="17" data-name="Geometric Square Frames" data-price="92.99" data-image="/images/products/square-glasses.png" style="display: none;">
+            <span class="material-icons">add_shopping_cart</span>
+            Add to Cart
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Glasses Modal - Rimless -->
+  <div class="product-modal" id="rimless-glasses-modal">
+    <div class="modal-content">
+      <div class="modal-close"><span class="material-icons">close</span></div>
+      <div class="modal-left">
+        <model-viewer id="rimless-model" src="https://res.cloudinary.com/customxshop/image/upload/v1744747327/CustomXShop/qrugevml1jwtdpmqogpt.glb" 
+                     alt="3D model of rimless glasses" 
+                     auto-rotate 
+                     camera-controls 
+                     shadow-intensity="1"
+                     exposure="0.5">
+        </model-viewer>
+      </div>
+      <div class="modal-right">
+        <h2 class="modal-title">Minimalist Rimless Glasses</h2>
+        <div class="modal-price">$104.99</div>
+        <p class="modal-description">
+          Our minimalist rimless glasses offer ultra-lightweight comfort with a sophisticated look. The frameless design provides unobstructed vision while maintaining a subtle yet elegant aesthetic.
+        </p>
+        <div class="specs">
+          <h3>Specifications</h3>
+          <ul class="specs-list">
+            <li><span class="material-icons">check</span> Titanium temple arms</li>
+            <li><span class="material-icons">check</span> Drill mount lens attachment</li>
+            <li><span class="material-icons">check</span> Adjustable silicone nose pads</li>
+            <li><span class="material-icons">check</span> Ultra-lightweight design (less than 10g)</li>
+            <li><span class="material-icons">check</span> Premium hard case and microfiber cloth</li>
+          </ul>
+        </div>
+        <div class="product-options">
+          <div class="option-group color-palette-active">
+            <label for="rimless-color">Color:</label>
+            <select id="rimless-color" class="product-color" data-target="rimless-model">
+              <option value="Silver">Silver</option>
+              <option value="Gold">Gold</option>
+              <option value="Titanium">Titanium</option>
+              <option value="Gunmetal">Gunmetal</option>
+              <option value="Rose Gold">Rose Gold</option>
+            </select>
+            <div class="color-palette" data-target="rimless-model" aria-label="Color options for rimless glasses">
+              <div class="color-option silver-color" data-color="Silver" data-material-color="#c0c0c0"><span class="color-name">Silver</span></div>
+              <div class="color-option gold-color" data-color="Gold" data-material-color="#d4af37"><span class="color-name">Gold</span></div>
+              <div class="color-option titanium-color" data-color="Titanium" data-material-color="#878681"><span class="color-name">Titanium</span></div>
+              <div class="color-option gunmetal-color" data-color="Gunmetal" data-material-color="#485460"><span class="color-name">Gunmetal</span></div>
+              <div class="color-option rose-gold-color" data-color="Rose Gold" data-material-color="#b76e79"><span class="color-name">Rose Gold</span></div>
+            </div>
+          </div>
+          <div class="option-group">
+            <label for="rimless-quantity">Quantity:</label>
+            <div class="quantity-controls">
+              <button class="quantity-btn minus" data-target="rimless-quantity">-</button>
+              <input type="number" id="rimless-quantity" value="1" min="1" max="10" class="product-quantity">
+              <button class="quantity-btn plus" data-target="rimless-quantity">+</button>
+            </div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <a href="/enhanced-virtual-tryon.html?product=rimless-glasses" class="try-on-button">
+            <span class="material-icons">visibility</span>
+            Virtual Try-On
+          </a>
+          <button class="add-to-cart-btn" data-product="rimless-glasses" data-id="18" data-name="Minimalist Rimless Glasses" data-price="104.99" data-image="/images/products/rimless-glasses.png" style="display: none;">
+            <span class="material-icons">add_shopping_cart</span>
+            Add to Cart
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Additional Modals for the other glasses products would follow similar patterns -->
+
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <script src="/JAVASCRIPT/cart.js"></script>
+  <script>
+    // Product filtering functionality
+    function setupFilters() {
+      const filterButtons = document.querySelectorAll('.filter-button');
+      const products = document.querySelectorAll('.product-card');
+      
+      filterButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          // Remove active class from all buttons
+          filterButtons.forEach(btn => btn.classList.remove('active'));
+          
+          // Add active class to clicked button
+          button.classList.add('active');
+          
+          // Get filter value
+          const filterValue = button.getAttribute('data-filter');
+          
+          // Filter products
+          products.forEach(product => {
+            if (filterValue === 'all' || product.getAttribute('data-category') === filterValue) {
+              product.style.display = 'block';
+            } else {
+              product.style.display = 'none';
+            }
+          });
+        });
+      });
+    }
+    
+    // Product modal functionality
+    function setupProductModals() {
+      const viewButtons = document.querySelectorAll('.view-details-button');
+      const modals = document.querySelectorAll('.product-modal');
+      const closeButtons = document.querySelectorAll('.modal-close');
+      
+      viewButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const productId = button.getAttribute('data-product');
+          const modal = document.getElementById(`${productId}-modal`);
+          
+          if (modal) {
+            modal.classList.add('active');
+          }
+        });
+      });
+      
+      closeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const modal = button.closest('.product-modal');
+          modal.classList.remove('active');
+        });
+      });
+    }
+
+    // Fetch user data from database
+    async function fetchUserData() {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return null;
+
+        // Use the correct API endpoint for user data
+        const response = await fetch('/api/auth/user', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'x-auth-token': token,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch user data: ${response.status} ${response.statusText}`);
+        }
+
+        const userData = await response.json();
+        console.log('Fetched user data:', userData); // Debug log
+        return userData;
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        return null;
+      }
+    }
+
+    // Check authentication status and update UI
+    async function checkAuthStatus() {
+      const token = localStorage.getItem('token');
+      const userWelcome = document.getElementById('user-welcome');
+      const welcomeUsername = document.querySelectorAll('#welcome-username');
+      const loginLi = document.getElementById('login-li');
+      const profileLi = document.getElementById('profile-li');
+      const loginButtons = document.querySelectorAll('.login-button');
+      const addToCartButtons = document.querySelectorAll('.add-to-cart-btn');
+      const tryOnButtons = document.querySelectorAll('.try-on-button');
+      const authOverlays = document.querySelectorAll('.auth-req-overlay');
+
+      if (token) {
+        try {
+          // Fetch user data from database
+          const userData = await fetchUserData();
+          
+          // If we get user data with username
+          if (userData && userData.username) {
+            // Update all welcome messages with actual username from database
+            welcomeUsername.forEach(element => {
+              element.textContent = `Welcome, ${userData.username}`;
+            });
+            
+            // Show welcome containers if they exist
+            if (userWelcome) userWelcome.style.display = 'flex';
+            
+            // Show profile, hide login
+            if (profileLi) profileLi.style.display = 'block';
+            if (loginLi) loginLi.style.display = 'none';
+            
+            // Update product modal buttons
+            loginButtons.forEach(button => {
+              button.style.display = 'none';
+            });
+            addToCartButtons.forEach(button => {
+              button.style.display = 'flex';
+            });
+            tryOnButtons.forEach(button => {
+              button.style.display = 'flex';
+            });
+            
+            // Hide auth overlays
+            authOverlays.forEach(overlay => {
+              overlay.style.display = 'none';
+            });
+          } else {
+            // If fetch fails, try to get username from token
+            try {
+              const payload = JSON.parse(atob(token.split('.')[1]));
+              const username = payload.username || payload.name || payload.id || 'User';
+              
+              welcomeUsername.forEach(element => {
+                element.textContent = `Welcome, ${username}`;
+              });
+              
+              if (userWelcome) userWelcome.style.display = 'flex';
+              if (profileLi) profileLi.style.display = 'block';
+              if (loginLi) loginLi.style.display = 'none';
+              
+              // Update product modal buttons
+              loginButtons.forEach(button => {
+                button.style.display = 'none';
+              });
+              addToCartButtons.forEach(button => {
+                button.style.display = 'flex';
+              });
+              tryOnButtons.forEach(button => {
+                button.style.display = 'flex';
+              });
+              
+              // Hide auth overlays
+              authOverlays.forEach(overlay => {
+                overlay.style.display = 'none';
+              });
+            } catch (tokenError) {
+              console.error('Error decoding token:', tokenError);
+              localStorage.removeItem('token');
+              
+              showUnauthenticatedUI();
+            }
+          }
+        } catch (error) {
+          console.error('Error checking auth status:', error);
+          localStorage.removeItem('token');
+          
+          showUnauthenticatedUI();
+        }
+      } else {
+        showUnauthenticatedUI();
+      }
+      
+      // Helper to show UI for unauthenticated users
+      function showUnauthenticatedUI() {
+        if (userWelcome) userWelcome.style.display = 'none';
+        if (profileLi) profileLi.style.display = 'none';
+        if (loginLi) loginLi.style.display = 'block';
+        
+        // Update product modal buttons
+        loginButtons.forEach(button => {
+          button.style.display = 'block';
+        });
+        addToCartButtons.forEach(button => {
+          button.style.display = 'none';
+        });
+        tryOnButtons.forEach(button => {
+          button.style.display = 'block';  // Always show try-on button even for unauthenticated users
+        });
+        
+        // Show auth overlays
+        authOverlays.forEach(overlay => {
+          overlay.style.pointerEvents = 'all';
+          // Only show on hover
+        });
+      }
+    }
+
+    // Handle logout
+    function handleLogout() {
+      localStorage.removeItem('token');
+      checkAuthStatus();
+      window.location.href = 'Homepage.html';
+    }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      setupFilters();
+      setupProductModals();
+      checkAuthStatus();
+      setupTryOnButtons();
+      setupGlassesColorChangeFeature();
+      
+      // Set up quantity controls
+      const minusButtons = document.querySelectorAll('.quantity-btn.minus');
+      const plusButtons = document.querySelectorAll('.quantity-btn.plus');
+      
+      minusButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const targetId = button.getAttribute('data-target');
+          const input = document.getElementById(targetId);
+          let value = parseInt(input.value);
+          
+          if (value > 1) {
+            input.value = value - 1;
+          }
+        });
+      });
+      
+      plusButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const targetId = button.getAttribute('data-target');
+          const input = document.getElementById(targetId);
+          let value = parseInt(input.value);
+          
+          if (value < 10) {
+            input.value = value + 1;
+          }
+        });
+      });
+    });
+
+    // Setup cart functionality
+    function setupCartFunctionality() {
+      // Handle quantity controls
+      document.querySelectorAll('.quantity-btn').forEach(button => {
+        button.addEventListener('click', () => {
+          const targetId = button.getAttribute('data-target');
+          const input = document.getElementById(targetId);
+          let value = parseInt(input.value);
+          
+          if (button.classList.contains('plus') && value < 10) {
+            input.value = value + 1;
+          } else if (button.classList.contains('minus') && value > 1) {
+            input.value = value - 1;
+          }
+        });
+      });
+      
+      // Handle add to cart buttons
+      document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+        button.addEventListener('click', () => {
+          const productId = button.getAttribute('data-id');
+          const productType = button.getAttribute('data-product');
+          const productName = button.getAttribute('data-name');
+          const productPrice = parseFloat(button.getAttribute('data-price'));
+          const productImage = button.getAttribute('data-image');
+          
+          // Get product options
+          const size = document.getElementById(`${productType}-size`).value;
+          const color = document.getElementById(`${productType}-color`).value;
+          const quantity = parseInt(document.getElementById(`${productType}-quantity`).value);
+          
+          // Create product object
+          const product = {
+            id: productId,
+            name: productName,
+            price: productPrice,
+            image: productImage,
+            size: size,
+            color: color,
+            quantity: quantity,
+            type: productType
+          };
+          
+          // Add to cart using the global function from cart.js
+          window.addToCart(product);
+          
+          // Close the modal
+          const modal = button.closest('.product-modal');
+          modal.classList.remove('active');
+        });
+      });
+    }
+
+    // Setup try-on button functionality
+    function setupTryOnButtons() {
+      const tryOnButtons = document.querySelectorAll('.try-on-button');
+      
+      tryOnButtons.forEach(button => {
+        // Get the parent modal to extract product info
+        const modal = button.closest('.modal-content');
+        if (!modal) return;
+        
+        const productName = modal.querySelector('.modal-title').textContent;
+        const productType = modal.closest('.product-modal').id.replace('-modal', '');
+        
+        // Override the default href with product parameters
+        button.addEventListener('click', (e) => {
+          e.preventDefault();
+          
+          // Get the selected color if available
+          let selectedColor = '';
+          const colorSelector = modal.querySelector('.product-color');
+          if (colorSelector) {
+            selectedColor = colorSelector.value;
+          }
+          
+          const trialUrl = `/enhanced-virtual-tryon.html?product=${encodeURIComponent(productType)}&name=${encodeURIComponent(productName)}&color=${encodeURIComponent(selectedColor)}`;
+          window.location.href = trialUrl;
+        });
+      });
+    }
+
+    // Setup glasses color change functionality
+    function setupGlassesColorChangeFeature() {
+      // For dropdown selectors (keeping for compatibility)
+      const colorSelectors = document.querySelectorAll('.product-color[data-target]');
+      
+      // Add event listeners to color selectors
+      colorSelectors.forEach(selector => {
+        selector.addEventListener('change', function() {
+          const modelId = this.getAttribute('data-target');
+          const modelViewer = document.getElementById(modelId);
+          const selectedColor = this.value;
+          
+          // Find the corresponding color option in the palette
+          const colorPalette = this.closest('.option-group').querySelector('.color-palette');
+          if (colorPalette) {
+            const colorOption = Array.from(colorPalette.querySelectorAll('.color-option')).find(
+              option => option.getAttribute('data-color') === selectedColor
+            );
+            
+            if (colorOption) {
+              // Simulate a click on the color option
+              applyColorToModel(modelViewer, colorOption.getAttribute('data-material-color'));
+              
+              // Update selected state in the palette
+              colorPalette.querySelectorAll('.color-option').forEach(opt => {
+                opt.classList.remove('selected');
+              });
+              colorOption.classList.add('selected');
+            }
+          }
+        });
+      });
+      
+      // For color palette options (new visual UI)
+      const colorOptions = document.querySelectorAll('.color-option');
+      
+      colorOptions.forEach(option => {
+        option.addEventListener('click', function() {
+          const palette = this.closest('.color-palette');
+          const modelId = palette.getAttribute('data-target');
+          const modelViewer = document.getElementById(modelId);
+          const materialColor = this.getAttribute('data-material-color');
+          const selectedColor = this.getAttribute('data-color');
+          
+          // Apply color to the model
+          applyColorToModel(modelViewer, materialColor);
+          
+          // Update selected state in the palette
+          palette.querySelectorAll('.color-option').forEach(opt => {
+            opt.classList.remove('selected');
+          });
+          this.classList.add('selected');
+          
+          // Also update the select element for compatibility
+          const selectElement = this.closest('.option-group').querySelector('.product-color');
+          if (selectElement) {
+            selectElement.value = selectedColor;
+          }
+        });
+      });
+      
+      // Set initial selected states for color palettes
+      document.querySelectorAll('.color-palette').forEach(palette => {
+        const selectElement = palette.closest('.option-group').querySelector('.product-color');
+        if (selectElement && selectElement.value) {
+          const selectedOption = Array.from(palette.querySelectorAll('.color-option')).find(
+            option => option.getAttribute('data-color') === selectElement.value
+          );
+          
+          if (selectedOption) {
+            selectedOption.classList.add('selected');
+            
+            // Apply initial color to the model
+            const modelId = palette.getAttribute('data-target');
+            const modelViewer = document.getElementById(modelId);
+            const materialColor = selectedOption.getAttribute('data-material-color');
+            
+            if (modelViewer && materialColor) {
+              applyColorToModel(modelViewer, materialColor);
+            }
+          }
+        }
+      });
+    }
+    
+    // New debug function to analyze glasses model materials
+    function debugModelMaterials(modelId) {
+      const modelViewer = document.getElementById(modelId);
+      if (!modelViewer || !modelViewer.model) {
+        console.error('Model not loaded or not available for debugging');
+        alert('Please wait for the model to load completely before debugging');
+        return;
+      }
+      
+      console.group(`Materials debug for model: ${modelId}`);
+      console.log('Total materials:', modelViewer.model.materials.length);
+      
+      // Log each material's properties
+      modelViewer.model.materials.forEach((material, index) => {
+        console.group(`Material #${index}`);
+        
+        // Log base color if available
+        if (material.pbrMetallicRoughness && material.pbrMetallicRoughness.baseColorFactor) {
+          const color = material.pbrMetallicRoughness.baseColorFactor;
+          console.log('Base color:', color);
+          
+          // Convert to hex for easier reference
+          const r = Math.round(color[0] * 255).toString(16).padStart(2, '0');
+          const g = Math.round(color[1] * 255).toString(16).padStart(2, '0');
+          const b = Math.round(color[2] * 255).toString(16).padStart(2, '0');
+          console.log('Hex color:', `#${r}${g}${b}`);
+        } else {
+          console.log('No base color found');
+        }
+        
+        // Log material name if available
+        if (material.name) {
+          console.log('Material name:', material.name);
+        }
+        
+        // Log all properties
+        console.log('Properties:', Object.keys(material));
+        
+        // Try to determine if this is a frame or lens based on properties
+        let materialType = 'unknown';
+        
+        // Check for common frame materials
+        if (material.name && (
+            material.name.toLowerCase().includes('frame') || 
+            material.name.toLowerCase().includes('metal') ||
+            material.name.toLowerCase().includes('plastic') ||
+            material.name.toLowerCase().includes('acetate')
+        )) {
+          materialType = 'frame';
+        }
+        
+        // Check for common lens materials
+        if (material.name && (
+            material.name.toLowerCase().includes('lens') || 
+            material.name.toLowerCase().includes('glass') ||
+            material.name.toLowerCase().includes('transparent')
+        )) {
+          materialType = 'lens';
+        }
+        
+        // Check transparency as an indicator (lenses are usually transparent)
+        if (material.pbrMetallicRoughness && 
+            material.pbrMetallicRoughness.baseColorFactor && 
+            material.pbrMetallicRoughness.baseColorFactor[3] < 1.0) {
+          materialType = materialType === 'unknown' ? 'lens (transparent)' : materialType;
+        }
+        
+        console.log('Suspected type:', materialType);
+        console.groupEnd();
+        
+        // Test changing this material color to red
+        try {
+          const originalColor = material.pbrMetallicRoughness?.baseColorFactor?.slice() || [1, 1, 1, 1];
+          material.pbrMetallicRoughness.baseColorFactor = [1, 0, 0, originalColor[3]]; // Red
+          
+          // Log the test
+          console.log(`Test: Material #${index} changed to red temporarily`);
+          
+          // Reset after 2 seconds
+          setTimeout(() => {
+            material.pbrMetallicRoughness.baseColorFactor = originalColor;
+            console.log(`Material #${index} color reset`);
+          }, 2000);
+        } catch (error) {
+          console.warn(`Cannot modify material #${index} color:`, error);
+        }
+      });
+      
+      // Test setAttribute method
+      for (let i = 0; i < modelViewer.model.materials.length; i++) {
+        try {
+          const attributeName = `material-${i}-color`;
+          modelViewer.setAttribute(attributeName, '#00FF00'); // Bright green
+          console.log(`Test: Set attribute ${attributeName} to bright green`);
+          
+          // Reset after 3 seconds
+          setTimeout(() => {
+            modelViewer.removeAttribute(attributeName);
+            console.log(`Attribute ${attributeName} reset`);
+          }, 3000);
+        } catch (error) {
+          console.warn(`Cannot set attribute for material #${i}:`, error);
+        }
+      }
+      
+      console.groupEnd();
+      
+      // Show results to user
+      alert(`Materials debug information has been logged to the console (F12).\nTotal materials: ${modelViewer.model.materials.length}\nTemporary color changes will be visible for a few seconds.`);
+    }
+    
+    // Function to apply color to model-viewer
+    function applyColorToModel(modelViewer, hexColor) {
+      if (!modelViewer) return;
+      
+      // Convert hex to RGB for model-viewer's material editing
+      const r = parseInt(hexColor.substring(1, 3), 16) / 255;
+      const g = parseInt(hexColor.substring(3, 5), 16) / 255;
+      const b = parseInt(hexColor.substring(5, 7), 16) / 255;
+      
+      try {
+        // Using model-viewer's material editing capabilities
+        if (modelViewer.model && modelViewer.model.materials) {
+          // Check if this is a glasses model by looking at the model ID
+          const isGlassesModel = modelViewer.id && (
+            modelViewer.id.includes('aviator') || 
+            modelViewer.id.includes('glasses') ||
+            modelViewer.id.includes('round') ||
+            modelViewer.id.includes('cat-eye') ||
+            modelViewer.id.includes('sport') ||
+            modelViewer.id.includes('rimless')
+          );
+          
+          let materialsUpdated = false;
+          
+          if (isGlassesModel) {
+            console.log('Glasses model detected: Applying optimized color change');
+            
+            // Identify frame and lens materials
+            const frameMaterials = [];
+            const lensMaterials = [];
+            
+            // First pass - analyze materials to identify frames vs lenses
+            for (let i = 0; i < modelViewer.model.materials.length; i++) {
+              const material = modelViewer.model.materials[i];
+              if (!material || !material.pbrMetallicRoughness) continue;
+              
+              // Check if material has transparency (likely lens)
+              const alpha = material.pbrMetallicRoughness.baseColorFactor && 
+                            material.pbrMetallicRoughness.baseColorFactor[3] < 1.0;
+              
+              // Look for material name hints
+              const hasName = material.name && (
+                material.name.toLowerCase().includes('lens') || 
+                material.name.toLowerCase().includes('glass') ||
+                material.name.toLowerCase().includes('transparent')
+              );
+              
+              if (alpha || hasName) {
+                lensMaterials.push(i);
+              } else {
+                frameMaterials.push(i);
+              }
+            }
+            
+            // If no frame materials detected, use materials 0, 1 as default frames
+            if (frameMaterials.length === 0) {
+              frameMaterials.push(0);
+              if (modelViewer.model.materials.length > 1) {
+                frameMaterials.push(1);
+              }
+            }
+            
+            console.log('Identified frame materials:', frameMaterials.join(', '));
+            console.log('Identified lens materials:', lensMaterials.join(', '));
+            
+            // Second pass - update frame materials
+            for (const index of frameMaterials) {
+              const material = modelViewer.model.materials[index];
+              if (material && material.pbrMetallicRoughness) {
+                const originalAlpha = material.pbrMetallicRoughness.baseColorFactor ? 
+                  material.pbrMetallicRoughness.baseColorFactor[3] : 1.0;
+                
+                material.pbrMetallicRoughness.baseColorFactor = [r, g, b, originalAlpha];
+                materialsUpdated = true;
+                console.log(`Updated frame material ${index} to ${hexColor}`);
+                
+                // Also set attribute for more reliable updates
+                modelViewer.setAttribute(`material-${index}-color`, hexColor);
+              }
+            }
+            
+            // Force updates using multiple techniques for better reliability
+            if (materialsUpdated) {
+              // 1. Dispatch materials change event
+              modelViewer.dispatchEvent(new CustomEvent('materials-change'));
+              
+              // 2. Force redraw with camera adjustments (more effective)
+              const currentOrbit = modelViewer.getAttribute('camera-orbit') || '0deg 75deg 105%';
+              const orbitParts = currentOrbit.split(' ');
+              if (orbitParts.length >= 2) {
+                const angle1 = parseFloat(orbitParts[0]) || 0;
+                const angle2 = parseFloat(orbitParts[1]) || 75;
+                
+                // Apply a larger camera move (more reliable for updates)
+                const newOrbit1 = `${(angle1 + 15) % 360}deg ${(angle2 + 8) % 360}deg ${orbitParts[2] || '105%'}`;
+                modelViewer.setAttribute('camera-orbit', newOrbit1);
+                
+                // Return to original position after update
+                setTimeout(() => {
+                  modelViewer.setAttribute('camera-orbit', currentOrbit);
+                }, 50);
+              }
+              
+              // 3. Toggle a visual property to force a redraw cycle
+              const initialExposure = modelViewer.getAttribute('exposure') || '';
+              const newExposure = parseFloat(initialExposure || '1') + 0.1;
+              modelViewer.setAttribute('exposure', newExposure.toString());
+              
+              setTimeout(() => {
+                if (initialExposure) {
+                  modelViewer.setAttribute('exposure', initialExposure);
+                } else {
+                  modelViewer.removeAttribute('exposure');
+                }
+              }, 50);
+              
+              return; // Exit after specialized glasses handling
+            }
+          }
+          
+          // General handling for non-glasses models
+          for (let i = 0; i < modelViewer.model.materials.length; i++) {
+            const material = modelViewer.model.materials[i];
+            if (material && material.pbrMetallicRoughness) {
+              material.pbrMetallicRoughness.baseColorFactor = [r, g, b, 1.0];
+              materialsUpdated = true;
+              modelViewer.setAttribute(`material-${i}-color`, hexColor);
+            }
+          }
+          
+          // Force update for non-glasses models
+          if (materialsUpdated) {
+            modelViewer.dispatchEvent(new CustomEvent('materials-change'));
+          } else {
+            // Fallback to CSS filters if no materials were updated
+            applyColorWithCSSFilter(modelViewer, hexColor);
+          }
+        } else {
+          // Fallback if model or materials not available
+          applyColorWithCSSFilter(modelViewer, hexColor);
+        }
+      } catch (error) {
+        console.warn('Error applying material color, using CSS filter fallback', error);
+        applyColorWithCSSFilter(modelViewer, hexColor);
+      }
+    }
+    
+    // Fallback function that uses CSS filters
+    function applyColorWithCSSFilter(modelViewer, hexColor) {
+      // More comprehensive color mapping specifically for glasses
+      const colorMap = {
+        '#000000': 'brightness(0.5) contrast(1.3)', // Black
+        '#1a1a1a': 'brightness(0.6) contrast(1.2)', // Dark black
+        '#d4af37': 'sepia(0.8) saturate(1.5) brightness(1.1)', // Gold
+        '#c0c0c0': 'saturate(0) brightness(1.2) contrast(0.9)', // Silver
+        '#b76e79': 'hue-rotate(350deg) saturate(1.2) brightness(0.9)', // Rose Gold
+        '#1e3799': 'hue-rotate(220deg) saturate(1.8) brightness(0.9)', // Blue
+        '#754c24': 'sepia(0.6) saturate(1.2) brightness(0.8)', // Tortoise
+        '#e8e8e8': 'brightness(1.2) saturate(0) contrast(0.8)', // Crystal/Clear
+        '#ff7e00': 'sepia(0.7) saturate(2) brightness(1.1)', // Amber/Orange
+        '#27ae60': 'hue-rotate(120deg) saturate(1.5) brightness(1)', // Green
+        '#6c5ce7': 'hue-rotate(270deg) saturate(1.5) brightness(0.9)', // Purple
+        '#d63031': 'hue-rotate(0deg) saturate(1.8) brightness(0.9)', // Red
+        '#5d4037': 'sepia(0.5) saturate(0.8) brightness(0.7)', // Brown
+        '#192a56': 'hue-rotate(210deg) saturate(1.8) brightness(0.7)', // Navy
+        '#7f8c8d': 'saturate(0.2) brightness(0.9) contrast(0.9)', // Gray
+        '#900C3F': 'hue-rotate(330deg) saturate(1.7) brightness(0.7)', // Burgundy
+        '#485460': 'saturate(0.1) brightness(0.7) contrast(1.1)', // Gunmetal
+        '#CD7F32': 'sepia(0.6) saturate(1.3) brightness(1)', // Bronze
+        '#878681': 'saturate(0.1) brightness(1.0) contrast(0.9)', // Titanium
+      };
+      
+      // Normalize the hex color to lowercase for comparison
+      const normalizedHex = hexColor.toLowerCase();
+      
+      // Use exact match if available
+      if (colorMap[normalizedHex]) {
+        modelViewer.style.filter = colorMap[normalizedHex];
+        console.log(`Applied predefined filter for color ${normalizedHex}`);
+        return;
+      }
+      
+      // Find closest color in our map
+      let closestColor = null;
+      let closestDistance = Infinity;
+      
+      // Parse the target color
+      const targetR = parseInt(hexColor.substring(1, 3), 16);
+      const targetG = parseInt(hexColor.substring(3, 5), 16);
+      const targetB = parseInt(hexColor.substring(5, 7), 16);
+      
+      // Find the closest color in our predefined map
+      Object.keys(colorMap).forEach(color => {
+        const r = parseInt(color.substring(1, 3), 16);
+        const g = parseInt(color.substring(3, 5), 16);
+        const b = parseInt(color.substring(5, 7), 16);
+        
+        // Calculate color distance using RGB Euclidean distance
+        const distance = Math.sqrt(
+          Math.pow(r - targetR, 2) + 
+          Math.pow(g - targetG, 2) + 
+          Math.pow(b - targetB, 2)
+        );
+        
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestColor = color;
+        }
+      });
+      
+      // If we found a close match, use its filter
+      if (closestColor && closestDistance < 100) {
+        modelViewer.style.filter = colorMap[closestColor];
+        console.log(`Applied similar color filter: ${closestColor} for ${hexColor}`);
+        return;
+      }
+      
+      // If no close match, calculate a custom filter
+      
+      // Convert RGB to HSL for better filter generation
+      const max = Math.max(targetR, targetG, targetB) / 255;
+      const min = Math.min(targetR, targetG, targetB) / 255;
+      const luminance = (max + min) / 2;
+      
+      let saturation = 0;
+      let hue = 0;
+      
+      if (max !== min) {
+        saturation = luminance > 0.5 ? 
+          (max - min) / (2 - max - min) : 
+          (max - min) / (max + min);
+          
+        if (max === targetR/255) {
+          hue = ((targetG/255 - targetB/255) / (max - min)) * 60;
+        } else if (max === targetG/255) {
+          hue = (2 + (targetB/255 - targetR/255) / (max - min)) * 60;
+        } else {
+          hue = (4 + (targetR/255 - targetG/255) / (max - min)) * 60;
+        }
+        
+        if (hue < 0) hue += 360;
+      }
+      
+      // Adjust hue rotation based on calculated hue
+      const hueRotate = Math.round(hue);
+      const saturateFactor = Math.max(1, saturation * 2);
+      const brightnessFactor = Math.max(0.6, Math.min(1.3, luminance * 1.5));
+      const contrastFactor = targetR + targetG + targetB > 382 ? 0.9 : 1.2; // Lighter colors get less contrast
+      
+      const customFilter = `hue-rotate(${hueRotate}deg) saturate(${saturateFactor.toFixed(1)}) brightness(${brightnessFactor.toFixed(1)}) contrast(${contrastFactor.toFixed(1)})`;
+      
+      modelViewer.style.filter = customFilter;
+      console.log(`Applied custom filter for ${hexColor}: ${customFilter}`);
+    }
+  </script>
+  <script src="/JAVASCRIPT/auth.js"></script>
+  <script src="/JAVASCRIPT/profile-navigation.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Fix for model-viewer CSP audio loading errors
+      // Add this before other scripts to intercept model-viewer loads
+      if (!window.audioErrorFixed) {
+        window.audioErrorFixed = true;
+        
+        // Patch the Audio constructor to prevent model-viewer from creating
+        // audio elements that violate CSP
+        const originalAudio = window.Audio;
+        window.Audio = function() {
+          const audio = new originalAudio();
+          
+          // Override the src setter to catch data: URLs
+          const originalSrcSetter = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'src').set;
+          Object.defineProperty(audio, 'src', {
+            set: function(value) {
+              // Check if it's a data: URL that would violate CSP
+              if (value && value.startsWith('data:audio')) {
+                console.log('Prevented loading of data: audio URL due to CSP');
+                // Don't set the src to avoid the CSP error
+                return;
+              }
+              // Otherwise use the original setter
+              originalSrcSetter.call(this, value);
+            }
+          });
+          
+          return audio;
+        };
+      }
+    });
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Add a debug button to all product modals with glasses
+      document.querySelectorAll('.product-modal[id*="glasses"]').forEach(modal => {
+        const modelId = modal.querySelector('model-viewer')?.id;
+        if (modelId) {
+          const debugBtn = document.createElement('button');
+          debugBtn.textContent = 'Fix Color Issues';
+          debugBtn.className = 'fix-color-btn';
+          debugBtn.style.marginTop = '10px';
+          debugBtn.style.padding = '5px 10px';
+          debugBtn.style.backgroundColor = '#f44336';
+          debugBtn.style.color = 'white';
+          debugBtn.style.border = '1px solid #d32f2f';
+          debugBtn.style.borderRadius = '3px';
+          debugBtn.style.cursor = 'pointer';
+          debugBtn.style.fontSize = '12px';
+          debugBtn.style.marginRight = '10px';
+          
+          debugBtn.onclick = () => {
+            fixGlassesColorIssues(modelId);
+          };
+          
+          const optionsContainer = modal.querySelector('.product-options');
+          if (optionsContainer) {
+            optionsContainer.appendChild(debugBtn);
+          }
+        }
+      });
+      
+      // Add extreme fix checkbox
+      const extremeFixOption = document.createElement('div');
+      extremeFixOption.style.margin = '10px 0';
+      extremeFixOption.innerHTML = `
+        <label style="display: flex; align-items: center; font-size: 12px; color: #666;">
+          <input type="checkbox" id="use-extreme-fix" style="margin-right: 5px;"> 
+          Use extreme fix (replaces model viewer)
+        </label>
+      `;
+      
+      document.querySelector('footer')?.appendChild(extremeFixOption);
+      
+      const extremeFixCheckbox = document.getElementById('use-extreme-fix');
+      if (extremeFixCheckbox) {
+        extremeFixCheckbox.checked = localStorage.getItem('useExtremeFix') === 'true';
+        extremeFixCheckbox.addEventListener('change', (e) => {
+          localStorage.setItem('useExtremeFix', e.target.checked);
+        });
+      }
+    });
+    
+    function fixGlassesColorIssues(modelId) {
+      const modelViewer = document.getElementById(modelId);
+      if (!modelViewer) {
+        alert('Model viewer not found');
+        return;
+      }
+      
+      // Create a test panel
+      const testPanel = document.createElement('div');
+      testPanel.className = 'color-test-panel';
+      testPanel.style.position = 'fixed';
+      testPanel.style.top = '50%';
+      testPanel.style.left = '50%';
+      testPanel.style.transform = 'translate(-50%, -50%)';
+      testPanel.style.backgroundColor = 'white';
+      testPanel.style.boxShadow = '0 0 20px rgba(0,0,0,0.5)';
+      testPanel.style.padding = '20px';
+      testPanel.style.zIndex = '10000';
+      testPanel.style.maxWidth = '90%';
+      testPanel.style.maxHeight = '90%';
+      testPanel.style.overflow = 'auto';
+      testPanel.style.borderRadius = '8px';
+      
+      testPanel.innerHTML = `
+        <h3 style="margin-top: 0; color: #333;">Glass Color Fix Tool</h3>
+        <p>This tool will cycle through techniques to fix the color changing issue.</p>
+        <div class="test-colors" style="display: flex; flex-wrap: wrap; gap: 10px; margin: 15px 0;">
+          <button data-color="#1a1a1a" style="background-color: #1a1a1a; width: 30px; height: 30px; border: none; cursor: pointer;"></button>
+          <button data-color="#d4af37" style="background-color: #d4af37; width: 30px; height: 30px; border: none; cursor: pointer;"></button>
+          <button data-color="#c0c0c0" style="background-color: #c0c0c0; width: 30px; height: 30px; border: none; cursor: pointer;"></button>
+          <button data-color="#1e3799" style="background-color: #1e3799; width: 30px; height: 30px; border: none; cursor: pointer;"></button>
+          <button data-color="#5d4037" style="background-color: #5d4037; width: 30px; height: 30px; border: none; cursor: pointer;"></button>
+          <button data-color="#d63031" style="background-color: #d63031; width: 30px; height: 30px; border: none; cursor: pointer;"></button>
+        </div>
+        <div class="test-options" style="margin: 15px 0;">
+          <h4 style="margin-top: 0; color: #333;">Fix Options</h4>
+          <label style="display: block; margin: 5px 0;">
+            <input type="checkbox" id="use-direct-material" checked> Use direct material editing
+          </label>
+          <label style="display: block; margin: 5px 0;">
+            <input type="checkbox" id="use-attributes" checked> Use attribute-based updates
+          </label>
+          <label style="display: block; margin: 5px 0;">
+            <input type="checkbox" id="use-camera-orbit" checked> Use camera orbit changes
+          </label>
+          <label style="display: block; margin: 5px 0;">
+            <input type="checkbox" id="use-visibility-toggle" checked> Use visibility toggling
+          </label>
+          <label style="display: block; margin: 5px 0;">
+            <input type="checkbox" id="use-environment-toggle" checked> Use environment toggling
+          </label>
+          <label style="display: block; margin: 5px 0;">
+            <input type="checkbox" id="use-css-filters" checked> Use CSS filters
+          </label>
+          <label style="display: block; margin: 5px 0;">
+            <input type="checkbox" id="use-model-reload"> Use model reload (extreme)
+          </label>
+        </div>
+        <div class="fix-results" style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
+          <h4 style="margin-top: 0; color: #333;">Fix Results</h4>
+          <div id="fix-log" style="max-height: 200px; overflow-y: auto; background-color: #f8f8f8; padding: 10px; font-family: monospace; font-size: 12px;"></div>
+        </div>
+        <div style="margin-top: 15px; text-align: right;">
+          <button id="close-test-panel" style="padding: 5px 15px; background-color: #ddd; border: none; border-radius: 3px; cursor: pointer;">Close</button>
+        </div>
+      `;
+      
+      document.body.appendChild(testPanel);
+      
+      // Add event listeners
+      testPanel.querySelector('#close-test-panel').addEventListener('click', () => {
+        testPanel.remove();
+      });
+      
+      const fixLog = testPanel.querySelector('#fix-log');
+      const logMessage = (msg) => {
+        const line = document.createElement('div');
+        line.textContent = msg;
+        fixLog.appendChild(line);
+        fixLog.scrollTop = fixLog.scrollHeight;
+        console.log(msg);
+      };
+      
+      // Add color test buttons
+      testPanel.querySelectorAll('.test-colors button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const color = btn.getAttribute('data-color');
+          logMessage(`Testing color: ${color}`);
+          
+          // Get selected fix options
+          const options = {
+            useDirectMaterial: testPanel.querySelector('#use-direct-material').checked,
+            useAttributes: testPanel.querySelector('#use-attributes').checked,
+            useCameraOrbit: testPanel.querySelector('#use-camera-orbit').checked,
+            useVisibilityToggle: testPanel.querySelector('#use-visibility-toggle').checked,
+            useEnvironmentToggle: testPanel.querySelector('#use-environment-toggle').checked,
+            useCssFilters: testPanel.querySelector('#use-css-filters').checked,
+            useModelReload: testPanel.querySelector('#use-model-reload').checked
+          };
+          
+          // Apply enhanced fix
+          enhancedColorFix(modelViewer, color, options, logMessage);
+        });
+      });
+    }
+    
+    function enhancedColorFix(modelViewer, hexColor, options, logFn) {
+      logFn = logFn || console.log;
+      
+      if (!modelViewer || !modelViewer.model) {
+        logFn('Error: Model not loaded');
+        return;
+      }
+      
+      // Convert hex to RGB
+      const r = parseInt(hexColor.substring(1, 3), 16) / 255;
+      const g = parseInt(hexColor.substring(3, 5), 16) / 255;
+      const b = parseInt(hexColor.substring(5, 7), 16) / 255;
+      
+      let materialCount = 0;
+      let updatedCount = 0;
+      
+      try {
+        // Log model information
+        materialCount = modelViewer.model.materials.length;
+        logFn(`Model has ${materialCount} materials`);
+        
+        // Step 1: Direct material editing if enabled
+        if (options.useDirectMaterial) {
+          logFn('Applying direct material editing...');
+          for (let i = 0; i < materialCount; i++) {
+            try {
+              const material = modelViewer.model.materials[i];
+              if (material && material.pbrMetallicRoughness) {
+                const originalAlpha = material.pbrMetallicRoughness.baseColorFactor ? 
+                  material.pbrMetallicRoughness.baseColorFactor[3] : 1.0;
+                
+                material.pbrMetallicRoughness.baseColorFactor = [r, g, b, originalAlpha];
+                logFn(`Updated material ${i} directly`);
+                updatedCount++;
+              }
+            } catch (err) {
+              logFn(`Error updating material ${i}: ${err.message}`);
+            }
+          }
+        }
+        
+        // Step 2: Attribute-based updates if enabled
+        if (options.useAttributes) {
+          logFn('Applying attribute-based updates...');
+          for (let i = 0; i < materialCount; i++) {
+            try {
+              modelViewer.setAttribute(`material-${i}-color`, hexColor);
+              logFn(`Set material-${i}-color attribute`);
+            } catch (err) {
+              logFn(`Error setting material-${i}-color: ${err.message}`);
+            }
+          }
+        }
+        
+        // Step 3: Force model updates
+        logFn('Forcing model updates...');
+        
+        // Dispatch event
+        modelViewer.dispatchEvent(new CustomEvent('materials-change'));
+        
+        // Visibility toggle if enabled
+        if (options.useVisibilityToggle) {
+          logFn('Toggling visibility...');
+          const wasVisible = modelViewer.style.visibility !== 'hidden';
+          modelViewer.style.visibility = 'hidden';
+          void modelViewer.offsetHeight; // Force layout
+          setTimeout(() => {
+            modelViewer.style.visibility = '';
+            logFn('Visibility restored');
+          }, 50);
+        }
+        
+        // Camera changes if enabled
+        if (options.useCameraOrbit) {
+          logFn('Applying camera changes...');
+          const currentOrbit = modelViewer.getAttribute('camera-orbit') || '0deg 75deg 105%';
+          const orbitParts = currentOrbit.split(' ');
+          if (orbitParts.length >= 2) {
+            const angle1 = parseFloat(orbitParts[0]) || 0;
+            const angle2 = parseFloat(orbitParts[1]) || 75;
+            const newOrbit = `${(angle1 + 15) % 360}deg ${(angle2 + 10) % 360}deg ${orbitParts[2] || '105%'}`;
+            modelViewer.setAttribute('camera-orbit', newOrbit);
+            setTimeout(() => {
+              modelViewer.setAttribute('camera-orbit', currentOrbit);
+              logFn('Camera orbit restored');
+            }, 100);
+          }
+        }
+        
+        // Environment toggle if enabled
+        if (options.useEnvironmentToggle) {
+          logFn('Toggling environment...');
+          const hasEnvironment = modelViewer.hasAttribute('environment-image');
+          if (hasEnvironment) {
+            const envImage = modelViewer.getAttribute('environment-image');
+            modelViewer.removeAttribute('environment-image');
+            setTimeout(() => {
+              modelViewer.setAttribute('environment-image', envImage);
+              logFn('Environment restored');
+            }, 100);
+          }
+        }
+        
+        // CSS filters if enabled
+        if (options.useCssFilters) {
+          logFn('Applying temporary CSS filter...');
+          const oldFilter = modelViewer.style.filter;
+          modelViewer.style.filter = 'brightness(1.05)';
+          setTimeout(() => {
+            modelViewer.style.filter = oldFilter;
+            logFn('CSS filter restored');
+          }, 300);
+        }
+        
+        // Model reload if enabled
+        if (options.useModelReload) {
+          logFn('Preparing to reload model (extreme solution)...');
+          
+          // Save important attributes
+          const src = modelViewer.getAttribute('src');
+          const cameraOrbit = modelViewer.getAttribute('camera-orbit');
+          const cameraTarget = modelViewer.getAttribute('camera-target');
+          const parent = modelViewer.parentNode;
+          
+          if (parent && src) {
+            // Create a temporary loading indicator
+            const loadingIndicator = document.createElement('div');
+            loadingIndicator.textContent = 'Reloading model...';
+            loadingIndicator.style.position = 'absolute';
+            loadingIndicator.style.top = '50%';
+            loadingIndicator.style.left = '50%';
+            loadingIndicator.style.transform = 'translate(-50%, -50%)';
+            loadingIndicator.style.padding = '10px';
+            loadingIndicator.style.backgroundColor = 'rgba(0,0,0,0.7)';
+            loadingIndicator.style.color = 'white';
+            loadingIndicator.style.borderRadius = '5px';
+            loadingIndicator.style.zIndex = '1000';
+            parent.appendChild(loadingIndicator);
+            
+            // Remove the src attribute to unload the current model
+            modelViewer.removeAttribute('src');
+            
+            // Wait a moment before reloading
+            setTimeout(() => {
+              // Create a brand new model-viewer element
+              const newModelViewer = document.createElement('model-viewer');
+              
+              // Copy all attributes from the original model-viewer
+              Array.from(modelViewer.attributes).forEach(attr => {
+                if (attr.name !== 'src') { // Skip src for now
+                  newModelViewer.setAttribute(attr.name, attr.value);
+                }
+              });
+              
+              // Replace the old model-viewer with the new one
+              parent.replaceChild(newModelViewer, modelViewer);
+              
+              // Set the src attribute last to trigger a fresh load
+              setTimeout(() => {
+                newModelViewer.setAttribute('src', src);
+                
+                // Apply the color to the new model-viewer when it loads
+                newModelViewer.addEventListener('load', () => {
+                  loadingIndicator.remove();
+                  logFn('Model reloaded, applying color...');
+                  
+                  // Apply the color to the new model (without the reload option to prevent recursion)
+                  const newOptions = {...options, useModelReload: false};
+                  setTimeout(() => {
+                    enhancedColorFix(newModelViewer, hexColor, newOptions, logFn);
+                  }, 500);
+                });
+                
+                // Handle load errors
+                newModelViewer.addEventListener('error', () => {
+                  loadingIndicator.remove();
+                  logFn('Error reloading model');
+                });
+              }, 100);
+            }, 500);
+          } else {
+            logFn('Cannot reload model: missing parent or src attribute');
+          }
+        }
+        
+        logFn(`Fix complete: Updated ${updatedCount} of ${materialCount} materials`);
+        
+      } catch (error) {
+        logFn(`Error: ${error.message}`);
+      }
+    }
+  </script>
+  // Add a last resort "Nuclear" fix button for the most stubborn models
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Find all glasses models
+      document.querySelectorAll('[id*="glasses"] model-viewer, [id*="aviator"] model-viewer, [id*="rimless"] model-viewer').forEach(modelViewer => {
+        // Find the parent container for buttons
+        const parentContainer = modelViewer.closest('.product-modal');
+        if (!parentContainer) return;
+        
+        // Create Nuclear fix button
+        const nuclearBtn = document.createElement('button');
+        nuclearBtn.textContent = 'Nuclear Color Fix';
+        nuclearBtn.className = 'nuclear-fix-btn';
+        nuclearBtn.style.marginTop = '5px';
+        nuclearBtn.style.padding = '5px 10px';
+        nuclearBtn.style.backgroundColor = '#ff5722';
+        nuclearBtn.style.color = 'white';
+        nuclearBtn.style.border = 'none';
+        nuclearBtn.style.borderRadius = '3px';
+        nuclearBtn.style.cursor = 'pointer';
+        nuclearBtn.style.fontSize = '12px';
+        nuclearBtn.style.display = 'none'; // Hidden by default
+        
+        // Add button to color container
+        const colorContainer = parentContainer.querySelector('.color-palette')?.parentElement;
+        if (colorContainer) {
+          colorContainer.appendChild(nuclearBtn);
+          
+          // Show button when a color is selected and quick fix button has been shown/clicked
+          const quickFixBtn = colorContainer.querySelector('.quick-fix-btn');
+          if (quickFixBtn) {
+            quickFixBtn.addEventListener('click', () => {
+              // Show nuclear option after regular fix was attempted
+              setTimeout(() => {
+                nuclearBtn.style.display = 'block';
+              }, 2000);
+            });
+          }
+          
+          // Add click event
+          nuclearBtn.addEventListener('click', function() {
+            // Get the current selected color
+            const selectedColor = parentContainer.querySelector('.color-option.selected')?.getAttribute('data-material-color');
+            if (!selectedColor) return;
+            
+            // Apply nuclear fix
+            applyNuclearColorFix(modelViewer, selectedColor);
+            
+            // Update button text
+            nuclearBtn.textContent = 'Applying nuclear fix...';
+            setTimeout(() => {
+              nuclearBtn.textContent = 'Nuclear Color Fix';
+            }, 2000);
+          });
+        }
+      });
+    });
+    
+    // Nuclear color fix - creates a completely new model with pre-applied colors
+    function applyNuclearColorFix(modelViewer, hexColor) {
+      console.log('Applying nuclear color fix for', hexColor);
+      
+      if (!modelViewer) return;
+      
+      // Get important model information
+      const modelId = modelViewer.id || '';
+      const modelSrc = modelViewer.getAttribute('src');
+      const parent = modelViewer.parentNode;
+      
+      if (!parent || !modelSrc) {
+        console.error('Cannot apply nuclear fix: missing parent or src');
+        return;
+      }
+      
+      // Create a wrapper div if not already exists
+      let wrapperDiv = modelViewer.closest('.model-viewer-wrapper');
+      if (!wrapperDiv) {
+        wrapperDiv = document.createElement('div');
+        wrapperDiv.className = 'model-viewer-wrapper';
+        wrapperDiv.style.position = 'relative';
+        wrapperDiv.style.width = '100%';
+        wrapperDiv.style.height = '100%';
+        
+        // Replace model viewer with wrapper
+        parent.insertBefore(wrapperDiv, modelViewer);
+        wrapperDiv.appendChild(modelViewer);
+      }
+      
+      // Check if a colored model already exists
+      const existingColored = wrapperDiv.querySelector('.colored-model-viewer');
+      if (existingColored) {
+        wrapperDiv.removeChild(existingColored);
+      }
+      
+      // Create loading indicator
+      const loadingIndicator = document.createElement('div');
+      loadingIndicator.textContent = 'Creating colored model...';
+      loadingIndicator.style.position = 'absolute';
+      loadingIndicator.style.top = '50%';
+      loadingIndicator.style.left = '50%';
+      loadingIndicator.style.transform = 'translate(-50%, -50%)';
+      loadingIndicator.style.padding = '10px';
+      loadingIndicator.style.backgroundColor = 'rgba(0,0,0,0.7)';
+      loadingIndicator.style.color = 'white';
+      loadingIndicator.style.borderRadius = '5px';
+      loadingIndicator.style.zIndex = '1000';
+      wrapperDiv.appendChild(loadingIndicator);
+      
+      // Hide original model
+      modelViewer.style.opacity = '0';
+      modelViewer.style.pointerEvents = 'none';
+      
+      // Create new model viewer with pre-applied colors
+      const coloredViewer = document.createElement('model-viewer');
+      coloredViewer.className = 'colored-model-viewer';
+      if (modelId) coloredViewer.id = `${modelId}-colored`;
+      
+      // Copy all attributes
+      Array.from(modelViewer.attributes).forEach(attr => {
+        if (attr.name !== 'src' && attr.name !== 'id' && attr.name !== 'style') {
+          coloredViewer.setAttribute(attr.name, attr.value);
+        }
+      });
+      
+      // Copy camera orbit
+      if (modelViewer.hasAttribute('camera-orbit')) {
+        coloredViewer.setAttribute('camera-orbit', modelViewer.getAttribute('camera-orbit'));
+      }
+      
+      // Copy essential style properties
+      const computedStyle = window.getComputedStyle(modelViewer);
+      ['width', 'height', 'background-color'].forEach(prop => {
+        coloredViewer.style[prop] = computedStyle.getPropertyValue(prop);
+      });
+      
+      // Set visible
+      coloredViewer.style.position = 'relative';
+      coloredViewer.style.opacity = '1';
+      
+      // Pre-apply colors to all materials
+      for (let i = 0; i < 10; i++) { // Apply to first 10 potential materials
+        coloredViewer.setAttribute(`material-${i}-color`, hexColor);
+      }
+      
+      // Add load event listener
+      coloredViewer.addEventListener('load', () => {
+        console.log('Colored model loaded');
+        loadingIndicator.remove();
+        
+        // Apply colors directly to materials
+        if (coloredViewer.model && coloredViewer.model.materials) {
+          const materials = coloredViewer.model.materials;
+          const r = parseInt(hexColor.substring(1, 3), 16) / 255;
+          const g = parseInt(hexColor.substring(3, 5), 16) / 255;
+          const b = parseInt(hexColor.substring(5, 7), 16) / 255;
+          
+          console.log(`Applying direct colors to ${materials.length} materials`);
+          
+          // First, analyze to find frame vs lens materials
+          const frameMaterials = [];
+          const lensMaterials = [];
+          
+          for (let i = 0; i < materials.length; i++) {
+            const material = materials[i];
+            if (!material || !material.pbrMetallicRoughness) continue;
+            
+            // Check for transparency (likely lens)
+            const alpha = material.pbrMetallicRoughness.baseColorFactor && 
+                      material.pbrMetallicRoughness.baseColorFactor[3] < 1.0;
+            
+            // Look for name hints
+            const hasName = material.name && (
+              material.name.toLowerCase().includes('lens') || 
+              material.name.toLowerCase().includes('glass') ||
+              material.name.toLowerCase().includes('transparent')
+            );
+            
+            if (alpha || hasName) {
+              lensMaterials.push(i);
+            } else {
+              frameMaterials.push(i);
+            }
+          }
+          
+          // If no frame materials detected, use defaults
+          if (frameMaterials.length === 0) {
+            frameMaterials.push(0); // Assume first material is frame
+            if (materials.length > 1) frameMaterials.push(1);
+          }
+          
+          console.log('Frame materials:', frameMaterials.join(', '));
+          console.log('Lens materials:', lensMaterials.join(', '));
+          
+          // Apply colors to frame materials only
+          frameMaterials.forEach(index => {
+            try {
+              const material = materials[index];
+              if (material && material.pbrMetallicRoughness) {
+                const originalAlpha = material.pbrMetallicRoughness.baseColorFactor ? 
+                  material.pbrMetallicRoughness.baseColorFactor[3] : 1.0;
+                
+                // Apply using both methods
+                material.pbrMetallicRoughness.baseColorFactor = [r, g, b, originalAlpha];
+                
+                if (typeof material.pbrMetallicRoughness.setBaseColorFactor === 'function') {
+                  material.pbrMetallicRoughness.setBaseColorFactor([r, g, b, originalAlpha]);
+                }
+                
+                console.log(`Applied color to frame material ${index}`);
+              }
+            } catch (err) {
+              console.error(`Error applying color to material ${index}:`, err);
+            }
+          });
+          
+          // Force updates
+          coloredViewer.dispatchEvent(new CustomEvent('materials-change'));
+          
+          // Force camera change to trigger redraw
+          const currentOrbit = coloredViewer.getAttribute('camera-orbit') || '0deg 75deg 105%';
+          const orbitParts = currentOrbit.split(' ');
+          if (orbitParts.length >= 2) {
+            const angle1 = parseFloat(orbitParts[0]) || 0;
+            const angle2 = parseFloat(orbitParts[1]) || 75;
+            
+            const newOrbit = `${(angle1 + 25) % 360}deg ${(angle2 + 15) % 360}deg ${orbitParts[2] || '105%'}`;
+            coloredViewer.setAttribute('camera-orbit', newOrbit);
+            
+            setTimeout(() => {
+              coloredViewer.setAttribute('camera-orbit', currentOrbit);
+            }, 100);
+          }
+        }
+      });
+      
+      // Handle load errors
+      coloredViewer.addEventListener('error', () => {
+        console.error('Error loading colored model');
+        loadingIndicator.remove();
+        
+        // Show original model again
+        modelViewer.style.opacity = '1';
+        modelViewer.style.pointerEvents = 'auto';
+      });
+      
+      // Set src last to trigger load
+      coloredViewer.setAttribute('src', modelSrc);
+      
+      // Add to wrapper
+      wrapperDiv.appendChild(coloredViewer);
+    }
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Add event listeners to all color options
+      document.querySelectorAll('.color-option').forEach(colorOption => {
+        colorOption.addEventListener('click', function() {
+          // Remove selection from all other options
+          document.querySelectorAll('.color-option').forEach(opt => {
+            opt.classList.remove('selected');
+          });
+          
+          // Add selection to clicked option
+          this.classList.add('selected');
+          
+          // Get the target model viewer
+          const modalId = this.closest('.product-modal')?.id;
+          if (!modalId) return;
+          
+          const modelViewer = document.querySelector(`#${modalId} model-viewer`);
+          if (!modelViewer) return;
+          
+          // Get the material color
+          const materialColor = this.getAttribute('data-material-color');
+          if (!materialColor) return;
+          
+          // Apply color to model
+          applyColorToModel(modelViewer, materialColor);
+          
+          // Create or update a "Try enhanced fix" button if needed
+          let fixButton = document.querySelector(`#${modalId} .quick-fix-btn`);
+          
+          if (!fixButton) {
+            fixButton = document.createElement('button');
+            fixButton.className = 'quick-fix-btn';
+            fixButton.textContent = 'Color not updating? Click here';
+            fixButton.style.marginTop = '10px';
+            fixButton.style.padding = '5px 10px';
+            fixButton.style.backgroundColor = '#2196F3';
+            fixButton.style.color = 'white';
+            fixButton.style.border = 'none';
+            fixButton.style.borderRadius = '3px';
+            fixButton.style.cursor = 'pointer';
+            fixButton.style.fontSize = '12px';
+            fixButton.style.display = 'none'; // Hidden initially
+            
+            // Add button to the DOM
+            const colorContainer = this.closest('.color-palette')?.parentElement;
+            if (colorContainer) {
+              colorContainer.appendChild(fixButton);
+            }
+            
+            // Show button after a delay (assuming color didn't apply if user needs it)
+            setTimeout(() => {
+              fixButton.style.display = 'block';
+            }, 1000);
+            
+            // Add click event listener
+            fixButton.addEventListener('click', function() {
+              // Get the current selected color
+              const selectedColor = document.querySelector(`#${modalId} .color-option.selected`)?.getAttribute('data-material-color');
+              if (!selectedColor) return;
+              
+              // Use enhanced color fix with aggressive settings
+              const options = {
+                useDirectMaterial: true,
+                useAttributes: true,
+                useCameraOrbit: true,
+                useVisibilityToggle: true,
+                useEnvironmentToggle: true,
+                useCssFilters: true,
+                useDomReconnect: true,
+                useExtraAggressive: true,
+                useModelReload: false // Don't use model reload by default as it's slow
+              };
+              
+              // Apply enhanced fix
+              enhancedColorFix(modelViewer, selectedColor, options);
+              
+              // Update button text to show it's working
+              fixButton.textContent = 'Applying fix...';
+              
+              // Check if this is a glasses model that might need nuclear option
+              const isGlassesModel = modalId.includes('glasses') || 
+                                   modalId.includes('aviator') || 
+                                   modalId.includes('rimless');
+              
+              if (isGlassesModel) {
+                // After standard fix attempt, suggest nuclear option if needed
+                setTimeout(() => {
+                  fixButton.textContent = 'Try nuclear option';
+                  fixButton.style.backgroundColor = '#ff5722';
+                  
+                  // Change the button's function to use nuclear fix instead
+                  fixButton.onclick = function() {
+                    applyNuclearColorFix(modelViewer, selectedColor);
+                    fixButton.textContent = 'Applying nuclear fix...';
+                    
+                    setTimeout(() => {
+                      fixButton.textContent = 'Color not updating? Click here';
+                      fixButton.style.backgroundColor = '#2196F3';
+                    }, 2000);
+                  };
+                }, 2000);
+              } else {
+                // For non-glasses models, just restore button text
+                setTimeout(() => {
+                  fixButton.textContent = 'Color not updating? Click here';
+                }, 1500);
+              }
+            });
+          } else {
+            // Reset visibility timeout for the button
+            setTimeout(() => {
+              fixButton.style.display = 'block';
+            }, 1000);
+          }
+        });
+      });
+      
+      // Rest of your existing code...
+    });
+  </script>
+</body>
+</html> 

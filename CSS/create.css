@@ -1,0 +1,826 @@
+/* Reset default styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Links */
+a {
+  text-decoration: none;
+  color: #e94560;
+  transition: color 0.3s ease;
+}
+a:hover {
+  color: #ffffff;
+}
+
+/* Button Styles */
+button {
+  padding: 12px 20px; /* Added horizontal padding for a balanced look */
+  background-color: #e94560;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease, transform 0.2s ease; /* Added a transform transition for a scaling effect */
+}
+button:hover {
+  background-color: #c73a51;
+  transform: scale(1.05); /* Add a slight scale effect on hover */
+}
+
+/* Header Styles */
+header {
+  background-color: #1a1a2e;
+  padding: 20px;
+}
+
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+nav ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+}
+
+.nav-container h1 {
+  font-size: 30px;
+  color: #e94560;
+}
+
+.nav-container ul {
+  display: flex;
+  gap: 15px;
+}
+
+/* Body Section */
+body {
+  background-color: #f4f3f3;
+  font-family: 'Sharp Sans', helvetica, arial, 'Trebuchet MS', sans-serif; /* Adding your desired font-family here */
+}
+
+/* ////////////// Select Container ////////////// */
+.select_container {
+  display: flex;
+  justify-content: center;
+  height: fit-content;
+  align-items: center;
+  flex-direction: column;
+  padding: 15px;
+  background-color: #1a1a2e;
+  border-radius: 17px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  max-width: 160px;
+  margin: 90px auto;
+  transition: transform 0.3s ease; /* Smooth transition for scaling */
+}
+
+.select_container:hover {
+  transform: scale(1.05); /* Slight scale effect on hover */
+}
+
+/* Options Container */
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: max-content;
+}
+
+/* Option Styles */
+.option {
+  text-align: center;
+  margin: 10px;
+  padding: 15px;
+  background-color: #ffffff;
+  border-radius: 17px;
+  width: 80px;
+  transition: all 0.3s ease;
+  max-height: 95px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.option:hover {
+  background-color: #fddfe4;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  border-color: #e94560;
+}
+
+.option.active {
+  background-color: #fddfe4;
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  border-color: #e94560;
+}
+
+.option img {
+  display: block;
+  margin: 0 auto;
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.option:hover img {
+  transform: scale(1.1);
+}
+
+.option p {
+  margin: top 10px;
+  font-size: 14px;
+  color: #000000;
+  font-weight: 500;
+}
+
+/* Flex container for side-by-side layout */
+.main-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 1%;
+  align-items: flex-start;
+  width: 100%;
+  padding: 30px;
+}
+
+/* //////////////// Design Container ///////////// */
+.design_container {
+  flex: 3;
+  position: relative;
+}
+
+/* Customization options for color pallet */
+.customization-options {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* //////////////// Product Preview ///////////*/
+.preview_container img {
+  max-width: 100%;
+  height: auto;
+}
+
+.preview_container {
+  position: relative;
+  width: 100%;
+  height: 600px;
+  border: 2px dashed #ccc;
+  margin: 20px auto;
+  background-color: #fff;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+
+/* Customization Container Styles */
+.customization_container {
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(5, 6, 39, 0.614);
+  margin: 20px 0;
+  height: auto;
+  min-height: 485px;
+  max-height: 600px;
+  width: 100%;
+  max-width: 500px;
+  top: 100px;
+  margin: 90px auto;
+  position: inherit;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow-y: auto;
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: #e94560 #f0f0f0; /* Firefox */
+}
+
+/* Action and Color Container Styles */
+.action_color_container {
+  flex: 1;
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(5, 6, 39, 0.614);
+  margin: 90px auto;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 600px;
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: #e94560 #f0f0f0; /* Firefox */
+}
+
+/* Webkit scrollbar styles for action_color_container */
+.action_color_container::-webkit-scrollbar,
+.customization_container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.action_color_container::-webkit-scrollbar-track,
+.customization_container::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 3px;
+}
+
+.action_color_container::-webkit-scrollbar-thumb,
+.customization_container::-webkit-scrollbar-thumb {
+  background: #e94560;
+  border-radius: 3px;
+}
+
+.action_color_container::-webkit-scrollbar-thumb:hover,
+.customization_container::-webkit-scrollbar-thumb:hover {
+  background: #c73a51;
+}
+
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+#customization-container {
+  /* Customization container styles */
+  display: flex;
+  justify-content: space-around;
+  padding: 20px;
+}
+
+.customization_section {
+  margin-bottom: 15px;
+  display: flex none;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.customization_section {
+  padding: 15px;
+  background-color: #f4f3f3;
+  border-radius: 10px;
+  margin: 10px 0;
+}
+.customization_section.active {
+  display: block; /* Show when active */
+}
+
+.customization_section label {
+  font-size: 14px;
+  color: #1a1a2e;
+}
+
+.customization_section input,
+.customization_section select {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+#apply-customizations {
+  background-color: #e94560;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#apply-customizations:hover {
+  background-color: #c73a51;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.uploaded-design {
+  max-width: 200px; /* Limit size */
+  max-height: 200px;
+  border: 1px dashed gray;
+}
+
+.custom-design {
+  z-index: 100;
+  transition: transform 0.2s ease;
+}
+
+.custom-design:hover {
+  transform: scale(1.1); /* Slightly enlarge the image on hover */
+}
+
+/* Error Handling Styles */
+.error-message {
+  color: red;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 5px;
+  margin: 5px 0;
+}
+
+.custom-design, .custom-text {
+  resize: both;
+  overflow: auto;
+  position: absolute;
+
+}
+
+/* Undo/Redo Button Styles */
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.action-buttons button {
+  flex: 1;
+  min-width: 120px;
+  padding: 12px 15px;
+  background-color: #ffffff;
+  color: #1a1a2e;
+  border: 1px solid #e1e1e1;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.action-buttons button i {
+  font-size: 16px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+}
+
+.action-buttons button:hover {
+  background-color: #f8f9fa;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.action-buttons button:hover i {
+  transform: scale(1.1);
+}
+
+/* Specific button styles */
+#undo-button, #redo-button {
+  background-color: #f0f0f0;
+}
+
+#undo-button i, #redo-button i {
+  color: #666;
+}
+
+#save-design-button {
+  background-color: #e3f2fd;
+}
+
+#save-design-button i {
+  color: #1976d2;
+}
+
+#add-to-cart-button {
+  background-color: #e8f5e9;
+}
+
+#add-to-cart-button i {
+  color: #2e7d32;
+}
+
+#reset-button {
+  background-color: #fbe9e7;
+}
+
+#reset-button i {
+  color: #d32f2f;
+}
+
+/* Hover states for specific buttons */
+#undo-button:hover, #redo-button:hover {
+  background-color: #e0e0e0;
+}
+
+#save-design-button:hover {
+  background-color: #bbdefb;
+}
+
+#add-to-cart-button:hover {
+  background-color: #c8e6c9;
+}
+
+#reset-button:hover {
+  background-color: #ffccbc;
+}
+
+@media (max-width: 768px) {
+  .main-container {
+    flex-direction: column;
+    align-items: center;
+  }
+  .select_container, .customization_container, .design_container {
+    width: 90%;
+    margin: 20px 0;
+  }
+  .control-group button {
+    font-size: 14px;
+    padding: 8px;
+  }
+  #colorPicker {
+    width: 50px;
+    height: 50px;
+    bottom: 15px;
+    right: 15px;
+  }
+  .color-buttons {
+    right: 75px;
+    bottom: 15px;
+  }
+  .color-button {
+    width: 35px;
+    height: 35px;
+  }
+  .customization_controls {
+    position: relative;
+    top: 0;
+    height: auto;
+    max-width: 100%;
+    margin: 20px 0;
+    overflow-y: visible;
+  }
+  .action-buttons {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .action-buttons button {
+    min-width: unset;
+  padding: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-container h1 {
+    font-size: 24px;
+  }
+  .control-group button {
+    font-size: 12px;
+    padding: 6px;
+  }
+  #colorPicker {
+    width: 40px;
+    height: 40px;
+    bottom: 10px;
+    right: 10px;
+  }
+  .color-buttons {
+    right: 60px;
+    bottom: 10px;
+  }
+  .color-button {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+.shirt-parts-controls {
+  margin-top: 20px;
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.parts-container {
+  display: flex;
+  flex-direction: column;
+}
+
+
+.part-group h4 {
+  color: #1a1a2e;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e94560;
+  text-align: center;
+}
+
+.part-control {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.part-control:last-child {
+  margin-bottom: 0;
+}
+
+.part-control:hover {
+  background: #f0f0f0;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.part-control label {
+  font-size: 14px;
+  color: #333;
+  margin-right: 10px;
+}
+
+.color-control-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.part-color-picker {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.part-color-picker:hover {
+  transform: scale(1.1);
+}
+
+
+
+.customization_controls {
+  flex: 1;
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 4px rgba(15, 23, 255, 0.1);
+  margin: 10px 0;
+  max-width: 250px;
+  position: -webkit-sticky; /* For Safari */
+  position: sticky;
+  top: 20px;
+  height: calc(100vh - 40px); /* Viewport height minus margins */
+  overflow-y: auto; /* Enable scrolling within the container */
+  z-index: 100;
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: #e94560 #f0f0f0; /* Firefox */
+}
+
+/* Webkit scrollbar styles */
+.customization_controls::-webkit-scrollbar {
+  width: 6px;
+}
+
+.customization_controls::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 3px;
+}
+
+.customization_controls::-webkit-scrollbar-thumb {
+  background: #e94560;
+  border-radius: 3px;
+}
+
+.customization_controls::-webkit-scrollbar-thumb:hover {
+  background: #c73a51;
+}
+
+.color-customization-header {
+  margin-top: 5px;
+  margin-bottom: 5px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e94560;
+}
+
+.color-customization-header h3 {
+  color: #1a1a2e;
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.color-customization-header h3 i {
+  color: #e94560;
+}
+
+.control-group {
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 350px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: #e94560 #f0f0f0;
+}
+
+.control-group h3 {
+  margin: 0 0 10px 0;
+  color: #1a1a2e;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.control-group button {
+  width: 100%;
+  margin: 5px 0;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  background-color: #ffffff;
+  border: 1px solid #e1e1e1;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.control-group button:hover {
+  background-color: #f0f0f0;
+  transform: translateY(-1px);
+}
+
+.control-group button i {
+  width: 20px;
+  text-align: center;
+  color: #e94560;
+}
+
+#size-slider {
+  width: 100%;
+  margin: 5px 0;
+}
+
+#gltf-viewer {
+    width: 100%;
+    height: 500px;
+    background: transparent;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+.product-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: transparent;
+}
+
+/* Ensure the model-viewer is properly positioned */
+model-viewer {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    --progress-bar-color: #e94560;
+    --progress-bar-height: 5px;
+    background: transparent;
+}
+
+/* Style for the color picker when using 3D model */
+#colorPicker {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    padding: 0;
+    background: none;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease;
+}
+
+#colorPicker:hover {
+    transform: scale(1.1);
+}
+
+.product-container {
+  position: relative;
+  width: 200px; /* Adjust as needed */
+  height: 200px; /* Adjust as needed */
+}
+
+.texture-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* Ensure the overlay doesn't interfere with interactions */
+}
+
+
+.add-product-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px 20px;
+    background-color: #e94560;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    margin-top: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.add-product-button:hover {
+    background-color: #c73a51;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.add-product-button i {
+    font-size: 18px;
+}
+
+/* Style the product selection dropdown */
+#product-type {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #e1e1e1;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #333;
+    background-color: #ffffff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#product-type:hover {
+    border-color: #e94560;
+}
+
+#product-type:focus {
+    outline: none;
+    border-color: #e94560;
+    box-shadow: 0 0 0 2px rgba(233, 69, 96, 0.2);
+}
+
+/* Style the product selection section */
+#product-selection {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+#product-selection label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 8px;
+}
+

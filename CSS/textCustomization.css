@@ -1,0 +1,316 @@
+/* Text Customization Styles */
+
+/* Custom text element styles */
+.custom-text-element {
+    position: absolute;
+    cursor: move;
+    padding: 5px;
+    border: 2px solid transparent;
+    border-radius: 4px;
+    user-select: none;
+    z-index: 100;
+    transition: transform 0.2s ease, border-color 0.3s ease;
+}
+
+.custom-text-element:hover {
+    border-color: rgba(233, 69, 96, 0.5);
+    transform: scale(1.02);
+}
+
+.custom-text-element.active {
+    border-color: #e94560;
+    box-shadow: 0 0 8px rgba(233, 69, 96, 0.4);
+}
+
+/* Text controls styling */
+.text-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 600px;
+    overflow-y: auto;
+    width: 100%;
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: #e94560 #f0f0f0; /* Firefox */
+}
+
+.text-input-group {
+    display: flex;
+    gap: 10px;
+}
+
+.text-input-group input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.text-input-group button {
+    background-color: #e94560;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.text-input-group button:hover {
+    background-color: #c73a51;
+}
+
+.text-styling {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background-color: #f8f9fa;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.text-styling-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.text-styling-row {
+    display: flex;
+    gap: 10px;
+}
+
+.text-styling-item {
+    flex: 1;
+}
+
+.text-styling label {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    font-size: 13px;
+    color: #333;
+}
+
+.range-with-value {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.range-with-value input[type="range"] {
+    flex: 1;
+}
+
+.text-styling select,
+.text-styling input[type="range"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+}
+
+.text-styling input[type="color"] {
+    width: 100%;
+    height: 40px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.text-advanced-options {
+    margin-top: 10px;
+    border-top: 1px solid #eee;
+    padding-top: 10px;
+}
+
+.text-advanced-options h4 {
+    font-size: 13px;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.text-effects-container {
+    margin-bottom: 8px;
+}
+
+.text-controls-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.text-alignment-container {
+    flex: 1;
+}
+
+.text-effects-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.text-effect-button {
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.text-effect-button:hover {
+    background-color: #e0e0e0;
+    transform: translateY(-2px);
+}
+
+.text-effect-button.active {
+    background-color: #e94560;
+    color: white;
+    border-color: #e94560;
+}
+
+/* Text alignment buttons */
+.text-alignment-group {
+    display: flex;
+    gap: 5px;
+    margin-top: 10px;
+}
+
+.text-alignment-button {
+    flex: 1;
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.text-alignment-button:hover {
+    background-color: #e0e0e0;
+}
+
+.text-alignment-button.active {
+    background-color: #e94560;
+    color: white;
+    border-color: #e94560;
+}
+
+/* Text rotation control */
+.text-rotation-control {
+    margin-top: 10px;
+}
+
+.text-rotation-control label {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.text-rotation-control input {
+    width: 100%;
+}
+
+/* Text layer controls */
+.text-layer-controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.text-layer-button {
+    flex: 1;
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    font-size: 12px;
+}
+
+.text-layer-button:hover {
+    background-color: #e0e0e0;
+}
+
+/* Text elements list */
+.text-elements-list {
+    margin-top: 10px;
+    border-top: 1px solid #eee;
+    padding-top: 10px;
+    max-height: none;
+    overflow-y: visible;
+}
+
+.text-elements-list h4 {
+    font-size: 14px;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.text-element-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    margin-bottom: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.text-element-item:hover {
+    background-color: #e0e0e0;
+}
+
+.text-element-item.active {
+    background-color: #fddfe4;
+    border-left: 3px solid #e94560;
+}
+
+.text-element-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.text-element-action {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #666;
+    transition: color 0.2s ease;
+}
+
+.text-element-action:hover {
+    color: #e94560;
+}
+
+/* Webkit scrollbar styles for text controls */
+.text-controls::-webkit-scrollbar {
+    width: 6px;
+}
+
+.text-controls::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 3px;
+}
+
+.text-controls::-webkit-scrollbar-thumb {
+    background: #e94560;
+    border-radius: 3px;
+}
+
+.text-controls::-webkit-scrollbar-thumb:hover {
+    background: #c73a51;
+}

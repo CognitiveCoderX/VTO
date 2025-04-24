@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile - CustomXShop</title>
+  <meta name="description" content="Manage your CustomXShop profile, view order history, and update your account settings.">
+  <link rel="stylesheet" href="/CSS/Header.css">
+  <link rel="stylesheet" href="/CSS/profile.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="/CSS/icons.css" rel="stylesheet">
+  <style>
+    /* Dropdown styles - removing these as they are no longer needed */
+    /* We're keeping the profile-dropdown class but only for positioning */
+    .profile-dropdown {
+      position: relative;
+    }
+  </style>
+</head>
+<body class="profile-body">
+  <header>
+    <nav>
+      <div class="nav-container">
+        <h1><a href="homepage.html" aria-label="Go to homepage" class="logo-text">CustomXShop</a></h1>
+        <ul>
+          <li><a href="homepage.html" aria-label="Home" class="nav-link"><span class="material-icons nav-icon">home</span>Home</a></li>
+          <li><a href="Product.html" aria-label="View Products" class="nav-link"><span class="material-icons nav-icon">checkroom</span>Products</a></li>
+          <li><a href="Designs.html" aria-label="Your Designs" class="nav-link"><span class="material-icons nav-icon">palette</span>Your Designs</a></li>
+          <li><a href="Cart.html" aria-label="Go to Cart" class="nav-link"><span class="material-icons nav-icon">shopping_cart</span>Cart<span id="cart-count" class="cart-badge">0</span></a></li>
+          <li><a href="Services.html" aria-label="Explore Services" class="nav-link"><span class="material-icons nav-icon">design_services</span>Services</a></li>
+          <li><a href="Help.html" aria-label="Get Help" class="nav-link"><span class="material-icons nav-icon">help_outline</span>Help</a></li>
+          <li id="login-li" style="display: block;"><a href="/HTML/index.html" aria-label="Login" class="nav-link login-btn"><span class="material-icons nav-icon">login</span>Login</a></li>
+          <li id="profile-li" style="display: none;" class="profile-dropdown">
+            <a href="Profile.html" aria-label="Profile" class="nav-link profile-btn">
+              <span class="material-icons nav-icon">person</span>
+              <span class="username-text"></span>
+            </a>
+            <!-- Dropdown content removed -->
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <div class="profile-container">
+      <!-- Profile Header with User Info and Stats -->
+      <div class="profile-header" id="profile-header">
+        <!-- Skeleton loading state -->
+        <div class="skeleton skeleton-circle" id="avatar-skeleton"></div>
+        <div class="profile-header-info">
+          <div class="skeleton skeleton-text-lg" id="username-skeleton"></div>
+          <div class="skeleton skeleton-text-md" id="email-skeleton"></div>
+        </div>
+        <div class="profile-stats">
+          <div class="stat-item">
+            <div class="skeleton skeleton-text-lg" id="orders-skeleton"></div>
+            <div class="skeleton skeleton-text-sm"></div>
+          </div>
+          <div class="stat-item">
+            <div class="skeleton skeleton-text-lg" id="designs-skeleton"></div>
+            <div class="skeleton skeleton-text-sm"></div>
+          </div>
+        </div>
+        
+        <!-- Actual content (hidden until loaded) -->
+        <div class="profile-avatar hidden" id="profile-avatar">
+          <span class="material-icons avatar-icon">account_circle</span>
+        </div>
+        <div class="profile-header-info">
+          <h1 id="profile-username" class="hidden"></h1>
+          <p id="profile-email" class="hidden"></p>
+        </div>
+        <div class="profile-stats hidden" id="profile-stats">
+          <div class="stat-item">
+            <div class="stat-value" id="orders-count">0</div>
+            <div class="stat-label">Orders</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="designs-count">0</div>
+            <div class="stat-label">Designs</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Sidebar Navigation -->
+      <aside class="profile-sidebar">
+        <div class="sidebar-section">
+          <h3>Account</h3>
+          <ul class="profile-nav">
+            <li><a href="#dashboard" class="active" data-section="dashboard"><span class="material-icons nav-icon">dashboard</span> Dashboard</a></li>
+            <li><a href="#personal-info" data-section="personal-info"><span class="material-icons nav-icon">person</span> Personal Info</a></li>
+            <li><a href="#orders" data-section="orders"><span class="material-icons nav-icon">shopping_bag</span> My Orders</a></li>
+            <li><a href="#designs" data-section="designs"><span class="material-icons nav-icon">palette</span> Saved Designs</a></li>
+          </ul>
+        </div>
+        
+        <div class="sidebar-section">
+          <h3>Settings</h3>
+          <ul class="profile-nav">
+            <li><a href="#payment-methods" data-section="payment-methods"><span class="material-icons nav-icon">credit_card</span> Payment Methods</a></li>
+            <li><a href="#addresses" data-section="addresses"><span class="material-icons nav-icon">home</span> Saved Addresses</a></li>
+            <li><a href="#account-settings" data-section="account-settings"><span class="material-icons nav-icon">settings</span> Account Settings</a></li>
+          </ul>
+        </div>
+        
+        <div class="sidebar-section">
+          <ul class="profile-nav">
+            <li><a href="#" id="logout-btn"><span class="material-icons nav-icon">logout</span> Logout</a></li>
+          </ul>
+        </div>
+      </aside>
+      
+      <!-- Main Content -->
+      <div class="profile-content">
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="profile-section active">
+          <div class="section-header">
+            <h2>Dashboard</h2>
+            <div class="section-actions">
+              <button class="btn btn-primary" id="refresh-dashboard">
+                <span class="material-icons">refresh</span> Refresh
+              </button>
+            </div>
+          </div>
+          
+          <!-- Dashboard Cards -->
+          <div class="dashboard-grid">
+            <div class="dashboard-card">
+              <span class="material-icons card-icon">shopping_bag</span>
+              <h3>Total Orders</h3>
+              <div class="value" id="dashboard-orders">0</div>
+              <a href="#orders" class="btn btn-secondary">View All</a>
+            </div>
+            
+            <div class="dashboard-card">
+              <span class="material-icons card-icon">palette</span>
+              <h3>Saved Designs</h3>
+              <div class="value" id="dashboard-designs">0</div>
+              <a href="#designs" class="btn btn-secondary">View All</a>
+            </div>
+            
+            <div class="dashboard-card">
+              <span class="material-icons card-icon">favorite</span>
+              <h3>Wishlist Items</h3>
+              <div class="value" id="dashboard-wishlist">0</div>
+              <a href="#" class="btn btn-secondary">View Wishlist</a>
+            </div>
+          </div>
+          
+          <!-- Recent Activity -->
+          <div class="section-header">
+            <h2>Recent Activity</h2>
+          </div>
+          
+          <ul class="activity-feed" id="recent-activity">
+            <!-- Loading state -->
+            <li class="skeleton" style="height: 80px; margin-bottom: 20px;"></li>
+            <li class="skeleton" style="height: 80px; margin-bottom: 20px;"></li>
+            
+            <!-- Empty state (hidden initially) -->
+            <li class="empty-state hidden" id="activity-empty-state">
+              <div class="empty-state-icon material-icons">history</div>
+              <h3>No activity yet</h3>
+              <p>Your recent activity will appear here as you use our services.</p>
+              <a href="Product.html" class="btn btn-primary">Start Shopping</a>
+            </li>
+          </ul>
+        </section>
+        
+        <!-- Personal Info Section -->
+        <section id="personal-info" class="profile-section">
+          <div class="section-header">
+            <h2>Personal Information</h2>
+          </div>
+          
+          <form id="personal-info-form">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="fullName">Full Name</label>
+                <input type="text" id="fullName" name="fullName" class="form-control" placeholder="Your full name">
+              </div>
+              
+              <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" class="form-control" placeholder="your@email.com" readonly>
+              </div>
+              
+              <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" name="phone" class="form-control" placeholder="(123) 456-7890">
+              </div>
+              
+              <div class="form-group">
+                <label for="birthdate">Date of Birth</label>
+                <input type="date" id="birthdate" name="birthdate" class="form-control">
+              </div>
+              
+              <div class="form-actions">
+                <button type="button" class="btn btn-secondary" id="reset-personal-info">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+              </div>
+            </div>
+          </form>
+        </section>
+        
+        <!-- Orders Section -->
+        <section id="orders" class="profile-section">
+          <div class="section-header">
+            <h2>My Orders</h2>
+            <div class="section-actions">
+              <select id="order-status-filter" class="form-control">
+                <option value="all">All Orders</option>
+                <option value="processing">Processing</option>
+                <option value="shipped">Shipped</option>
+                <option value="delivered">Delivered</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
+          </div>
+          
+          <!-- Orders Table -->
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Total</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="orders-table-body">
+                <!-- Loading state -->
+                <tr>
+                  <td colspan="5" class="text-center">
+                    <div class="skeleton" style="height: 40px; margin: 10px 0;"></div>
+                    <div class="skeleton" style="height: 40px; margin: 10px 0;"></div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <!-- Empty state (hidden initially) -->
+          <div class="empty-state hidden" id="orders-empty-state">
+            <div class="empty-state-icon material-icons">shopping_bag</div>
+            <h3>No orders yet</h3>
+            <p>You haven't placed any orders yet. Start shopping to see your orders here.</p>
+            <a href="Product.html" class="btn btn-primary">Start Shopping</a>
+          </div>
+        </section>
+        
+        <!-- Designs Section -->
+        <section id="designs" class="profile-section">
+          <div class="section-header">
+            <h2>Saved Designs</h2>
+            <div class="section-actions">
+              <a href="create.html" class="btn btn-primary">
+                <span class="material-icons">add</span> New Design
+              </a>
+            </div>
+          </div>
+          
+          <div class="dashboard-grid" id="designs-grid">
+            <!-- Loading state -->
+            <div class="skeleton" style="height: 200px;"></div>
+            <div class="skeleton" style="height: 200px;"></div>
+            <div class="skeleton" style="height: 200px;"></div>
+          </div>
+          
+          <!-- Empty state (hidden initially) -->
+          <div class="empty-state hidden" id="designs-empty-state">
+            <div class="empty-state-icon material-icons">palette</div>
+            <h3>No designs saved</h3>
+            <p>You haven't created any designs yet. Start creating to see your designs here.</p>
+            <a href="create.html" class="btn btn-primary">Create New Design</a>
+          </div>
+        </section>
+        
+        <!-- Payment Methods Section -->
+        <section id="payment-methods" class="profile-section">
+          <div class="section-header">
+            <h2>Payment Methods</h2>
+            <div class="section-actions">
+              <button class="btn btn-primary" id="add-payment-method">
+                <span class="material-icons">add</span> Add Payment Method
+              </button>
+            </div>
+          </div>
+          
+          <div id="payment-methods-container">
+            <!-- Empty state -->
+            <div class="empty-state" id="payment-methods-empty-state">
+              <div class="empty-state-icon material-icons">credit_card</div>
+              <h3>No payment methods</h3>
+              <p>You haven't added any payment methods yet.</p>
+              <button class="btn btn-primary" id="add-payment-method-empty">
+                <span class="material-icons">add</span> Add Payment Method
+              </button>
+            </div>
+          </div>
+        </section>
+        
+        <!-- Addresses Section -->
+        <section id="addresses" class="profile-section">
+          <div class="section-header">
+            <h2>Saved Addresses</h2>
+            <div class="section-actions">
+              <button class="btn btn-primary" id="add-address">
+                <span class="material-icons">add</span> Add Address
+              </button>
+            </div>
+          </div>
+          
+          <div id="addresses-container">
+            <!-- Empty state -->
+            <div class="empty-state" id="addresses-empty-state">
+              <div class="empty-state-icon material-icons">home</div>
+              <h3>No addresses saved</h3>
+              <p>You haven't added any addresses yet.</p>
+              <button class="btn btn-primary" id="add-address-empty">
+                <span class="material-icons">add</span> Add Address
+              </button>
+            </div>
+          </div>
+        </section>
+        
+        <!-- Account Settings Section -->
+        <section id="account-settings" class="profile-section">
+          <div class="section-header">
+            <h2>Account Settings</h2>
+          </div>
+          
+          <form id="account-settings-form">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" class="form-control" placeholder="Username" autocomplete="username">
+              </div>
+              
+              <div class="form-group full-width">
+                <label for="current-password">Current Password</label>
+                <input type="password" id="current-password" name="currentPassword" class="form-control" placeholder="Current password" autocomplete="current-password">
+              </div>
+              
+              <div class="form-group">
+                <label for="new-password">New Password</label>
+                <input type="password" id="new-password" name="newPassword" class="form-control" placeholder="New password" autocomplete="new-password">
+              </div>
+              
+              <div class="form-group">
+                <label for="confirm-password">Confirm Password</label>
+                <input type="password" id="confirm-password" name="confirmPassword" class="form-control" placeholder="Confirm new password" autocomplete="new-password">
+              </div>
+              
+              <div class="form-group full-width">
+                <h3>Notification Preferences</h3>
+              </div>
+              
+              <div class="form-group">
+                <div class="data-card">
+                  <div class="form-check">
+                    <input type="checkbox" id="email-notifications" name="emailNotifications" checked>
+                    <label for="email-notifications">Email Notifications</label>
+                    <p class="mb-0 mt-sm">Receive order updates and account notifications via email</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <div class="data-card">
+                  <div class="form-check">
+                    <input type="checkbox" id="marketing-emails" name="marketingEmails" checked>
+                    <label for="marketing-emails">Marketing Emails</label>
+                    <p class="mb-0 mt-sm">Receive special offers, discounts, and new product announcements</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="form-actions">
+                <button type="button" class="btn btn-secondary" id="reset-account-settings">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+              </div>
+            </div>
+          </form>
+          
+          <div class="form-group full-width mt-xl mb-xl">
+            <h3>Danger Zone</h3>
+            <div class="data-card">
+              <h3 class="mb-md">Delete Account</h3>
+              <p class="mb-md">Once you delete your account, there is no going back. Please be certain.</p>
+              <button type="button" class="btn btn-danger" id="delete-account-btn">
+                <span class="material-icons">delete_forever</span> Delete Account
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <script src="/JAVASCRIPT/auth.js"></script>
+  <script src="/JAVASCRIPT/profile.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Check authentication status first
+      CustomXAuth.checkAuthStatus();
+      
+      // Add logout functionality to the sidebar logout button
+      const logoutBtn = document.getElementById('logout-btn');
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          CustomXAuth.handleLogout();
+        });
+      }
+      
+      // Initialize profile page
+      initProfilePage();
+    });
+  </script>
+</body>
+</html>

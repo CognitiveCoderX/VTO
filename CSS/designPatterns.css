@@ -1,0 +1,276 @@
+/* Design Patterns CSS */
+
+/* Pattern Container Styles */
+.design-patterns-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-height: 600px;
+    overflow-y: auto;
+    width: 100%;
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: #e94560 #f0f0f0; /* Firefox */
+}
+
+/* Pattern Categories */
+.pattern-category {
+    margin-bottom: 15px;
+}
+
+.pattern-category h3 {
+    font-size: 16px;
+    margin-bottom: 10px;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+/* Pattern Grid */
+.pattern-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+/* Pattern Option */
+.pattern-option {
+    position: relative;
+    border: 2px solid #eee;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s ease, border-color 0.3s ease;
+    aspect-ratio: 1/1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+}
+
+.pattern-option:hover {
+    transform: scale(1.05);
+    border-color: #e94560;
+    box-shadow: 0 2px 8px rgba(233, 69, 96, 0.2);
+}
+
+.pattern-option.selected {
+    border-color: #e94560;
+    box-shadow: 0 2px 8px rgba(233, 69, 96, 0.4);
+}
+
+.pattern-preview {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pattern-option p {
+    margin-top: 5px;
+    font-size: 12px;
+    color: #333;
+    text-align: center;
+}
+
+/* Pattern Types */
+.pattern-preview.stripes {
+    background: repeating-linear-gradient(
+        45deg,
+        var(--pattern-color, #000),
+        var(--pattern-color, #000) 2px,
+        transparent 2px,
+        transparent 10px
+    );
+    background-size: calc(10px * var(--pattern-scale, 1));
+}
+
+.pattern-preview.horizontal-stripes {
+    background: repeating-linear-gradient(
+        0deg,
+        var(--pattern-color, #000),
+        var(--pattern-color, #000) 2px,
+        transparent 2px,
+        transparent 10px
+    );
+    background-size: calc(10px * var(--pattern-scale, 1));
+}
+
+.pattern-preview.vertical-stripes {
+    background: repeating-linear-gradient(
+        90deg,
+        var(--pattern-color, #000),
+        var(--pattern-color, #000) 2px,
+        transparent 2px,
+        transparent 10px
+    );
+    background-size: calc(10px * var(--pattern-scale, 1));
+}
+
+.pattern-preview.polka {
+    background-color: transparent;
+    background-image: radial-gradient(
+        var(--pattern-color, #000) 3px,
+        transparent 3px
+    );
+    background-size: calc(15px * var(--pattern-scale, 1)) calc(15px * var(--pattern-scale, 1));
+}
+
+.pattern-preview.checks {
+    background-image: 
+        linear-gradient(45deg, var(--pattern-color, #000) 25%, transparent 25%), 
+        linear-gradient(-45deg, var(--pattern-color, #000) 25%, transparent 25%), 
+        linear-gradient(45deg, transparent 75%, var(--pattern-color, #000) 75%), 
+        linear-gradient(-45deg, transparent 75%, var(--pattern-color, #000) 75%);
+    background-size: calc(20px * var(--pattern-scale, 1)) calc(20px * var(--pattern-scale, 1));
+    background-position: 0 0, 0 calc(10px * var(--pattern-scale, 1)), calc(10px * var(--pattern-scale, 1)) calc(-10px * var(--pattern-scale, 1)), calc(-10px * var(--pattern-scale, 1)) 0px;
+}
+
+.pattern-preview.zigzag {
+    background: 
+        linear-gradient(135deg, var(--pattern-color, #000) 25%, transparent 25%) calc(-10px * var(--pattern-scale, 1)) 0, 
+        linear-gradient(225deg, var(--pattern-color, #000) 25%, transparent 25%) calc(-10px * var(--pattern-scale, 1)) 0, 
+        linear-gradient(315deg, var(--pattern-color, #000) 25%, transparent 25%), 
+        linear-gradient(45deg, var(--pattern-color, #000) 25%, transparent 25%);
+    background-size: calc(20px * var(--pattern-scale, 1)) calc(20px * var(--pattern-scale, 1));
+}
+
+/* Sticker Styles */
+.sticker-option {
+    position: relative;
+    border: 2px solid #eee;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s ease, border-color 0.3s ease;
+    aspect-ratio: 1/1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+}
+
+.sticker-option:hover {
+    transform: scale(1.05);
+    border-color: #e94560;
+    box-shadow: 0 2px 8px rgba(233, 69, 96, 0.2);
+}
+
+.sticker-option.selected {
+    border-color: #e94560;
+    box-shadow: 0 2px 8px rgba(233, 69, 96, 0.4);
+}
+
+.sticker-option img {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+}
+
+.sticker-option p {
+    position: absolute;
+    bottom: 5px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 12px;
+    color: #333;
+    background-color: rgba(255, 255, 255, 0.7);
+    padding: 2px 0;
+}
+
+/* Pattern Controls */
+.pattern-controls {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+}
+
+.pattern-controls label {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #333;
+}
+
+.pattern-controls input[type="color"] {
+    width: 100%;
+    height: 40px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.pattern-controls input[type="range"] {
+    width: 100%;
+}
+
+.range-with-value {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.range-with-value input[type="range"] {
+    flex: 1;
+}
+
+/* Apply Button */
+.apply-controls {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+}
+
+#apply-design {
+    background-color: #e94560;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    flex: 1;
+}
+
+#apply-design:hover {
+    background-color: #c73a51;
+}
+
+#reset-design {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-left: 10px;
+}
+
+#reset-design:hover {
+    background-color: #5a6268;
+}
+
+/* Rotation Control */
+.pattern-rotation-control {
+    margin-top: 10px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .pattern-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .pattern-grid {
+        grid-template-columns: 1fr;
+    }
+}

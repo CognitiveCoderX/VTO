@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Your Design - CustomXShop</title>
+  <meta name="description" content="Customize clothing with patterns, text, and designs. Real-time preview and advanced editing tools.">
+  <link rel="stylesheet" href="/CSS/Header.css">
+  <link rel="stylesheet" href="/CSS/create.css">
+  <link rel="stylesheet" href="/CSS/colorPalette.css">
+  <link rel="stylesheet" href="/CSS/welcomeMess.css">
+  <link rel="stylesheet" href="/CSS/textCustomization.css">
+  <link rel="stylesheet" href="/CSS/designPatterns.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="/CSS/icons.css" rel="stylesheet">
+
+</head>
+<body>
+  <header>
+    <nav>
+      <div class="nav-container">
+        <h1><a href="Homepage.html" aria-label="Go to homepage" class="logo-text">CustomXShop</a></h1>
+        <ul>
+          <li><a href="Homepage.html" aria-label="Home" class="nav-link"><span class="material-icons nav-icon">home</span>Home</a></li>
+          <li><a href="Product.html" aria-label="View Products" class="nav-link"><span class="material-icons nav-icon">checkroom</span>Products</a></li>
+          <li><a href="Designs.html" aria-label="Your Designs" class="nav-link"><span class="material-icons nav-icon">palette</span>Your Designs</a></li>
+          <li><a href="Cart.html" aria-label="Go to Cart" class="nav-link"><span class="material-icons nav-icon">shopping_cart</span>Cart</a></li>
+          <li><a href="Services.html" aria-label="Explore Services" class="nav-link"><span class="material-icons nav-icon">design_services</span>Services</a></li>
+          <li><a href="Help.html" aria-label="Get Help" class="nav-link"><span class="material-icons nav-icon">help_outline</span>Help</a></li>
+          <li id="login-li"><a href="/HTML/index.html" aria-label="Login" class="nav-link login-btn"><span class="material-icons nav-icon">login</span>Login</a></li>
+          <li id="profile-li" class="profile-dropdown">
+            <a href="Profile.html" aria-label="Profile" class="nav-link profile-btn"><span class="material-icons nav-icon">person</span>Profile</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="main-container">
+      <!-- Left Sidebar -->
+      <div class="select_container">
+        <div class="options">
+          <div class="option" data-functionality="product-selection">
+            <img src="/images/Hoodie.png" alt="Hoodie Icon" width="40" loading="lazy">
+            <p>Choose Product</p>
+          </div>
+          <div class="option" data-functionality="design-selection">
+            <img src="/images/Choose_design.png" alt="Design Icon" width="40" loading="lazy">
+            <p>Designs</p>
+          </div>
+          <div class="option" data-functionality="add-text">
+            <img src="/images/Text.png" alt="Text Icon" width="40" loading="lazy">
+            <p>Add Text</p>
+          </div>
+          <div class="option" data-functionality="upload-design">
+            <img src="/images/upload.png" alt="Upload Icon" width="40" loading="lazy">
+            <p>Upload Design</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Customization Panel -->
+      <section class="customization_container">
+        <div class="customization-welcome">
+          <h2>Start Customizing Your Product</h2>
+          <div class="feature-list">
+            <div class="feature-item">
+              <i class="material-icons">palette</i>
+              <p>Express Your Style</p>
+            </div>
+            <div class="feature-item">
+              <i class="material-icons">auto_awesome</i>
+              <p>Create Something Unique</p>
+            </div>
+            <div class="feature-item">
+              <i class="material-icons">psychology</i>
+              <p>Unleash Your Creativity</p>
+            </div>
+          </div>
+          <p class="start-message">Begin your creative journey - your style, your way</p>
+        </div>
+        <!-- Product Selection - Add 'hidden' class -->
+        <div id="product-selection" class="customization_section hidden">
+            <label for="product-type">Select Product:</label>
+            <select id="product-type">
+                <option value="https://res.cloudinary.com/customxshop/image/upload/v1744041431/check_shirt.compressed_u3k3bc.glb">Shirt Long Sleeves</option>
+                <option value="/images/ActualHoodie.png">Hoodie</option>
+                <option value="/images/ActualTshirt.png">T-Shirt</option>
+                <option value="/images/ActualSweatshirt.png">Sweatshirt</option>
+            </select>
+        </div>
+
+        <!-- Design Selection -->
+        <div id="design-selection" class="customization_section hidden">
+          <div class="design-patterns-container">
+            <!-- Patterns Category -->
+            <div class="pattern-category">
+              <h3>Patterns</h3>
+              <div class="pattern-grid">
+                <div class="pattern-option" data-pattern="stripes">
+                  <div class="pattern-preview stripes"></div>
+                  <p>Diagonal Stripes</p>
+                </div>
+                <div class="pattern-option" data-pattern="horizontal-stripes">
+                  <div class="pattern-preview horizontal-stripes"></div>
+                  <p>Horizontal Stripes</p>
+                </div>
+                <div class="pattern-option" data-pattern="vertical-stripes">
+                  <div class="pattern-preview vertical-stripes"></div>
+                  <p>Vertical Stripes</p>
+                </div>
+                <div class="pattern-option" data-pattern="polka">
+                  <div class="pattern-preview polka"></div>
+                  <p>Polka Dots</p>
+                </div>
+                <div class="pattern-option" data-pattern="checks">
+                  <div class="pattern-preview checks"></div>
+                  <p>Checkered</p>
+                </div>
+                <div class="pattern-option" data-pattern="zigzag">
+                  <div class="pattern-preview zigzag"></div>
+                  <p>Zigzag</p>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Stickers Category -->
+            <div class="pattern-category">
+              <h3>Stickers</h3>
+              <div class="pattern-grid">
+                <div class="sticker-option" data-sticker="star">
+                  <img src="/images/stickers/star.svg" alt="Star Sticker">
+                  <p>Star</p>
+                </div>
+                <div class="sticker-option" data-sticker="heart">
+                  <img src="/images/stickers/heart.svg" alt="Heart Sticker">
+                  <p>Heart</p>
+                </div>
+                <div class="sticker-option" data-sticker="smiley">
+                  <img src="/images/stickers/smiley.svg" alt="Smiley Sticker">
+                  <p>Smiley</p>
+                </div>
+                <div class="sticker-option" data-sticker="circle">
+                  <img src="/images/stickers/circle.svg" alt="Circle Sticker">
+                  <p>Circle</p>
+                </div>
+                <div class="sticker-option" data-sticker="triangle">
+                  <img src="/images/stickers/triangle.svg" alt="Triangle Sticker">
+                  <p>Triangle</p>
+                </div>
+                <div class="sticker-option" data-sticker="lightning">
+                  <img src="/images/stickers/lightning.svg" alt="Lightning Sticker">
+                  <p>Lightning</p>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Pattern Controls -->
+            <div class="pattern-controls">
+              <label>Color:
+                <input type="color" id="pattern-color" value="#000000">
+              </label>
+              <label>Scale:
+                <div class="range-with-value">
+                  <input type="range" id="pattern-scale" min="0.5" max="3" step="0.1" value="1">
+                  <span id="pattern-scale-value">1x</span>
+                </div>
+              </label>
+              <div class="pattern-rotation-control">
+                <label>Rotation:
+                  <div class="range-with-value">
+                    <input type="range" id="pattern-rotation" min="0" max="360" value="0">
+                    <span id="pattern-rotation-value">0°</span>
+                  </div>
+                </label>
+              </div>
+              <div class="apply-controls">
+                <button id="apply-design">Apply Design</button>
+                <button id="reset-design">Reset</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Text Customization -->
+        <div id="add-text" class="customization_section hidden">
+          <div class="text-controls">
+            <div class="text-input-group">
+              <input type="text" id="custom-text" placeholder="Enter your text" aria-label="Text input">
+              <button id="add-text-button">Add Text</button>
+            </div>
+            
+            <div class="text-styling-container">
+              <div class="text-styling">
+                <div class="text-styling-row">
+                  <label class="text-styling-item">Font:
+                    <select id="font-select">
+                      <option value="Arial">Arial</option>
+                      <option value="Helvetica">Helvetica</option>
+                      <option value="Times New Roman">Times New Roman</option>
+                      <option value="Comic Sans MS">Comic Sans</option>
+                      <option value="Courier New">Courier New</option>
+                      <option value="Georgia">Georgia</option>
+                      <option value="Verdana">Verdana</option>
+                      <option value="Impact">Impact</option>
+                    </select>
+                  </label>
+                  
+                  <label class="text-styling-item">Color:
+                    <input type="color" id="text-color" value="#000000">
+                  </label>
+                </div>
+                
+                <label>Size:
+                  <div class="range-with-value">
+                    <input type="range" id="text-size" min="12" max="72" value="24">
+                    <span id="text-size-value">24px</span>
+                  </div>
+                </label>
+              </div>
+
+              <div class="text-advanced-options">
+                <div class="text-effects-container">
+                  <h4>Text Effects</h4>
+                  <div class="text-effects-group">
+                    <button type="button" class="text-effect-button" data-effect="bold">Bold</button>
+                    <button type="button" class="text-effect-button" data-effect="italic">Italic</button>
+                    <button type="button" class="text-effect-button" data-effect="underline">Underline</button>
+                    <button type="button" class="text-effect-button" data-effect="shadow">Shadow</button>
+                    <button type="button" class="text-effect-button" data-effect="outline">Outline</button>
+                  </div>
+                </div>
+                
+                <div class="text-controls-row">
+                  <div class="text-alignment-container">
+                    <div class="text-alignment-group">
+                      <button type="button" class="text-alignment-button" data-align="left">
+                        <i class="material-icons">format_align_left</i>
+                      </button>
+                      <button type="button" class="text-alignment-button" data-align="center">
+                        <i class="material-icons">format_align_center</i>
+                      </button>
+                      <button type="button" class="text-alignment-button" data-align="right">
+                        <i class="material-icons">format_align_right</i>
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div class="text-rotation-control">
+                    <label>Rotation:
+                      <div class="range-with-value">
+                        <input type="range" id="text-rotation" min="0" max="360" value="0">
+                        <span id="text-rotation-value">0°</span>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+                
+                <div class="text-layer-controls">
+                  <button type="button" class="text-layer-button" data-layer="up">
+                    <i class="material-icons">arrow_upward</i> Bring Forward
+                  </button>
+                  <button type="button" class="text-layer-button" data-layer="down">
+                    <i class="material-icons">arrow_downward</i> Send Back
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <div class="text-elements-list">
+              <h4>Text Elements</h4>
+              <div id="text-elements-container">
+                <!-- Text elements will be listed here dynamically -->
+              </div>
+              <div class="apply-text-controls">
+                <button id="apply-text-to-model" class="primary-button">Apply Text to 3D Model</button>
+                <select id="text-position">
+                  <option value="front">Front</option>
+                  <option value="back">Back</option>
+                  <option value="sleeves">Sleeves</option>
+                  <option value="all">All</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Upload Design -->
+        <div id="upload-design" class="customization_section hidden">
+          <label class="upload-label">
+            <input type="file" id="upload-design-input" accept="image/*">
+            <span>Choose File</span>
+          </label>
+          <div class="upload-preview" id="upload-preview"></div>
+        </div>
+
+      </section>
+
+      <!-- Design Preview Area -->
+      <section class="design_container">          
+        <div class="preview_container">
+            <div class="preview-welcome">
+                <h2>Welcome to CustomXShop Designer</h2>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <i class="material-icons">checkroom</i>
+                        <p>Choose from various products to customize</p>
+                    </div>
+                    <div class="feature-item">
+                        <i class="material-icons">palette</i>
+                        <p>Change colors of different parts</p>
+                    </div>
+                    <div class="feature-item">
+                        <i class="material-icons">image</i>
+                        <p>Add designs and patterns</p>
+                    </div>
+                    <div class="feature-item">
+                        <i class="material-icons">text_fields</i>
+                        <p>Add custom text with various fonts</p>
+                    </div>
+                    <div class="feature-item">
+                        <i class="material-icons">upload</i>
+                        <p>Upload your own designs</p>
+                    </div>
+                    <div class="feature-item">
+                        <i class="material-icons">save</i>
+                        <p>Save your customized designs</p>
+                    </div>
+                </div>
+                <p class="start-message">Select "Choose Product" to start customizing</p>
+            </div>
+            <!-- 3D Model Viewer -->
+            <model-viewer 
+              id="gltf-viewer" 
+              alt="3D model viewer"
+              camera-controls
+              shadow-intensity="1.5"
+              exposure="4.2"
+              tone-mapping="commerce"
+              camera-orbit="0deg 75deg 105%"
+              field-of-view="30deg"
+              style="width: 100%; height: 100%; position: absolute; top: 0; left: 0;"
+              loading="lazy"
+              shadow-softness="1"
+              reflection-intensity="0.8"
+              environment-image="neutral"
+            ></model-viewer>
+        </div>
+      </section>
+
+      <!-- Action Buttons Container -->
+      <section class="action_color_container hidden">
+        <!-- Action Buttons Container -->
+        <div class="action-buttons">
+          <button id="undo-button"><i class="material-icons">undo</i> Undo</button>
+          <button id="redo-button"><i class="material-icons">redo</i> Redo</button>
+          <button id="save-design-button"><i class="material-icons">save</i> Save Design</button>
+          <button id="add-to-cart-button"><i class="material-icons">shopping_cart</i> Add to Cart</button>
+          <button id="reset-button"><i class="material-icons">restart_alt</i> Reset</button>
+        </div>
+        
+        <!-- Color Customization Heading -->
+        <div class="color-customization-header">
+          <h3><i class="material-icons">palette</i> Color of Different Parts</h3>
+        </div>
+        
+        <!-- Product Parts Customization Controls -->
+        <div class="control-group">
+          <!-- Product parts controls will be dynamically added here -->
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <!-- Scripts -->
+  <!-- Import model-viewer -->
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <script type="module" src="/JAVASCRIPT/create/main.js"></script>
+  <script type="module" src="/JAVASCRIPT/create/productCustomization.js"></script>
+  <script type="module" src="/JAVASCRIPT/create/textCustomization.js"></script>
+  <script type="module" src="/JAVASCRIPT/create/designManager.js"></script>
+  <script type="module" src="/JAVASCRIPT/create/textureGenerator.js"></script>
+
+  <!-- Header scroll effect -->
+  <script>
+    // Add scroll event for header
+    document.addEventListener('DOMContentLoaded', () => {
+      window.addEventListener('scroll', () => {
+        const header = document.querySelector('header');
+        if (window.scrollY > 50) {
+          header.classList.add('scrolled');
+        } else {
+          header.classList.remove('scrolled');
+        }
+      });
+    });
+
+    // Logout function
+    function handleLogout() {
+      try {
+        localStorage.removeItem('token'); // Remove stored token
+        window.location.href = 'index.html'; // Redirect to login page
+      } catch (error) {
+        console.error('Logout error:', error);
+      }
+    }
+  </script>
+  <script src="/JAVASCRIPT/auth.js"></script>
+  <script src="/JAVASCRIPT/profile-navigation.js"></script>
+</body>
+</html>
